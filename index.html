@@ -276,12 +276,21 @@
             form.innerHTML =
               "Code d'intervention: <strong>" + selectedValue + "</strong><br>" +
               "<div>" + selectedOptionText + "</div>" +
+              "<div id='prompt3'></div>" +
               "<label for='date'>Date:</label><input type='date' id='date' name='date' value='{{ date('Y-m-d') }}'><br />" +
               "<label for='suivi'>Intervalle de suivi:</label><input type='text' id='suivi' name='suivi'><br />" +
               "<label for='pharmacien'>Pharmacien:</label><input type='text' id='pharmacien' name='pharmacien'><br />" +
               "<label for='note'>Note:</label><br /><textarea id='note' name='note' rows='3' cols='50'></textarea><br /><br />";
             codeContainer.innerHTML = "";
-            codeContainer.appendChild(form);
+            codeContainer.appendChild(form);var prompt3 = document.getElementById("prompt3");
+            switch (selectedValue) {
+                case "JI":
+                    prompt3.innerHTML = "DIN: <b>009011180</b>";
+                    break;
+                case "JJ":
+                    prompt3.innerHTML = "DIN: <b>009011190</b>";
+                    break;
+                }
           });
           var note = document.createElement("p");
           note.innerHTML =
