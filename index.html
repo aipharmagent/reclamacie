@@ -470,6 +470,19 @@
         container.innerHTML = "";
         }
       }    
+      var selectedValue = "";
+      var selectedOptionText = "";
+
+      function activityChanged(value) {
+        // ...
+        conditionSelect.addEventListener("change", function () {
+          copyFormButton.style.display = "block";
+          selectedValue = this.value;
+          selectedOptionText = this.options[this.selectedIndex].textContent;
+          // ...
+        });
+        // ...
+      }
       function copyForm() {
         var form = document.querySelector("form");
         if (form) {
@@ -478,7 +491,9 @@
           for (var pair of formData.entries()) {
             formValues.push(pair[0] + ": " + pair[1]);
           }
-          var formText = formValues.join("\n");
+          var formText = "Code d'intervention: " + selectedValue + "\n" +
+            selectedOptionText + "\n" +
+            formValues.join("\n");
           var textarea = document.createElement("textarea");
           textarea.value = formText;
           document.body.appendChild(textarea);
