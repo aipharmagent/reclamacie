@@ -7,7 +7,7 @@
     <style>
       body {
         text-align: center;
-        font-size: 20px;
+        font-size: 18px;
       }
       h4, span {
         display: inline;
@@ -250,9 +250,8 @@
           var message = document.createElement("p");
           message.innerHTML = 
           "<br><b>Points importants:</b><br>" + 
-          "Droit de prescrire un MVL annexe II, III ou hors annexe avec code justificatif<br>" +
-          "Aucune nécessité de contacter le médecin<br>" +
-          "Aucune limite";
+          "Droit de prescrire un MVL avec code justificatif<br>" +
+          "Aucune nécessité de contacter le médecin<br>";
           container.innerHTML = "";
           container.appendChild(message);
           var link = document.createElement("p");
@@ -283,34 +282,14 @@
               "<label for='note'>Note:</label><br /><textarea id='note' name='note' rows='3' cols='50'></textarea><br /><br />";
             codeContainer.innerHTML = "";
             codeContainer.appendChild(form);
-
-            var prompt3 = document.getElementById("prompt3");
-            switch (selectedValue) {
-              case "efficacite":
-                  prompt3.innerHTML = "Code d'intervention: JI";
-                  break;
-              case "innocuite":
-                  prompt3.innerHTML = "Code d'intervention: JI";
-                  break;
-              case "cesser":
-                  prompt3.innerHTML = "Code d'intervention: JJ";
-                  break;
-              case "palier":
-                  prompt3.innerHTML = "Code d'intervention: JI";
-                  break;
-              default:
-                  prompt3.innerHTML = "";
-                  break;
-              }
           });
           var note = document.createElement("p");
           note.innerHTML =
             "<br><b>Points importants:</b><br>" +     
-            "Possibilité de modifier toute ordonnance émise par tout professionnel habileté à prescrire au Canada<br>" +
-            "Doit absolument être dans le but d'assurer la sécurité du patient ou l'efficacité de la thérapie<br>" +
+            "Peut modifier toute Rx émise par tout prescripteur<br>" +
             "Communication obligatoire si changement de dose ou voie d'administration<br>" +
-            "Communication facultative si Rx cessé<br>" +
-            "Rx contrôlé - ajustement possible mais ne peut excéder la quantité totale prescrite en mg";
+            "Communication facultative si cesser Rx<br>" +
+            "Rx contrôlé - ajustement ne peut excéder la qté totale en mg";
           var container = document.getElementById("container");
           container.appendChild(conditionSelect);
           container.appendChild(note);
@@ -493,8 +472,9 @@
       function copyForm() {
         var form = document.querySelector("form");
         if (form) {
+          var selectedOptionText = document.querySelector("select").options[document.querySelector("select").selectedIndex].textContent;
           var formData = new FormData(form);
-          var formValues = [];
+          var formValues = [selectedOptionText];
           for (var pair of formData.entries()) {
             formValues.push(pair[0] + ": " + pair[1]);
           }
