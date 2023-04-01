@@ -472,7 +472,6 @@
       function copyForm() {
         var form = document.querySelector("form");
         if (form) {
-          var selectedOptionText = this.options[this.selectedIndex].textContent;
           var formData = new FormData(form);
           var formValues = [selectedOptionText];
           for (var pair of formData.entries()) {
