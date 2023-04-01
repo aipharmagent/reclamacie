@@ -376,18 +376,19 @@
           var conditionSelect = document.createElement("select");
           conditionSelect.innerHTML =
               "<option value=''>-- Demandes rémunérées --</option>" +
-              "<option value='calendier-sevrage'>Calendrier de sevrage</option>" +
-              "<option value='revision'>Révision de l'historique</option>" +
-              "<option value='conduite-a-tenir'>Conduite à tenir</option>" +
-              "<option value='evaluation'>Évaluation des options</option>" +
-              "<option value='suggestion'>Suggestion d'une alternative</option>" +
-              "<option value='analyse-pharmaco'>Analyse pharmacologique</option>";
+              "<option value='JN'>Calendrier de sevrage</option>" +
+              "<option value='JK'>Révision de l'historique</option>" +
+              "<option value='JL'>Conduite à tenir</option>" +
+              "<option value='JO'>Évaluation des options</option>" +
+              "<option value='JP'>Suggestion d'une alternative</option>" +
+              "<option value='JM'>Analyse pharmacologique</option>";
           var codeContainer = document.createElement("div");
           conditionSelect.addEventListener("change", function () {
               copyFormButton.style.display = "block";
               var selectedValue = this.value;
           var form = document.createElement("form");
           form.innerHTML =
+          "Code d'intervention: <strong>" + selectedValue + "</strong><br>" +
           "<br /><div id='prompt2'></div>" +
           "<label for='date'>Date:</label><input type='date' id='date' name='date' value='{{ date('Y-m-d') }}'><br />" +
           "<label for='suivi'>Intervalle de suivi:</label><input type='text' id='suivi' name='suivi'><br />" +
@@ -398,23 +399,23 @@
 
           var prompt2 = document.getElementById("prompt2");
           switch (selectedValue) {
-              case "calendier-sevrage":
-                  prompt2.innerHTML = "Plan de sevrage de traitement<br>Code d'intervention: JN";
+              case "JN":
+                  prompt2.innerHTML = "Plan de sevrage de traitement";
                   break;
-              case "revision":
-                  prompt2.innerHTML = "Révision de l'historique des traitements et recommendations<br>Code d'intervention: JK";
+              case "JK":
+                  prompt2.innerHTML = "Révision de l'historique des traitements et recommendations";
                   break;
-              case "conduite-a-tenir":
-                  prompt2.innerHTML = "Conduite à tenir par rapport aux effets indésirables ou anomalies de laboratoire<br>Code d'intervention: JL";
+              case "JL":
+                  prompt2.innerHTML = "Conduite à tenir par rapport aux effets indésirables ou anomalies de laboratoire";
                   break;
-              case "analyse-pharmaco":
-                  prompt2.innerHTML = "Analyse pharmacologique pour déterminer la présence ou absence d'un Rx en cause dans un problème de santé ou une anomalie de laboratoire<br>Code d'intervention: JM";
+              case "JM":
+                  prompt2.innerHTML = "Analyse pharmacologique pour déterminer la présence ou absence d'un Rx en cause dans un problème de santé ou une anomalie de laboratoire";
                   break;
-              case "evaluation":
-                  prompt2.innerHTML = "Évaluation des meilleures options pharmacologiques pour une condition particulière sans réponse au traitement pharmacologique de première intention<br>Code d'intervention: JO";
+              case "JO":
+                  prompt2.innerHTML = "Évaluation des meilleures options pharmacologiques pour une condition particulière sans réponse au traitement pharmacologique de première intention";
                   break;
-              case "suggestion":
-                  prompt2.innerHTML = "Suggestions d'un traitement alternatif ou d'un titrage de médicament lorsqu'il n'existe aucun algorithme de traitement ou nomogramme s'appliquant à ce patient<br>Code d'intervention: JP";
+              case "JP":
+                  prompt2.innerHTML = "Suggestions d'un traitement alternatif ou d'un titrage de médicament lorsqu'il n'existe aucun algorithme de traitement ou nomogramme s'appliquant à ce patient";
                   break;
               default:
                   prompt.innerHTML = "";
