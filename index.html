@@ -473,7 +473,7 @@
         var form = document.querySelector("form");
         if (form) {
           var formData = new FormData(form);
-          var formValues = [selectedOptionText];
+          var formValues = [];
           for (var pair of formData.entries()) {
             formValues.push(pair[0] + ": " + pair[1]);
           }
