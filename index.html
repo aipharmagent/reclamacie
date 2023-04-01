@@ -271,11 +271,9 @@
           conditionSelect.addEventListener("change", function () {
             copyFormButton.style.display = "block";
             var selectedValue = this.value;
-            var selectedOptionText = this.options[this.selectedIndex].textContent;
             var form = document.createElement("form");
             form.innerHTML =
               "Code d'intervention: <strong>" + selectedValue + "</strong><br>" +
-              "<div>" + selectedOptionText + "</div>" +
               "<div id='prompt3'></div>" +
               "<label for='date'>Date:</label><input type='date' id='date' name='date' value='{{ date('Y-m-d') }}'><br />" +
               "<label for='suivi'>Intervalle de suivi:</label><input type='text' id='suivi' name='suivi'><br />" +
