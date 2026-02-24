@@ -1,582 +1,660 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="UTF-8">
-    <title>Réclamacie</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-    <style>
-      body {
-        text-align: center;
-        font-size: 18px;
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Réclamacie</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-light: #3b82f6;
+      --gray-light: #f8fafc;
+      --gray: #e2e8f0;
+      --text: #1e293b;
+      --success: #10b981;
+      --warning: #f59e0b;
+    }
+
+    body {
+      background: linear-gradient(135deg, #f0f4f8 0%, #d9e2ec 100%);
+      color: var(--text);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      min-height: 100vh;
+      margin: 0;
+      padding: 1rem 0;
+    }
+
+    .container {
+      max-width: 900px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+      overflow: hidden;
+      margin-bottom: 1.5rem;
+      transition: transform 0.2s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+    }
+
+    .card-header {
+      background: var(--primary);
+      color: white;
+      padding: 1.5rem;
+      text-align: center;
+      font-weight: 600;
+      font-size: 1.5rem;
+      border-bottom: none;
+      cursor: pointer;
+    }
+
+    .card-header h1 {
+      margin: 0;
+      font-size: 2.2rem;
+      font-weight: 700;
+    }
+
+    .card-header:hover {
+      background: var(--primary-light);
+    }
+
+    .card-body {
+      padding: 2rem;
+    }
+
+    h3 {
+      color: var(--primary);
+      font-weight: 600;
+      margin: 1.5rem 0 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    h3 i {
+      font-size: 1.3rem;
+    }
+
+    select, input, textarea {
+      border-radius: 10px !important;
+      border: 1.5px solid var(--gray) !important;
+      padding: 0.75rem !important;
+      font-size: 1rem !important;
+      transition: all 0.2s ease;
+    }
+
+    select:focus, input:focus, textarea:focus {
+      border-color: var(--primary) !important;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important;
+      outline: none;
+    }
+
+    label {
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+
+    .form-control, .form-select {
+      margin-bottom: 1rem;
+    }
+
+    #copy-form-button {
+      background: var(--success);
+      color: white;
+      border: none;
+      padding: 0.75rem 2rem;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 1.1rem;
+      transition: all 0.2s;
+      display: none;
+      margin: 1.5rem auto;
+    }
+
+    #copy-form-button:hover {
+      background: #059669;
+      transform: translateY(-2px);
+    }
+
+    #copy-form-button:active {
+      transform: translateY(0);
+    }
+
+    .btn-refresh {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 10px;
+      font-weight: 600;
+      width: 100%;
+      max-width: 280px;
+      margin: 2rem auto 1rem;
+      display: block;
+    }
+
+    .btn-refresh:hover {
+      background: var(--primary-light);
+    }
+
+    .resources {
+      background: white;
+      border-radius: 16px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+      margin-bottom: 1.5rem;
+    }
+
+    .resources a {
+      display: block;
+      padding: 0.75rem 0;
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    .resources a:hover {
+      color: var(--primary-light);
+      text-decoration: underline;
+    }
+
+    .gabarits .btn-gabarit {
+      background: #e0e7ff;
+      color: var(--primary);
+      border: 1px solid #c7d2fe;
+      padding: 1rem 1.5rem;
+      border-radius: 12px;
+      font-weight: 500;
+      margin: 0.75rem;
+      display: inline-flex;
+      align-items: center;
+      text-decoration: none;
+      transition: all 0.2s;
+      min-width: 180px;
+      justify-content: center;
+    }
+
+    .gabarits .btn-gabarit i {
+      margin-right: 0.5rem;
+    }
+
+    .gabarits .btn-gabarit:hover {
+      background: #c7d2fe;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+    }
+
+    .note {
+      background: #fef3c7;
+      border-left: 5px solid var(--warning);
+      padding: 1rem;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      margin: 1rem 0;
+    }
+
+    .code-block {
+      background: #f1f5f9;
+      padding: 1rem;
+      border-radius: 10px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.95rem;
+      margin: 1rem 0;
+      border: 1px solid #e2e8f0;
+    }
+
+    .link-group {
+      margin-top: 1rem;
+    }
+
+    .link-group a {
+      display: inline-block;
+      margin: 0.5rem 0.5rem 0 0;
+      padding: 0.5rem 1rem;
+      background: #e0e7ff;
+      color: var(--primary);
+      border-radius: 8px;
+      font-size: 0.9rem;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .link-group a:hover {
+      background: #c7d2fe;
+    }
+
+    .disclaimer {
+      background: #fef3c7;
+      border: 1px solid #fcd34d;
+      color: #92400e;
+      padding: 1rem 1.5rem;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      text-align: center;
+      margin: 2rem auto 1rem;
+      max-width: 800px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    @media (max-width: 768px) {
+      .card-body {
+        padding: 1.5rem;
       }
-      h4, span {
-        display: inline;
+      h1 {
+        font-size: 1.8rem;
       }
-      #copy-form-button {
-        display: none;
-        margin: auto;
+      #copy-form-button, .btn-refresh {
+        width: 100%;
       }
-      select option {
-        text-align: center;
+      .gabarits .btn-gabarit {
+        width: 100%;
+        margin: 0.5rem 0;
       }
-      body {
-        background-color: #F3F3F3;
-        color: #000;
+      h3 {
+        font-size: 1.1rem;
       }
-    </style>
-  </head>
+    }
+  </style>
+</head>
+<body>
   <div class="container">
-    <div class="row justify-content-center">
-      <div class="col-md-8">
-  <body>
-    <h1>Réclamacie</h1><br>
-    <h3>Sélectionnez une activité:</h3>
-    <select onchange="activityChanged(this.value)">
-      <option value="">-- Activité professionnelle --</option>
-      <option value="prescription">Prescrire un Rx</option>
-      <option value="mvl">Prescrire un MVL</option>
-      <option value="modifier-rx">Modifier une Rx</option>
-      <option value="prise-en-charge">Prise en charge</option>
-      <option value="demande-de-consultation">Demande de consultation</option>
-      <option value="deprescription">Déprescription</option>
-      <option value="post-hospit">Post-hospitalisation</option>
-    </select>
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
-    <script>
-      function activityChanged(value) {
-        var container = document.getElementById("container");
+    <!-- Main Card -->
+    <div class="card">
+      <div class="card-header" onclick="location.reload()">
+        <h1><i class="fas fa-prescription-bottle-alt me-2"></i> Réclamacie</h1>
+      </div>
+      <div class="card-body">
+        <h3><i class="fas fa-tasks"></i> Sélectionnez une activité:</h3>
+        <select class="form-select form-select-lg" onchange="activityChanged(this.value)">
+          <option value="">-- Activité professionnelle --</option>
+          <option value="prescription">Prescrire un Rx</option>
+          <option value="mvl">Prescrire un MVL</option>
+          <option value="modifier-rx">Modifier une Rx</option>
+          <option value="prise-en-charge">Prise en charge</option>
+          <option value="demande-de-consultation">Demande de consultation</option>
+          <option value="deprescription">Déprescription</option>
+          <option value="post-hospit">Post-hospitalisation</option>
+        </select>
+
+        <div id="container" class="mt-4"></div>
+
+        <button id="copy-form-button" onclick="copyForm(event)" class="btn">
+          <i class="fas fa-copy me-2"></i> Copier le formulaire
+        </button>
+      </div>
+    </div>
+
+    <!-- GABARITS -->
+<div class="card gabarits">
+  <div class="card-body text-center">
+    <h3><i class="fas fa-file-alt"></i> Gabarits</h3>
+    <div class="d-flex flex-wrap justify-content-center">
+      <a href="dispill.html" class="btn-gabarit">
+        <i class="fas fa-pills"></i> Dispill
+      </a>
+      <a href="feuilledetemps.html" class="btn-gabarit">
+        <i class="fas fa-clock"></i> Feuille de temps (Labo)
+      </a>
+      <a href="feuilledetempsplancher.html" class="btn-gabarit">
+        <i class="fas fa-store"></i> Feuille de temps (Plancher)
+      </a>
+      <a href="narcount.html" class="btn-gabarit">
+        <i class="fas fa-boxes"></i> Inventaire pharmacie
+      </a>
+    </div>
+  </div>
+</div>
+    <!-- RESSOURCES IMPORTANTES -->
+    <div class="card resources">
+      <div class="card-body">
+        <h3><i class="fas fa-link"></i> Ressources importantes:</h3>
+        <div>
+          <a href="https://pharmd.ca/" target="_blank">PharmD.ca</a>
+          <a href="Entente-2022-2025.pdf" target="_blank">Entente AQPP MSSS 2022-2025</a>
+          <a href="infolettre_entente_2022_2025_ramq.pdf" target="_blank">Infolettre entente AQPP RAMQ 2022-2025</a>
+          <a href="manuel-pharmaciens_2025-08-26.pdf" target="_blank">Manuel Pharmacien Mars 2025</a>
+          <a href="Resume_PL31_OPQ.pdf" target="_blank">Résumé Projet de loi 31 OPQ</a>
+          <a href="Guide_exercice_OPQ.pdf" target="_blank">Guide d'exercice OPQ Fév 2022</a>
+          <a href="fr-sacs-tableau-resume-des-actes-professionnels-du-pharmacien-v1.pdf" target="_blank">Tableau résumé actes professionnels (FR-SACS)</a>
+          <a href="Loi-41-et-31-version-coloree-vAutomne-2023.pdf" target="_blank">Loi 41 et 31 (version colorée Automne 2023)</a>
+          <a href="https://abcpq.ca/algorithmes/" target="_blank">ABCPQ algorithmes d'aide à la décision</a>
+          <a href="https://appsq.org/outils-pl31/" target="_blank">APPSQ outils: projet de loi 31</a>
+          <a href="https://www.msss.gouv.qc.ca/professionnels/vaccination/protocole-d-immunisation-du-quebec-piq/" target="_blank">PIQ: Vaccination</a>
+          <a href="Formulaire-de-transfert.pdf" target="_blank">Formulaire de transfert de pharmacie</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOUTON ACTUALISER -->
+    <div class="text-center">
+      <button onclick="location.reload()" class="btn btn-refresh">
+        <i class="fas fa-sync-alt me-2"></i> Actualiser
+      </button>
+    </div>
+
+    <!-- DISCLAIMER -->
+    <div class="disclaimer">
+      <p><strong>Avertissement :</strong> L’utilisation de ce site ne remplace en aucun cas l’exercice du jugement professionnel du pharmacien. Les informations fournies sont à titre indicatif et doivent être validées selon les plus récentes lignes directrices et la situation clinique du patient.</p>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    function activityChanged(value) {
+      var container = document.getElementById("container");
+      container.innerHTML = "";
+
+      if (value === "prescription") {
+        var copyFormButton = document.getElementById("copy-form-button");
+        var conditionSelect = document.createElement("select");
+        conditionSelect.className = "form-select";
+        conditionSelect.innerHTML =
+            "<option value=''>-- Traitement --</option>" +
+            "<option value='009011080'>Herpès Zoster</option>" +
+            "<option value='009011090'>Influenza</option>" +
+            "<option value='009011520'>Coronavirus</option>" +
+            "<option value=''>-- Conditions mineures (2 ans) --</option>" +
+            "<option value='009011070'>Candidose orale</option>" +
+            "<option value='009696480'>Dysménorrhée primaire</option>" +
+            "<option value='009697450'>Hémorroïdes</option>" +
+            "<option value=''>-- Conditions mineures (5 ans) --</option>" +
+            "<option value='009698180'>Acné mineure sans nodule ni pustule</option>" +
+            "<option value='009695240'>Aphtes buccaux</option>" +
+            "<option value='009011060'>Candidose cutanée</option>" +
+            "<option value='009699070'>Conjonctivite allergique</option>" +
+            "<option value='009011130'>Dermatite atopique</option>" +
+            "<option value='009698690'>Érythème fessier</option>" +
+            "<option value='009696210'>Herpès labial</option>" +
+            "<option value='009695320'>Infection urinaire</option>" +
+            "<option value='009696800'>Rhinite allergique</option>" +
+            "<option value='009696990'>Vaginite à levure</option>" +
+            "<option value=''>-- Sans diagnostic --</option>" +
+            "<option value='009700770'>Cessation tabagique (nicotine)</option>" +
+            "<option value='009011260'>Cessation tabagique (buproprion)</option>" +
+            "<option value='009011270'>Cessation tabagique (varenicline)</option>" +
+            "<option value='009011150'>Gonorrhée et chlamydia</option>" +
+            "<option value='007777770'>Contraception orale d'urgence</option>" +
+            "<option value='009011220'>Contraception hormonale</option>" +
+            "<option value='009701900'>Vitamine périnatalité</option>" +
+            "<option value='009701230'>Pédiculose</option>" +
+            "<option value='009701310'>Prophylaxie mal aigu des montagnes</option>" +
+            "<option value='009700850'>Prophylaxie paludisme</option>" +
+            "<option value='009700340'>Prophylaxie diarrhée du voyageur</option>" +
+            "<option value='009011110'>Prophylaxie antivirale pour influenza</option>" +
+            "<option value='009011530'>Prophylaxie antivirale pour coronavirus</option>" +
+            "<option value='009702390'>Prophylaxie porteurs de valve</option>" +
+            "<option value='009011100'>Prophylaxie maladie de Lyme</option>" +
+            "<option value='009701820'>Prophylaxie cytoprotectrice</option>" +
+            "<option value='009011120'>Prophylaxie exposition VIH</option>" +
+            "<option value='009011160'>Prévention des nausées et vomissements</option>" +
+            "<option value='009011170'>Traitement des nausées et vomissements légers ou modérés</option>" +
+            "<option value='009699740'>Dermatite de contact allergique</option>" +
+            "<option value='009011140'>Dyspepsie et RGO</option>";
+        var codeContainer = document.createElement("div");
+        conditionSelect.addEventListener("change", function () {
+          copyFormButton.style.display = "block";
+          var selectedValue = this.value;
+          var code = document.createElement("div");
+          code.className = "code-block";
+          code.innerHTML =
+          "<strong>Code de facturation:</strong> <b>O</b><br>" +
+          "<strong>DIN:</strong> <strong>" + selectedValue + "</strong><br>";
+          var form = document.createElement("form");
+          form.innerHTML =
+            "<div id='prompt4'></div>" +
+            "<label for='date'>Date:</label><input type='date' id='date' name='date' class='form-control' value='" + new Date().toISOString().split('T')[0] + "'><br />" +
+            "<label for='suivi'>Intervalle de suivi:</label><input type='text' id='suivi' name='suivi' class='form-control'><br />" +
+            "<label for='pharmacien'>Pharmacien:</label><input type='text' id='pharmacien' name='pharmacien' class='form-control'><br />" +
+            "<label for='note'>Note:</label><br /><textarea id='note' name='note' rows='3' class='form-control'></textarea><br />";
+          codeContainer.innerHTML = "";
+          codeContainer.appendChild(code);
+          codeContainer.appendChild(form);
+          var prompt4 = document.getElementById("prompt4");
+          switch (selectedValue) {
+            case "009011080": prompt4.innerHTML = "Code d'intervention: <b>GY</b>"; break;
+            case "009011090": prompt4.innerHTML = "Code d'intervention: <b>GZ</b>"; break;
+            case "009011520": prompt4.innerHTML = "Coronavirus"; break;
+            case "009011070": prompt4.innerHTML = "Candidose orale secondaire à une cortico inhalée = 5 ans<br />Candidose orale pour tout autre raison = 2 ans"; break;
+            case "009696480": prompt4.innerHTML = "Dysménorrhée primaire"; break;
+            case "009697450": prompt4.innerHTML = "Hémorroïdes"; break;
+            case "009698180": prompt4.innerHTML = "Acné mineure sans nodule ni pustule"; break;
+            case "009695240": prompt4.innerHTML = "Aphtes buccaux"; break;
+            case "009011060": prompt4.innerHTML = "Candidose cutanée"; break;
+            case "009699070": prompt4.innerHTML = "Conjonctivite allergique"; break;
+            case "009011130": prompt4.innerHTML = "Puissance maximale = modérée"; break;
+            case "009698690": prompt4.innerHTML = "Érythème fessier"; break;
+            case "009696210": prompt4.innerHTML = "Herpès labial"; break;
+            case "009695320": prompt4.innerHTML = "Maximum 1 traitement les 6 derniers mois ou 2 traitements les 12 derniers mois)"; break;
+            case "009696800": prompt4.innerHTML = "Rhinite allergique"; break;
+            case "009696990": prompt4.innerHTML = "Vaginite à levure"; break;
+            case "009700770": prompt4.innerHTML = "Code d'intervention: <b>HE</b><br>Nicotine est acceptée pour 12 semaines consécutives<br>Droit à un traitement de cessation tabagique par année par type (nicotine/buproprion/varenicline)"; break;
+            case "009011260": prompt4.innerHTML = "Code d'intervention: <b>HE</b><br>Buproprion est acceptée pour 12 semaines consécutives<br>Droit à un traitement de cessation tabagique par année par type (nicotine/buproprion/varenicline)"; break;
+            case "009011270": prompt4.innerHTML = "Code d'intervention: <b>HE</b><br>Varenicline est acceptée pour 24 semaines consécutives<br>Droit à un traitement de cessation tabagique par année par type (nicotine/buproprion/varenicline)"; break;
+            case "009011150": prompt4.innerHTML = "Code d'intervention: <b>HP</b>"; break;
+            case "007777770": prompt4.innerHTML = "Contraception orale d'urgence"; break;
+            case "009011220": prompt4.innerHTML = "Code d'intervention: <b>HS</b><br>Prescription d'une durée maximale de 6 mois"; break;
+            case "009701900": prompt4.innerHTML = "Vitamine périnatalité"; break;
+            case "009701230": prompt4.innerHTML = "Pédiculose"; break;
+            case "009701310": prompt4.innerHTML = "Prophylaxie mal aigu des montagnes"; break;
+            case "009700850": prompt4.innerHTML = "Prophylaxie paludisme"; break;
+            case "009700340": prompt4.innerHTML = "Prophylaxie diarrhée du voyageur"; break;
+            case "009011110": prompt4.innerHTML = "Code d'intervention: <b>HI</b>"; break;
+            case "009011530": prompt4.innerHTML = "Prophylaxie antivirale pour coronavirus"; break;
+            case "009702390": prompt4.innerHTML = "Prophylaxie pour porteurs de valve"; break;
+            case "009011100": prompt4.innerHTML = "Code d'intervention: <b>HK</b>"; break;
+            case "009701820": prompt4.innerHTML = "Prophylaxie cytoprotectrice"; break;
+            case "009011120": prompt4.innerHTML = "Code d'intervention: <b>HM</b><br>Doit absolument diriger vers le médecin dans les 72 heures"; break;
+            case "009011160": prompt4.innerHTML = "Code d'intervention: <b>HR</b>"; break;
+            case "009011170": prompt4.innerHTML = "Code d'intervention: <b>HQ</b>"; break;
+            case "009699740": prompt4.innerHTML = "Code d'intervention: <b>HN</b>"; break;
+            case "009011140": prompt4.innerHTML = "Code d'intervention: <b>HO</b><br>Maximum 4 semaines consécutives ou 6 semaines cumulatives par année"; break;
+          }
+        });
+        var note = document.createElement("div");
+        note.className = "note";
+        note.innerHTML = "<strong>Points importants:</strong><br>Communication obligatoire au prescripteur initial pour les conditions mineures<br>Possibilité de prescrire un Rx d'une puissance égale ou inférieure à celui prescrit antérieurement";
+        container.appendChild(note);
+        var link = document.createElement("div");
+        link.className = "link-group";
+        link.innerHTML = "<a href='condition_mineur_resume.pdf' target='_blank'>Résumé des conditions mineurs</a><a href='condition_mineur.pdf' target='_blank'>Conditions mineurs détaillées</a>";
+        container.appendChild(link);
+        container.appendChild(conditionSelect);
+        container.appendChild(codeContainer);
+
+      } else if (value === "prise-en-charge") {
+        var conditionSelect = document.createElement("select");
+        conditionSelect.className = "form-select";
+        conditionSelect.innerHTML =
+            "<option value=''>-- Condition de santé --</option>" +
+            "<option value='KA'>Hypertension</option>" +
+            "<option value='KB'>Dyslipidémie</option>" +
+            "<option value='KC'>Hypothyroïdie</option>" +
+            "<option value='KD'>Diabète non traité avec de l'insuline</option>" +
+            "<option value='KE'>Traitement prophylactique de la migraine</option>" +
+            "<option value='KF'>Diabète traité avec de l'insuline</option>" +
+            "<option value='KH'>Douleur chronique</option>" +
+            "<option value='KI'>Asthme</option>" +
+            "<option value='KJ'>MPOC</option>" +
+            "<option value='aucun'>Anticoagulation</option>";
+        var codeContainer = document.createElement("div");
+        conditionSelect.addEventListener("change", function () {
+          document.getElementById("copy-form-button").style.display = "block";
+          var selectedValue = this.value;
+          var code = document.createElement("div");
+          code.className = "code-block";
+          code.innerHTML =
+          "<strong>Code de facturation:</strong> <b>N</b><br>" +
+          "<strong>Code de programme:</strong> <b>07</b><br>" +
+          "<strong>Code de service:</strong> <b>W2</b><br>" +
+          "<strong>Code d'intervention:</strong> <strong>" + selectedValue + "</strong><br>" +
+          "Rencontre initiale facturable 1 fois: type de service <b>A</b><br>" +
+          "Rencontre de suivi facturable 2 fois par année: type de service <b>B</b><br>" +
+          "Arrêt de prise en charge: type de service <b>Z</b>";
+          var form = document.createElement("form");
+          form.innerHTML =
+            "<div id='prompt'></div>" +
+            "<label for='date'>Date:</label><input type='date' id='date' name='date' class='form-control' value='" + new Date().toISOString().split('T')[0] + "'><br />" +
+            "<label for='cible-therapeutique'>Cible thérapeutique:</label><input type='text' id='cible-therapeutique' name='cible-therapeutique' class='form-control'><br />" +
+            "<label for='suivi'>Intervalle de suivi:</label><input type='text' id='suivi' name='suivi' class='form-control'><br />" +
+            "<label for='pharmacien'>Pharmacien:</label><input type='text' id='pharmacien' name='pharmacien' class='form-control'><br />" +
+            "<label for='note'>Note:</label><br /><textarea id='note' name='note' rows='3' class='form-control'></textarea><br />";
+          codeContainer.innerHTML = "";
+          codeContainer.appendChild(code);
+          codeContainer.appendChild(form);
+          var prompt = document.getElementById("prompt");
+          switch (selectedValue) {
+            case "KA": prompt.innerHTML = "DIN: <b>011110300</b> (initiale)<br>DIN: <b>011110020</b> (suivi 1e)<br>DIN: <b>011110030</b> (suivi 2e+)<br><br><a href='ajustements/HTA-boite-a-outil.pdf' target='_blank'><b>Lignes directrices: Hypertension</b></a><br><a href='notes/HTA-Notes-communautaires-scanner.pdf' target='_blank'><b>Note au dossier</b></a><br><a href='formulaires/HTA-Transfert-scanner.pdf' target='_blank'><b>Formulaire de transfert</b></a>"; break;
+            case "KB": prompt.innerHTML = "DIN: <b>011110320</b> (initiale)<br>DIN: <b>011110040</b> (suivi 1e)<br>DIN: <b>011110050</b> (suivi 2e+)<br><br><a href='ajustements/DLP-boite-a-outil.pdf' target='_blank'><b>Lignes directrices: Dyslipidémie</b></a><br><a href='notes/DLP-Notes-communautaires-scanner.pdf' target='_blank'><b>Note au dossier</b></a><br><a href='formulaires/DLP-Transfert-scanner.pdf' target='_blank'><b>Formulaire de transfert</b></a>"; break;
+            case "KC": prompt.innerHTML = "DIN: <b>011110340</b> (initiale)<br>DIN: <b>011110060</b> (suivi 1e)<br>DIN: <b>011110070</b> (suivi 2e+)<br><br><a href='ajustements/HypoT4-boite-a-outil.pdf' target='_blank'><b>Lignes directrices: Hypothyroïdie</b></a><br><a href='notes/HypoT4-Notes-communautaires-scanner.pdf' target='_blank'><b>Note au dossier</b></a><br><a href='formulaires/HypoT4-Transfert-scanner.pdf' target='_blank'><b>Formulaire de transfert</b></a>"; break;
+            case "KD": case "KF": prompt.innerHTML = "DIN: <b>011110360</b> (initiale)<br>DIN: <b>011110080</b> (suivi 1e)<br>DIN: <b>011110090</b> (suivi 2e+)<br><br><a href='ajustements/DM-boite-a-outil.pdf' target='_blank'><b>Lignes directrices: Diabète</b></a><br><a href='notes/DM-Notes-communautaires-scanner.pdf' target='_blank'><b>Note au dossier</b></a><br><a href='formulaires/DM-Transfert-scanner.pdf' target='_blank'><b>Formulaire de transfert</b></a>"; break;
+            case "KE": prompt.innerHTML = "DIN: <b>011110380</b> (initiale)<br>DIN: <b>011110100</b> (suivi 1e)<br>DIN: <b>011110110</b> (suivi 2e+)<br><br><a href='ajustements/Migraine-boite-a-outil.pdf' target='_blank'><b>Lignes directrices: Migraine</b></a><br><a href='notes/Migraine-Notes-communautaires-scanner.pdf' target='_blank'><b>Note au dossier</b></a><br><a href='formulaires/Migraine-Transfert-scanner.pdf' target='_blank'><b>Formulaire de transfert</b></a>"; break;
+            case "KI": prompt.innerHTML = "DIN: <b>011110440</b> (initiale)<br>DIN: <b>011110160</b> (suivi 1e)<br>DIN: <b>011110170</b> (suivi 2e+)<br><br><a href='ajustements/Asthme-boite-a-outil.pdf' target='_blank'><b>Lignes directrices: Asthme</b></a><br><a href='notes/Asthme-Notes-communautaires-scanner.pdf' target='_blank'><b>Note au dossier</b></a><br><a href='formulaires/Asthme-Transfert-scanner.pdf' target='_blank'><b>Formulaire de transfert</b></a>"; break;
+            case "KJ": prompt.innerHTML = "DIN: <b>011110460</b> (initiale)<br>DIN: <b>011110180</b> (suivi 1e)<br>DIN: <b>011110190</b> (suivi 2e+)<br><br><a href='ajustements/MPOC-boite-a-outil.pdf' target='_blank'><b>Lignes directrices: MPOC</b></a><br><a href='notes/MPOC-Notes-communautaires-scanner.pdf' target='_blank'><b>Note au dossier</b></a><br><a href='formulaires/MPOC-Transfert-scanner.pdf' target='_blank'><b>Formulaire de transfert</b></a>"; break;
+            case "aucun": prompt.innerHTML = "DIN: <b>011110270</b> (initiale)<br>DIN: <b>011110280</b> (forfait mensuel)<br><br><a href='ajustements/Anticoag-boite-a-outil.pdf' target='_blank'><b>Lignes directrices: Anticoagulation</b></a><br><a href='notes/Anticoag-Notes-communautaires-scanner.pdf' target='_blank'><b>Note au dossier</b></a><br><a href='formulaires/Anticoag-Transfert-scanner.pdf' target='_blank'><b>Formulaire de transfert</b></a>"; break;
+          }
+        });
+        container.appendChild(conditionSelect);
+        container.appendChild(codeContainer);
+
+      } else if (value === "mvl") {
+        var message = document.createElement("div");
+        message.className = "note";
+        message.innerHTML = "<strong>Points importants:</strong><br>Droit de prescrire un MVL avec code justificatif<br>Aucune nécessité de contacter le médecin<br>";
         container.innerHTML = "";
+        container.appendChild(message);
+        var link = document.createElement("div");
+        link.className = "link-group";
+        link.innerHTML = "<a href='mvl.pdf' target='_blank'>Ordonnance préimprimée de MVL</a>";
+        container.appendChild(link);
 
-        if (value === "prescription") {
-          var copyFormButton = document.getElementById("copy-form-button");
-            var conditionSelect = document.createElement("select");
-            conditionSelect.innerHTML =
-                "<option value=''>-- Traitement --</option>" +
-                "<option value='009011080'>Herpès Zoster</option>" +
-                "<option value='009011090'>Influenza</option>" +
-                "<option value='009011520'>Coronavirus</option>" +
-                "<option value=''>-- Conditions mineures (2 ans) --</option>" +
-                "<option value='009011070'>Candidose orale</option>" +
-                "<option value='009696480'>Dysménorrhée primaire</option>" +
-                "<option value='009697450'>Hémorroïdes</option>" +
-                "<option value=''>-- Conditions mineures (5 ans) --</option>" +
-                "<option value='009698180'>Acné mineure sans nodule ni pustule</option>" +
-                "<option value='009695240'>Aphtes buccaux</option>" +
-                "<option value='009011060'>Candidose cutanée</option>" +
-                "<option value='009699070'>Conjonctivite allergique</option>" +
-                "<option value='009011130'>Dermatite atopique</option>" +
-                "<option value='009698690'>Érythème fessier</option>" +
-                "<option value='009696210'>Herpès labial</option>" +
-                "<option value='009695320'>Infection urinaire</option>" +
-                "<option value='009696800'>Rhinite allergique</option>" +
-                "<option value='009696990'>Vaginite à levure</option>" +
-                "<option value=''>-- Sans diagnostic --</option>" +
-                "<option value='009700770'>Cessation tabagique (nicotine)</option>" +
-                "<option value='009011260'>Cessation tabagique (buproprion)</option>" +
-                "<option value='009011270'>Cessation tabagique (varenicline)</option>" +
-                "<option value='009011150'>Gonorrhée et chlamydia</option>" +
-                "<option value='007777770'>Contraception orale d'urgence</option>" +
-                "<option value='009011220'>Contraception hormonale</option>" +
-                "<option value='009701900'>Vitamine périnatalité</option>" +
-                "<option value='009701230'>Pédiculose</option>" +
-                "<option value='009701310'>Prophylaxie mal aigu des montagnes</option>" +
-                "<option value='009700850'>Prophylaxie paludisme</option>" +
-                "<option value='009700340'>Prophylaxie diarrhée du voyageur</option>" +
-                "<option value='009011110'>Prophylaxie antivirale pour influenza</option>" +
-                "<option value='009011530'>Prophylaxie antivirale pour coronavirus</option>" +
-                "<option value='009702390'>Prophylaxie porteurs de valve</option>" +
-                "<option value='009011100'>Prophylaxie maladie de Lyme</option>" +
-                "<option value='009701820'>Prophylaxie cytoprotectrice</option>" +
-                "<option value='009011120'>Prophylaxie exposition VIH</option>" +
-                "<option value='009011160'>Prévention des nausées et vomissements</option>" +
-                "<option value='009011170'>Traitement des nausées et vomissements légers ou modérés</option>" +
-                "<option value='009699740'>Dermatite de contact allergique</option>" +
-                "<option value='009011140'>Dyspepsie et RGO</option>";
-            var codeContainer = document.createElement("div");
-            conditionSelect.addEventListener("change", function () {
-              copyFormButton.style.display = "block";
-            var selectedValue = this.value;
-            var code = document.createElement("span");
-              code.innerHTML = 
-              "<br>Code de facturation: <b>O</b><br>" +
-              "DIN: <strong>" + selectedValue + "</strong><br>";
-              var form = document.createElement("form");
-              form.innerHTML =
-                "<div id='prompt4'></div>" +
-                "<label for='date'>Date:</label><input type='date' id='date' name='date' value='{{ date('Y-m-d') }}'><br />" +
-                "<label for='suivi'>Intervalle de suivi:</label><input type='text' id='suivi' name='suivi'><br />" +
-                "<label for='pharmacien'>Pharmacien:</label><input type='text' id='pharmacien' name='pharmacien'><br />" +
-                "<label for='note'>Note:</label><br /><textarea id='note' name='note' rows='3' cols='50'></textarea><br />";
-              codeContainer.innerHTML = "";
-            codeContainer.appendChild(code);
-            codeContainer.appendChild(form);
-            var prompt4 = document.getElementById("prompt4");
-            switch (selectedValue) {
-              case "009011080":
-                  prompt4.innerHTML = "Code d'intervention: <b>GY</b>";
-                  break;
-              case "009011090":
-                  prompt4.innerHTML = "Code d'intervention: <b>GZ</b>";
-                  break;
-              case "009011520":
-                  prompt4.innerHTML = "Coronavirus";
-                  break;
-              case "009011070":
-                  prompt4.innerHTML = 
-                  "Candidose orale secondaire à une cortico inhalée = 5 ans<br />" +
-                  "Candidose orale pour tout autre raison = 2 ans";
-                  break;
-              case "009696480":
-                  prompt4.innerHTML = "Dysménorrhée primaire";
-                  break;
-              case "009697450":
-                  prompt4.innerHTML = "Hémorroïdes";
-                  break;
-              case "009698180":
-                  prompt4.innerHTML = "Acné mineure sans nodule ni pustule";
-                  break;
-              case "009695240":
-                  prompt4.innerHTML = "Aphtes buccaux";
-                  break;
-              case "009011060":
-                  prompt4.innerHTML = "Candidose cutanée";
-                  break;
-              case "009699070":
-                  prompt4.innerHTML = "Conjonctivite allergique";
-                  break;
-              case "009011130":
-                  prompt4.innerHTML = "Puissance maximale = modérée";
-                  break;
-              case "009698690":
-                  prompt4.innerHTML = "Érythème fessier";
-                  break;
-              case "009696210":
-                  prompt4.innerHTML = "Herpès labial";
-                  break;
-              case "009695320":
-                  prompt4.innerHTML = "Maximum 1 traitement les 6 derniers mois ou 2 traitements les 12 derniers mois)";
-                  break;
-              case "009696800":
-                  prompt4.innerHTML = "Rhinite allergique";
-                  break;
-              case "009696990":
-                  prompt4.innerHTML = "Vaginite à levure";
-                  break;
-              case "009700770":
-                  prompt4.innerHTML = "Code d'intervention: <b>HE</b><br>Nicotine est acceptée pour 12 semaines consécutives<br>Droit à un traitement de cessation tabagique par année par type (nicotine/buproprion/varenicline)";
-                  break;
-              case "009011260":
-                  prompt4.innerHTML = "Code d'intervention: <b>HE</b><br>Buproprion est acceptée pour 12 semaines consécutives<br>Droit à un traitement de cessation tabagique par année par type (nicotine/buproprion/varenicline)";
-                  break;
-              case "009011270":
-                  prompt4.innerHTML = "Code d'intervention: <b>HE</b><br>Varenicline est acceptée pour 24 semaines consécutives<br>Droit à un traitement de cessation tabagique par année par type (nicotine/buproprion/varenicline)";
-                  break;               
-              case "009011150":
-                  prompt4.innerHTML = "Code d'intervention: <b>HP</b>";
-                  break;
-              case "007777770":
-                  prompt4.innerHTML = "Contraception orale d'urgence";
-                  break;
-              case "009011220":
-                  prompt4.innerHTML = "Code d'intervention: <b>HS</b><br>Prescription d'une durée maximale de 6 mois";
-                  break;
-              case "009701900":
-                  prompt4.innerHTML = "Vitamine périnatalité";
-                  break;
-              case "009701230":
-                  prompt4.innerHTML = "Pédiculose";
-                  break;
-              case "009701310":
-                  prompt4.innerHTML = "Prophylaxie mal aigu des montagnes";
-                  break;
-              case "009700850":
-                  prompt4.innerHTML = "Prophylaxie paludisme";
-                  break;
-              case "009700340":
-                  prompt4.innerHTML = "Prophylaxie diarrhée du voyageur";
-                  break;
-              case "009011110":
-                  prompt4.innerHTML = "Code d'intervention: <b>HI</b>";
-                  break;
-              case "009011530":
-                  prompt4.innerHTML = "Prophylaxie antivirale pour coronavirus";
-                  break;
-              case "009702390":
-                  prompt4.innerHTML = "Prophylaxie pour porteurs de valve";
-                  break;
-              case "009011100":
-                  prompt4.innerHTML = "Code d'intervention: <b>HK</b>";
-                  break;
-              case "009701820":
-                  prompt4.innerHTML = "Prophylaxie cytoprotectrice";
-                  break;
-              case "009011120":
-                  prompt4.innerHTML = "Code d'intervention: <b>HM</b><br>Doit absolument diriger vers le médecin dans les 72 heures";
-                  break;
-              case "009011160":
-                  prompt4.innerHTML = "Code d'intervention: <b>HR</b>";
-                  break;
-              case "009011170":
-                  prompt4.innerHTML = "Code d'intervention: <b>HQ</b>";
-                  break;
-              case "009699740":
-                  prompt4.innerHTML = "Code d'intervention: <b>HN</b>";
-                  break;
-              case "009011140":
-                  prompt4.innerHTML = "Code d'intervention: <b>HO</b><br>Maximum 4 semaines consécutives ou 6 semaines cumulatives par année";
-                  break;
-            }
-            });
-            var note = document.createElement("p");
-            note.innerHTML =
-              "<br><b>Points importants:</b>" +
-              "<br>Communication obligatoire au prescripteur initial pour les conditions mineures<br>" +
-              "Possibilité de prescrire un Rx d'une puissance égale ou inférieure à celui prescrit antérieurement";
-            container.appendChild(note);
-            var link = document.createElement("span");
-              link.innerHTML = "<a href='condition_mineur_resume.pdf' target='_blank'>Résumé des conditions mineurs</a>"; 
-            container.appendChild(link);
-            var link = document.createElement("p");
-              link.innerHTML = "<a href='condition_mineur.pdf' target='_blank'>Conditions mineurs détaillées</a>";
-            container.appendChild(link);
-              var container = document.getElementById("container");
-            container.appendChild(conditionSelect);
-            container.appendChild(codeContainer);
+      } else if (value === "modifier-rx") {
+        var conditionSelect = document.createElement("select");
+        conditionSelect.className = "form-select";
+        conditionSelect.innerHTML =
+          "<option value=''>-- Situation clinique --</option>" +
+          "<option value='JI'>Ajuster la dose pour efficacité</option>" +
+          "<option value='JI'>Diminuer la dose en raison d'effet indésirable</option>" +
+          "<option value='JJ'>Cesser un médicament non toléré</option>" +
+          "<option value='JI'>Ajustement en palier selon tolérance et efficacité</option>";
+        var codeContainer = document.createElement("div");
+        conditionSelect.addEventListener("change", function () {
+          document.getElementById("copy-form-button").style.display = "block";
+          var selectedValue = this.value;
+          var form = document.createElement("form");
+          form.innerHTML =
+            "<div id='prompt3'></div>" +
+            "Code d'intervention: <strong>" + selectedValue + "</strong><br>" +
+            "<label for='date'>Date:</label><input type='date' id='date' name='date' class='form-control' value='" + new Date().toISOString().split('T')[0] + "'><br />" +
+            "<label for='suivi'>Intervalle de suivi:</label><input type='text' id='suivi' name='suivi' class='form-control'><br />" +
+            "<label for='pharmacien'>Pharmacien:</label><input type='text' id='pharmacien' name='pharmacien' class='form-control'><br />" +
+            "<label for='note'>Note:</label><br /><textarea id='note' name='note' rows='3' class='form-control'></textarea><br />";
+          codeContainer.innerHTML = "";
+          codeContainer.appendChild(form);
+          var prompt3 = document.getElementById("prompt3");
+          switch (selectedValue) {
+            case "JI": prompt3.innerHTML = "DIN: <b>009011180</b>"; break;
+            case "JJ": prompt3.innerHTML = "DIN: <b>009011190</b>"; break;
+          }
+        });
+        var note = document.createElement("div");
+        note.className = "note";
+        note.innerHTML = "<strong>Points importants:</strong><br>Peut modifier toute Rx émise par tout prescripteur<br>Communication obligatoire si changement de dose ou voie d'administration<br>Communication facultative si cesser Rx<br>Rx contrôlé - ajustement ne peut excéder la qté totale en mg";
+        container.appendChild(conditionSelect);
+        container.appendChild(note);
+        container.appendChild(codeContainer);
 
-        } else if (value === "mvl") {
-          var copyFormButton = document.getElementById("copy-form-button");
-          var message = document.createElement("p");
-          message.innerHTML = 
-          "<br><b>Points importants:</b><br>" + 
-          "Droit de prescrire un MVL avec code justificatif<br>" +
-          "Aucune nécessité de contacter le médecin<br>";
-          container.innerHTML = "";
-          container.appendChild(message);
-          var link = document.createElement("p");
-          link.innerHTML = "<a href='mvl.pdf' target='_blank'>Ordonnance préimprimée de MVL</a>";
-          container.appendChild(link);
-
-        } else if (value === "modifier-rx") {
-          var copyFormButton = document.getElementById("copy-form-button");
-          var conditionSelect = document.createElement("select");
-          conditionSelect.innerHTML =
-            "<option value=''>-- Situation clinique --</option>" +
-            "<option value='JI'>Ajuster la dose pour efficacité</option>" +
-            "<option value='JI'>Diminuer la dose en raison d'effet indésirable</option>" +
-            "<option value='JJ'>Cesser un médicament non toléré</option>" +
-            "<option value='JI'>Ajustement en palier selon tolérance et efficacité</option>";
-          var codeContainer = document.createElement("div");
-          conditionSelect.addEventListener("change", function () {
-            copyFormButton.style.display = "block";
+      } else if (value === "demande-de-consultation") {
+        var conditionSelect = document.createElement("select");
+        conditionSelect.className = "form-select";
+        conditionSelect.innerHTML =
+            "<option value=''>-- Demandes rémunérées --</option>" +
+            "<option value='JN'>Calendrier de sevrage</option>" +
+            "<option value='JK'>Révision de l'historique</option>" +
+            "<option value='JL'>Conduite à tenir</option>" +
+            "<option value='JO'>Évaluation des options</option>" +
+            "<option value='JP'>Suggestion d'une alternative</option>" +
+            "<option value='JM'>Analyse pharmacologique</option>";
+        var codeContainer = document.createElement("div");
+        conditionSelect.addEventListener("change", function () {
+            document.getElementById("copy-form-button").style.display = "block";
             var selectedValue = this.value;
             var form = document.createElement("form");
             form.innerHTML =
-              "<div id='prompt3'></div>" +  
-              "Code d'intervention: <strong>" + selectedValue + "</strong><br>" +
-              "<label for='date'>Date:</label><input type='date' id='date' name='date' value='{{ date('Y-m-d') }}'><br />" +
-              "<label for='suivi'>Intervalle de suivi:</label><input type='text' id='suivi' name='suivi'><br />" +
-              "<label for='pharmacien'>Pharmacien:</label><input type='text' id='pharmacien' name='pharmacien'><br />" +
-              "<label for='note'>Note:</label><br /><textarea id='note' name='note' rows='3' cols='50'></textarea><br /><br />";
+            "Code d'intervention: <strong>" + selectedValue + "</strong><br>" +
+            "<div id='prompt2'></div>" +
+            "<label for='date'>Date:</label><input type='date' id='date' name='date' class='form-control' value='" + new Date().toISOString().split('T')[0] + "'><br />" +
+            "<label for='suivi'>Intervalle de suivi:</label><input type='text' id='suivi' name='suivi' class='form-control'><br />" +
+            "<label for='pharmacien'>Pharmacien:</label><input type='text' id='pharmacien' name='pharmacien' class='form-control'><br />" +
+            "<label for='note'>Note:</label><br /><textarea id='note' name='note' rows='3' class='form-control'></textarea><br />";
             codeContainer.innerHTML = "";
-            codeContainer.appendChild(form);var prompt3 = document.getElementById("prompt3");
-            switch (selectedValue) {
-                case "JI":
-                    prompt3.innerHTML = "DIN: <b>009011180</b>";
-                    break;
-                case "JJ":
-                    prompt3.innerHTML = "DIN: <b>009011190</b>";
-                    break;
-                }
-          });
-          var note = document.createElement("p");
-          note.innerHTML =
-            "<br><b>Points importants:</b><br>" +     
-            "Peut modifier toute Rx émise par tout prescripteur<br>" +
-            "Communication obligatoire si changement de dose ou voie d'administration<br>" +
-            "Communication facultative si cesser Rx<br>" +
-            "Rx contrôlé - ajustement ne peut excéder la qté totale en mg";
-          var container = document.getElementById("container");
-          container.appendChild(conditionSelect);
-          container.appendChild(note);
-          container.appendChild(codeContainer);
-          
-        } else if (value === "prise-en-charge") {
-            var copyFormButton = document.getElementById("copy-form-button");
-            var conditionSelect = document.createElement("select");
-            conditionSelect.innerHTML =
-                "<option value=''>-- Condition de santé --</option>" +
-                "<option value='KA'>Hypertension</option>" +
-                "<option value='KB'>Dyslipidémie</option>" +
-                "<option value='KC'>Hypothyroïdie</option>" +
-                "<option value='KD'>Diabète non traité avec de l'insuline</option>" +
-                "<option value='KE'>Traitement prophylactique de la migraine</option>" +
-                "<option value='KF'>Diabète traité avec de l'insuline</option>" +
-                "<option value='KH'>Douleur chronique</option>" +
-                "<option value='KI'>Asthme</option>" +
-                "<option value='KJ'>MPOC</option>" +
-                "<option value='aucun'>Anticoagulation</option>";
-            var codeContainer = document.createElement("div");
-            conditionSelect.addEventListener("change", function () {
-              copyFormButton.style.display = "block";
-            var selectedValue = this.value;
-            var code = document.createElement("span");
-              code.innerHTML = 
-              "<br>Code de facturation: <b>N</b><br>" +
-              "Code de programme: <b>07</b><br>" +
-              "Code de service: <b>W2</b><br>" +
-              "Code d'intervention: <strong>" + selectedValue + "</strong><br>" +
-              "Rencontre initiale facturable 1 fois: type de service <b>A</b><br>" +
-              "Rencontre de suivi facturable 2 fois par année: type de service <b>B</b><br>" +
-              "Arrêt de prise en charge: type de service <b>Z</b>";
-              var form = document.createElement("form");
-              form.innerHTML =
-                "<div id='prompt'></div>" +
-                "<br><label for='date'>Date:</label><input type='date' id='date' name='date' value='{{ date('Y-m-d') }}'><br />" +
-                "<label for='cible-therapeutique'>Cible thérapeutique:</label><input type='text' id='cible-therapeutique' name='cible-therapeutique'><br />" +
-                "<label for='suivi'>Intervalle de suivi:</label><input type='text' id='suivi' name='suivi'><br />" +
-                "<label for='pharmacien'>Pharmacien:</label><input type='text' id='pharmacien' name='pharmacien'><br />" +
-                "<label for='note'>Note:</label><br /><textarea id='note' name='note' rows='3' cols='50'></textarea><br />";
-              codeContainer.innerHTML = "";
-            codeContainer.appendChild(code);
             codeContainer.appendChild(form);
-            var prompt = document.getElementById("prompt");
+            var prompt2 = document.getElementById("prompt2");
             switch (selectedValue) {
-                case "KA":
-                // HYPERTENSION
-                    prompt.innerHTML = 
-                      "DIN: <b>011110300</b> (rencontre initiale)<br>" + 
-                      "DIN: <b>011110020</b> (rencontre de suivi 1e champ)<br>" + 
-                      "DIN: <b>011110030</b> (2e champ ou +)<br>" +
-                      "<br><a href='https://drive.google.com/file/d/15ZHC4h3BE_77AKnKZv5HqGkUJoLuLCV2/view' target='_blank'><b>Lignes directrices: Hypertension</b></a><br>" +
-                      "<a href='https://drive.google.com/file/d/15NJt0byGBG3z_OL2P8RxCQ7QvBY33NMW/view' target='_blank'><b>Note au dossier</b></a><br>" +
-                      "<a href='https://drive.google.com/file/d/15Vjr_YWZqMaBBDrBuTsN5i-IUqHjYoex/view' target='_blank'><b>Formulaire de transfert</b></a><br>";
-                    break;
-                case "KB":
-                //DYSLIPIDÉMIE
-                    prompt.innerHTML = 
-                      "DIN: <b>011110320</b> (rencontre initiale)<br>" + 
-                      "DIN: <b>011110040</b> (rencontre de suivi 1e champ)<br>" + 
-                      "DIN: <b>011110050</b> (2e champ ou +)<br>" +
-                      "<br><a href='https://drive.google.com/file/d/156Rh6GoVfYErm7t_yRSEXG4Rjdr2IERR/view' target='_blank'><b>Lignes directrices: Dyslipidémie</b></a><br>" +
-                      "<a href='https://drive.google.com/file/d/15CI-vuzsUHmq4-gi6XupUoGf37T-DFRE/view' target='_blank'><b>Note au dossier</b></a><br>" +
-                      "<a href='https://drive.google.com/file/d/155U_8jLPLV6LowCp99FWmz94OVU0QL_d/view' target='_blank'><b>Formulaire de transfert</b></a><br>";
-                    break;
-                case "KC":
-                //HYPOTHYROIDIE
-                    prompt.innerHTML = 
-                      "DIN: <b>011110340</b> (rencontre initiale)<br>" + 
-                      "DIN: <b>011110060</b> (rencontre de suivi 1e champ)<br>" + 
-                      "DIN: <b>011110070</b> (2e champ ou +)<br>" +
-                      "<br><a href='https://drive.google.com/file/d/153rsMf-Sf2_OXPlcNBU9gCGDeEqzAptZ/view' target='_blank'><b>Lignes directrices: Hypothyroidie</b></a><br>" +
-                      "<a href='https://drive.google.com/file/d/15-6GPAOu4gl_I5TNpiyJSlfmVmpt4292/view' target='_blank'><b>Note au dossier</b></a><br>" +
-                      "<a href='https://drive.google.com/file/d/14zUIxtfSRN9A6eYjoTS_VWgM4JGjxI_t/view' target='_blank'><b>Formulaire de transfert</b></a><br>";
-                    break;
-                case "KD":
-                //DIABETE NON INSULINE
-                    prompt.innerHTML = 
-                      "DIN: <b>011110360</b> (rencontre initiale)<br>" + 
-                      "DIN: <b>011110080</b> (rencontre de suivi 1e champ)<br>" + 
-                      "DIN: <b>011110090</b> (2e champ ou +)<br>" +
-                      "<br><a href='https://drive.google.com/file/d/15eTspTifbL82-5v_7kFrycdcRwmNNxbH/view' target='_blank'><b>Lignes directrices: Diabète</b></a><br>" +
-                      "<a href='https://drive.google.com/file/d/15g5GRdmeZeFPWmd5sLHQGiiYZtGO2qTA/view' target='_blank'><b>Note au dossier</b></a><br>" +
-                      "<a href='https://drive.google.com/file/d/15oKzTIUVsW3VMgUtYLL7wq7tn7OfGXKg/view' target='_blank'><b>Formulaire de transfert</b></a><br>";
-                    break;
-                case "KE":
-                //MIGRAINE
-                    prompt.innerHTML = 
-                      "DIN: <b>011110380</b> (rencontre initiale)<br>" + 
-                      "DIN: <b>011110100</b> (rencontre de suivi 1e champ)<br>" + 
-                      "DIN: <b>011110110</b> (2e champ ou +)<br>" +
-                      "<br><a href='https://drive.google.com/file/d/15Do6R-9PEHFyBszoFoOiKBtjC2ynQBqW/view' target='_blank'><b>Lignes directrices: Migraine</b></a><br>" +
-                      "<a href='https://drive.google.com/file/d/15EDiZ8bcicSbnue1Nn3abFRmtGrA1hm1/view' target='_blank'><b>Note au dossier</b></a><br>" +
-                      "<a href='https://drive.google.com/file/d/15FZffjeau5T9-xDsYdDm4kpjOAA8xeJD/view' target='_blank'><b>Formulaire de transfert</b></a><br>";
-                    break;
-                case "KF":
-                //DIABETE INSULINE
-                    prompt.innerHTML = 
-                      "DIN: <b>011110400</b> (rencontre initiale)<br>" + 
-                      "DIN: <b>011110120</b> (rencontre de suivi 1e champ)<br>" + 
-                      "DIN: <b>011110130</b> (2e champ ou +)<br>" +
-                      "<br><a href='https://drive.google.com/file/d/15eTspTifbL82-5v_7kFrycdcRwmNNxbH/view' target='_blank'><b>Lignes directrices: Diabète</b></a><br>" +
-                      "<a href='https://drive.google.com/file/d/15g5GRdmeZeFPWmd5sLHQGiiYZtGO2qTA/view' target='_blank'><b>Note au dossier</b></a><br>" +
-                      "<a href='https://drive.google.com/file/d/15oKzTIUVsW3VMgUtYLL7wq7tn7OfGXKg/view' target='_blank'><b>Formulaire de transfert</b></a><br>";
-                    break;
-                case "KH":
-                //DOULEUR CHRONIQUE
-                    prompt.innerHTML = 
-                      "DIN: <b>011110420</b> (rencontre initiale)<br>" + 
-                      "DIN: <b>011110140</b> (rencontre de suivi 1e champ)<br>" + 
-                      "DIN: <b>011110150</b> (2e champ ou +)";
-                    break;
-                case "KI":
-                //ASTHME
-                    prompt.innerHTML = 
-                      "DIN: <b>011110440</b> (rencontre initiale)<br>" + 
-                      "DIN: <b>011110160</b> (rencontre de suivi 1e champ)<br>" + 
-                      "DIN: <b>011110170</b> (2e champ ou +)";
-                    break;
-                case "KK":
-                //MPOC
-                    prompt.innerHTML = 
-                      "DIN: <b>011110460</b> (rencontre initiale)<br>" + 
-                      "DIN: <b>011110180</b> (rencontre de suivi 1e champ)<br>" + 
-                      "DIN: <b>011110190</b> (2e champ ou +)";
-                    break;
-                case "aucun":
-                //ANTICOAGULATION
-                    prompt.innerHTML = 
-                      "DIN: <b>011110270</b> (rencontre initiale)<br>" + 
-                      "DIN: <b>011110280</b> (forfait mensuel)<br>" +
-                      "<br><a href='https://drive.google.com/file/d/15qzTTSbszTbnRF7ZrbjL96w1HJjUONMT/view' target='_blank'><b>Lignes directrices: Anticoagulation</b></a><br>" +
-                      "<a href='https://drive.google.com/file/d/16-HWfMUvOXGtMrK3HjGcnsCpyIaBxMHi/view' target='_blank'><b>Note au dossier</b></a><br>" +
-                      "<a href='https://drive.google.com/file/d/163iLvTY714fO66K1h6JPb7KWqu3i13vJ/view' target='_blank'><b>Formulaire de transfert</b></a><br>";
-                    break;
-                }
-            });
-            var container = document.getElementById("container");
-            container.appendChild(conditionSelect);
-            container.appendChild(codeContainer);
+              case "JN": prompt2.innerHTML = "Plan de sevrage de traitement"; break;
+              case "JK": prompt2.innerHTML = "Révision de l'historique des traitements et recommendations"; break;
+              case "JL": prompt2.innerHTML = "Conduite à tenir par rapport aux effets indésirables ou anomalies de laboratoire"; break;
+              case "JM": prompt2.innerHTML = "Analyse pharmacologique pour déterminer la présence ou absence d'un Rx en cause dans un problème de santé ou une anomalie de laboratoire"; break;
+              case "JO": prompt2.innerHTML = "Évaluation des meilleures options pharmacologiques pour une condition particulière sans réponse au traitement pharmacologique de première intention"; break;
+              case "JP": prompt2.innerHTML = "Suggestions d'un traitement alternatif ou d'un titrage de médicament lorsqu'il n'existe aucun algorithme de traitement ou nomogramme s'appliquant à ce patient"; break;
+            }
+        });
+        var note = document.createElement("div");
+        note.className = "note";
+        note.innerHTML = "Doit répondre à la demande par écrit pour être rémunéré<br>DIN: <b>009011050</b><br>Code de facturation: <b>N</b><br>Code de programme: <b>07</b><br>Code de service: <b>DC</b>";
+        container.appendChild(note);
+        container.appendChild(conditionSelect);
+        container.appendChild(codeContainer);
 
-        } else if (value === "demande-de-consultation") {
-          var copyFormButton = document.getElementById("copy-form-button");
-          var conditionSelect = document.createElement("select");
-          conditionSelect.innerHTML =
-              "<option value=''>-- Demandes rémunérées --</option>" +
-              "<option value='JN'>Calendrier de sevrage</option>" +
-              "<option value='JK'>Révision de l'historique</option>" +
-              "<option value='JL'>Conduite à tenir</option>" +
-              "<option value='JO'>Évaluation des options</option>" +
-              "<option value='JP'>Suggestion d'une alternative</option>" +
-              "<option value='JM'>Analyse pharmacologique</option>";
-          var codeContainer = document.createElement("div");
-          conditionSelect.addEventListener("change", function () {
-              copyFormButton.style.display = "block";
-              var selectedValue = this.value;
-          var form = document.createElement("form");
-          form.innerHTML =
-          "Code d'intervention: <strong>" + selectedValue + "</strong><br>" +
-          "<br /><div id='prompt2'></div>" +
-          "<label for='date'>Date:</label><input type='date' id='date' name='date' value='{{ date('Y-m-d') }}'><br />" +
-          "<label for='suivi'>Intervalle de suivi:</label><input type='text' id='suivi' name='suivi'><br />" +
-          "<label for='pharmacien'>Pharmacien:</label><input type='text' id='pharmacien' name='pharmacien'><br />" +
-          "<label for='note'>Note:</label><br /><textarea id='note' name='note' rows='3' cols='50'></textarea><br /><br />";
-          codeContainer.innerHTML = "";
-          codeContainer.appendChild(form);
-
-          var prompt2 = document.getElementById("prompt2");
-          switch (selectedValue) {
-              case "JN":
-                  prompt2.innerHTML = "Plan de sevrage de traitement";
-                  break;
-              case "JK":
-                  prompt2.innerHTML = "Révision de l'historique des traitements et recommendations";
-                  break;
-              case "JL":
-                  prompt2.innerHTML = "Conduite à tenir par rapport aux effets indésirables ou anomalies de laboratoire";
-                  break;
-              case "JM":
-                  prompt2.innerHTML = "Analyse pharmacologique pour déterminer la présence ou absence d'un Rx en cause dans un problème de santé ou une anomalie de laboratoire";
-                  break;
-              case "JO":
-                  prompt2.innerHTML = "Évaluation des meilleures options pharmacologiques pour une condition particulière sans réponse au traitement pharmacologique de première intention";
-                  break;
-              case "JP":
-                  prompt2.innerHTML = "Suggestions d'un traitement alternatif ou d'un titrage de médicament lorsqu'il n'existe aucun algorithme de traitement ou nomogramme s'appliquant à ce patient";
-                  break;
-              default:
-                  prompt.innerHTML = "";
-                  break;
-              }
-          });
-          var note = document.createElement("p");
-          note.innerHTML = 
-            "<br>Doit répondre à la demande par écrit pour être rémunéré<br>" +
-            "DIN: <b>009011050</b><br>" +
-            "Code de facturation: <b>N</b><br>" +
-            "Code de programme: <b>07</b><br>" +
-            "Code de service: <b>DC</b><br>";
-          container.appendChild(note);
-          var container = document.getElementById("container");
-          container.appendChild(conditionSelect);
-          container.appendChild(codeContainer);
-
-        } else if (value === "deprescription") {
-          var message = document.createElement("p");
-          message.innerHTML = 
-            "<br>Code de facturation: <b>N</b><br>" +
-            "Code de programme: <b>07</b><br>" +
-            "Code de service: <b>W1</b><br>" +
-            "Rencontre initiale facturable 1 fois: type de service <b>A</b><br>" +
-            "  DIN rencontre initiale (premier DIN): <b>01111020</b><br>" +
-            "  DIN rencontre initiale (autre): <b>011110220</b><br>" +
-            "Rencontre de suivi facturable 2 fois par période de 6 mois: type de service <b>B</b><br>" +
-            "  DIN rencontre suivi (premier DIN): <b>01111021</b><br>" +
-            "  DIN rencontre suivi (autre): <b>01111023</b><br>" +
-            "Possibilité d'une rencontre initiale et de suivi dans la même journée pour une même dénomination commune<br>" +
-            "Arrêt de prise en charge: type de service <b>Z</b><br><br>" +
-            "La déprescription vise un objectif de santé :<br>" + 
-            "  - réduction des chutes<br>  - sevrage Rx car surconsommation<br>  - risques remportant sur les bénéfices d'un traitement<br>" +
-            "La personne doit avoir besoin d'un soutien pour réussir la déprescription<br>" +
-            "Le service n'est pas facturable lorsqu'un calendrier de sevrage du médicament est établi par le prescripteur";
-          container.innerHTML = "";
-          container.appendChild(message);
-
-        } else if (value === "post-hospit") {
-          var message = document.createElement("p");
-          message.innerHTML = 
-          "<br>DIN: <b>009010920</b><br>" +
-            "<br>Code de facturation: <b>N</b><br>" +
-            "Code de service: <b>PH</b><br>" +
-            "<b>AC</b>: pour un ajustement<br>" +
-            "<b>AD</b>: pour un ajout<br>" +
-            "<b>AE</b>: pour une cessation<br>" +
-            "Exclusions: Calcium, vitamine D, vitamine B12 po, acétaminophène, anovulants, IPP, laxatifs, ASA<br>" +
-            "Durée d'hospitalisation au moins 24 heures<br>";
-          container.innerHTML = "";
-          container.appendChild(message);
-          var link = document.createElement("p");
-          link.innerHTML = "<a href='post_hospitalisation.pdf' target='_blank'>Formulaire post-hospitalisation</a>";
-          container.appendChild(link);
-        } else {
-        var container = document.getElementById("container");
+      } else if (value === "deprescription") {
+        var message = document.createElement("div");
+        message.className = "note";
+        message.innerHTML = "<strong>Code de facturation:</strong> <b>N</b><br><strong>Code de programme:</strong> <b>07</b><br><strong>Code de service:</strong> <b>W1</b><br>Rencontre initiale facturable 1 fois: type de service <b>A</b><br>  DIN rencontre initiale (premier DIN): <b>01111020</b><br>  DIN rencontre initiale (autre): <b>011110220</b><br>Rencontre de suivi facturable 2 fois par période de 6 mois: type de service <b>B</b><br>  DIN rencontre suivi (premier DIN): <b>01111021</b><br>   DIN rencontre suivi (autre): <b>01111023</b><br>Possibilité d'une rencontre initiale et de suivi dans la même journée pour une même dénomination commune<br>Arrêt de prise en charge: type de service <b>Z</b><br><br><strong>La déprescription vise un objectif de santé :</strong><br>  - réduction des chutes<br>  - sevrage Rx car surconsommation<br>  - risques remportant sur les bénéfices d'un traitement<br>La personne doit avoir besoin d'un soutien pour réussir la déprescription<br>Le service n'est pas facturable lorsqu'un calendrier de sevrage du médicament est établi par le prescripteur";
         container.innerHTML = "";
-        }
-      }    
-      function copyForm() {
-        var form = document.querySelector("form");
-        if (form) {
-          var formData = new FormData(form);
-          var formValues = [];
-          for (var pair of formData.entries()) {
-            formValues.push(pair[0] + ": " + pair[1]);
-          }
-          var formText = formValues.join("\n");
-          var textarea = document.createElement("textarea");
-          textarea.value = formText;
-          document.body.appendChild(textarea);
-          textarea.select();
-          document.execCommand("copy");
-          document.body.removeChild(textarea);
-        }
-      }
+        container.appendChild(message);
 
-</script>
-	<div id="container"></div>
-    <br><button id="copy-form-button" onclick='copyForm(event)'>Copier</button><br><br><br>
-    <h3>Ressources importantes:</h3>
-    <a href='https://pharmd.ca/'>PharmD.ca</a><br>
-    <a href='Entente-2022-2025.pdf' target='_blank'>Entente AQPP MSSS 2022-2025</a><br>
-    <a href='infolettre_entente_2022_2025_ramq.pdf' target='_blank'>Entente AQPP MSSS 2022-2025 RAMQ</a><br>
-    <a href='Resume_PL31_OPQ.pdf' target='_blank'>Résumé Projet de loi 31 OPQ</a><br>
-    <a href='Guide_exercice_OPQ.pdf' target='_blank'>Guide d'exercice OPQ Fév 2022</a><br>
-    <a href='https://abcpq.ca/algorithmes/' target='_blank'>ABCPQ algorithmes d'aide à la décision</a><br>
-    <a href='https://appsq.org/outils-pl31/' target='_blank'>APPSQ outils: projet de loi 31</a><br>
-    <a href='https://www.msss.gouv.qc.ca/professionnels/vaccination/protocole-d-immunisation-du-quebec-piq/' target='_blank'>PIQ: Vaccination</a><br><br><br>
-    <button onclick="location.reload()">Refresh</button>
-  </div>
-</div>
-</div>
-  </body>
+      } else if (value === "post-hospit") {
+        var message = document.createElement("div");
+        message.className = "note";
+        message.innerHTML = "<strong>DIN:</strong> <b>009010920</b><br><br><strong>Code de facturation:</strong> <b>N</b><br><strong>Code de service:</strong> <b>PH</b><br><b>AC</b>: ajustement<br><b>AD</b>: ajout<br><b>AE</b>: cessation<br>Exclusions: Calcium, vitamine D, vitamine B12 po, acétaminophène, anovulants, IPP, laxatifs, ASA<br>Durée d'hospitalisation au moins 24 heures";
+        container.innerHTML = "";
+        container.appendChild(message);
+        var link = document.createElement("div");
+        link.className = "link-group";
+        link.innerHTML = "<a href='post_hospitalisation.pdf' target='_blank'>Formulaire post-hospitalisation</a>";
+        container.appendChild(link);
+      } else {
+        container.innerHTML = "";
+      }
+    }
+
+    function copyForm() {
+      var form = document.querySelector("form");
+      if (form) {
+        var formData = new FormData(form);
+        var formValues = [];
+        for (var pair of formData.entries()) {
+          if (pair[1]) formValues.push(pair[0] + ": " + pair[1]);
+        }
+        var formText = formValues.length > 0 ? formValues.join("\n") : "Aucune donnée";
+        var textarea = document.createElement("textarea");
+        textarea.value = formText;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textarea);
+        alert("Formulaire copié dans le presse-papiers !");
+      }
+    }
+  </script>
+</body>
 </html>

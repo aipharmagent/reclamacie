@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+    <meta charset="UTF-8">
+    <title>Calendrier Pilulier</title>
+    <style>
+        body
+        {
+            font-family:courier,sans-serif;
+            font-size: 15px;
+            position: absolute;
+        }
+
+        table{
+            border: 1px solid black;
+            table-layout: fixed;
+        }
+        td
+        {
+            border: 1px solid black;
+            width: auto;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<script type="text/javascript">
+
+    //New function to add days to a given date.
+    Date.prototype.addDays = function(days) {
+        var dat = new Date(this.valueOf())
+        dat.setUTCDate(dat.getUTCDate() + days);
+        return dat;
+    }
+
+    function printDiv(divName) {
+        var printContents = document.getElementById(divName).innerHTML;
+        var originalContents = document.body.innerHTML;
+
+        document.body.innerHTML = printContents;
+
+        window.print();
+
+        document.body.innerHTML = originalContents;
+    }
+    //GetCurrent
+    function calculate() {
+
+        var startDate = new Date(document.getElementById("startDate").value.replace(/-/g, '\/').replace(/T.+/, ''));
+
+        if (document.getElementById("q7j").checked){
+            var weekly = 7;
+            var endDate = startDate.addDays(244);
+        }
+        if (document.getElementById("q14j").checked){
+            var weekly = 14;
+            var endDate = startDate.addDays(488);
+        }
+        if (document.getElementById("q28j").checked){
+            var weekly = 28;
+            var endDate = startDate.addDays(976);
+        }
+
+        var StartdateArray = new Array();
+        var EnddateArray = new Array();
+        var beginningDays = new Date(startDate);
+        var endingDays = startDate.addDays(weekly-1);
+        while (beginningDays <= endDate) {
+                var beginningDaysmonth = new Date(beginningDays).getMonth() + 1;
+                var endingDaysmonth = new Date(endingDays).getMonth()+1;
+                StartdateArray.push(new Date(beginningDays).getUTCDate() + "/" + beginningDaysmonth);
+                EnddateArray.push(new Date(endingDays).getUTCDate() + "/" + endingDaysmonth);
+                beginningDays.setUTCDate(beginningDays.getUTCDate() + weekly);
+                endingDays.setUTCDate(endingDays.getUTCDate() + weekly);
+        }
+
+// Output
+        var result = document.getElementById("patientName").value;
+        result += "<table>";
+        result += "<tr><td>Début</td><td>Fin</td><td>Préparé par</td><td>Vérification</td><td>Changement</td></tr>";
+        for (var i = 0; i < StartdateArray.length; i++) {
+            result += "<tr>";
+            result += "<td style='width:70px'>" + StartdateArray[i] + "</td>";
+            result += "<td style='width:70px'>" + EnddateArray[i] + "</td><td style='width:150px'></td><td style='width:150px'></td><td style='width:150px'></td>";
+            result += "</tr>";
+        }
+        document.getElementById("printout").innerHTML = result;
+
+    }
+</script>
+<form>
+<table>
+    <tbody><tr>
+        <td>Patient:</td>
+        <td><input type="text" id="patientName"></td>
+    </tr>
+    <tr>
+        <td>Date de début:</td>
+        <td><input type="date" id="startDate" value="yyyy-mm-dd"></td>
+    </tr>
+    <tr>
+        <td>Fréquence:</td>
+        <td style="text-align: left;">
+            <input type="radio" name="freq" id="q7j" checked="">Hebdomadaire<br>
+            <input type="radio" name="freq" id="q14j">Aux 2 semaines<br>
+            <input type="radio" name="freq" id="q28j">Aux 4 semaines<br>
+        </td>
+    </tr>
+
+</tbody></table>
+<input style="height:30px;width:200px" onclick="calculate()" type="button" value="Soumettre"><br>
+<input style="height:30px;width:200px" type="button" onclick="printDiv('printableArea')" value="Impression">
+</form>
+
+<div id="printableArea">
+    <a id="printout"></a><br>
+</div>
+
+
+</body></html>

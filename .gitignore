@@ -1,0 +1,28 @@
+cat > .gitignore << 'EOF'
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# Logs
+*.log
+
+# Temp / backups
+*.tmp
+*.bak
+*~
+
+# Node (if ever used)
+node_modules/
+
+# Env / secrets
+.env
+.env.*
+
+# SSL / certs (if any are stored here by mistake)
+*.pem
+*.key
+EOF
+*.bak*
+*.bak

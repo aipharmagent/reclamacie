@@ -1,0 +1,3521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NarCount — Contrôle des narcotiques</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0e14;--surface:#111820;--surface2:#1a2230;--border:#1e2d3d;--accent:#00d4aa;--accent2:#0090ff;--warn:#ff6b35;--danger:#ff3355;--text:#e2eaf4;--muted:#5a7a99;--mono:'DM Mono',monospace;--display:'Syne',sans-serif;--header-bg:rgba(10,14,20,0.92);}
+body.light{--bg:#f0f4f8;--surface:#ffffff;--surface2:#e8edf3;--border:#d0d8e4;--accent:#009977;--accent2:#0070dd;--warn:#e05a20;--danger:#cc2244;--text:#1a2233;--muted:#6b7f99;--header-bg:rgba(240,244,248,0.92);}
+.theme-toggle{background:none;border:1px solid var(--border);border-radius:20px;padding:4px 10px;cursor:pointer;font-size:14px;color:var(--muted);transition:all .2s;line-height:1;}
+.theme-toggle:hover{border-color:var(--accent);color:var(--accent);}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:var(--mono);font-size:13px;min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,212,170,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,170,0.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
+header{position:sticky;top:0;z-index:100;background:var(--header-bg);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 20px;display:flex;align-items:center;gap:16px;height:56px;}
+.logo{font-family:var(--display);font-size:20px;font-weight:800;color:var(--accent);white-space:nowrap;}.logo span{color:var(--text);}
+nav{display:flex;gap:4px;flex:1;overflow-x:auto;}
+nav button{background:none;border:none;color:var(--muted);font-family:var(--mono);font-size:11px;padding:6px 12px;border-radius:6px;cursor:pointer;white-space:nowrap;transition:all .15s;letter-spacing:.05em;text-transform:uppercase;}
+nav button:hover{color:var(--text);background:var(--surface);}
+nav button.active{color:var(--accent);background:rgba(0,212,170,0.1);border:1px solid rgba(0,212,170,0.2);}
+.header-stats{display:flex;gap:16px;font-size:11px;color:var(--muted);}
+.header-stats strong{color:var(--text);}
+main{position:relative;z-index:1;max-width:1500px;margin:0 auto;padding:20px;}
+.tab-content{display:none;}.tab-content.active{display:block;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px;}
+.card-title{font-family:var(--display);font-size:14px;font-weight:700;color:var(--text);margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent);}
+.btn{background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:11px;padding:8px 14px;border-radius:7px;cursor:pointer;transition:all .15s;letter-spacing:.05em;text-transform:uppercase;white-space:nowrap;}
+.btn:hover{border-color:var(--accent);color:var(--accent);}
+.btn-primary{background:var(--accent);border-color:var(--accent);color:var(--bg);font-weight:500;}
+.btn-primary:hover{background:#00b890;border-color:#00b890;color:var(--bg);}
+.btn-danger{border-color:var(--danger);color:var(--danger);}.btn-danger:hover{background:rgba(255,51,85,.1);}
+.btn-warn{border-color:var(--warn);color:var(--warn);}.btn-warn:hover{background:rgba(255,107,53,.1);}
+.btn-blue{border-color:var(--accent2);color:var(--accent2);}.btn-blue:hover{background:rgba(0,144,255,.1);}
+.inp{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:13px;padding:9px 12px;border-radius:7px;outline:none;transition:border-color .15s;}
+.inp:focus{border-color:var(--accent);}
+.inp::placeholder{color:var(--muted);}
+select.inp{cursor:pointer;}
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:20px;}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px;}
+.stat-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;}
+.stat-value{font-family:var(--display);font-size:26px;font-weight:800;color:var(--text);line-height:1;}
+.stat-value.accent{color:var(--accent);}.stat-value.warn{color:var(--warn);}.stat-value.danger{color:var(--danger);}
+.stat-sub{font-size:10px;color:var(--muted);margin-top:4px;}
+.scan-row{display:flex;gap:10px;align-items:center;margin-bottom:14px;}
+.scan-wrap{position:relative;flex:1;}
+.scan-wrap input{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:var(--mono);font-size:16px;padding:12px 16px 12px 44px;outline:none;transition:border-color .15s;letter-spacing:.1em;}
+.scan-wrap input:focus{border-color:var(--accent);}
+.scan-wrap input::placeholder{color:var(--muted);font-size:13px;letter-spacing:0;}
+.scan-dropdown{position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--surface);border:1px solid var(--accent);border-radius:8px;z-index:200;max-height:280px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,.4);}
+.scan-dropdown-item{padding:10px 14px;cursor:pointer;border-bottom:1px solid var(--border);display:flex;gap:10px;align-items:center;}
+.scan-dropdown-item:last-child{border-bottom:none;}
+.scan-dropdown-item:hover,.scan-dropdown-item.active{background:rgba(0,212,170,.08);}
+.scan-dd-name{font-weight:500;color:var(--text);font-size:13px;}
+.scan-dd-din{color:var(--muted);font-size:11px;font-family:var(--mono);}
+.scan-dd-qty{margin-left:auto;font-size:12px;font-weight:600;}
+.scan-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:18px;}
+#lookup-result{display:none;animation:slideIn .2s ease;}
+#lookup-result.show{display:block;}
+@keyframes slideIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+.result-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:14px;}
+.result-field{display:flex;flex-direction:column;gap:4px;}
+.result-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;}
+.result-value{font-size:14px;color:var(--text);font-weight:500;}
+.result-value.accent{color:var(--accent);}.result-value.warn{color:var(--warn);}.result-value.danger{color:var(--danger);}
+.badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.05em;}
+.badge-ctrl{background:rgba(255,107,53,.15);color:var(--warn);border:1px solid rgba(255,107,53,.3);}
+.badge-rx{background:rgba(0,144,255,.1);color:var(--accent2);border:1px solid rgba(0,144,255,.2);}
+.badge-otc{background:rgba(0,212,170,.1);color:var(--accent);border:1px solid rgba(0,212,170,.2);}
+.qty-row{display:flex;align-items:center;gap:10px;padding:14px;background:var(--bg);border-radius:8px;border:1px solid var(--border);flex-wrap:wrap;}
+.qty-inp{background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:16px;padding:7px 10px;border-radius:6px;width:80px;text-align:center;outline:none;}
+.qty-inp:focus{border-color:var(--accent);}
+select.qty-inp{width:auto;font-size:12px;}
+.search-bar{display:flex;gap:8px;margin-bottom:14px;align-items:center;flex-wrap:wrap;}
+.search-bar input{flex:1;min-width:160px;background:var(--surface);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:13px;padding:8px 12px;border-radius:7px;outline:none;transition:border-color .15s;}
+.search-bar input:focus{border-color:var(--accent);}
+.search-bar input::placeholder{color:var(--muted);}
+.table-wrap{overflow-x:auto;border-radius:10px;border:1px solid var(--border);}
+table{width:100%;border-collapse:collapse;font-size:12px;}
+thead th{background:var(--surface2);color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-size:10px;padding:9px 12px;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap;cursor:pointer;user-select:none;}
+thead th:hover{color:var(--accent);}
+tbody tr{border-bottom:1px solid rgba(30,45,61,.5);transition:background .1s;}
+tbody tr:hover{background:rgba(26,34,48,.8);}
+tbody tr:last-child{border-bottom:none;}
+td{padding:9px 12px;color:var(--text);vertical-align:middle;}
+td.din-cell{font-family:var(--mono);color:var(--muted);font-size:11px;white-space:nowrap;}
+td.name-cell{font-weight:500;max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.stock-bar-wrap{display:flex;align-items:center;gap:6px;}
+.stock-bar{height:4px;border-radius:2px;background:var(--border);width:50px;overflow:hidden;}
+.stock-bar-fill{height:100%;border-radius:2px;transition:width .3s;}
+.stock-ok .stock-bar-fill{background:var(--accent);}
+.stock-low .stock-bar-fill{background:var(--warn);}
+.stock-critical .stock-bar-fill{background:var(--danger);}
+.qty-num{font-weight:500;min-width:30px;text-align:right;}
+.qty-num.low{color:var(--warn);}.qty-num.critical{color:var(--danger);}
+.tbl-btn{background:none;border:1px solid var(--border);color:var(--muted);font-family:var(--mono);font-size:10px;padding:3px 7px;border-radius:4px;cursor:pointer;transition:all .12s;}
+.tbl-btn:hover{border-color:var(--accent);color:var(--accent);}
+.tbl-btn.del:hover{border-color:var(--danger);color:var(--danger);}
+.drop-zone{border:2px dashed var(--border);border-radius:12px;padding:36px;text-align:center;cursor:pointer;transition:all .2s;color:var(--muted);}
+.drop-zone:hover,.drop-zone.drag-over{border-color:var(--accent);background:rgba(0,212,170,.04);color:var(--text);}
+.drop-zone .icon{font-size:32px;margin-bottom:8px;}
+.map-select{background:var(--bg);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:12px;padding:7px 10px;border-radius:6px;outline:none;width:100%;cursor:pointer;}
+.map-select:focus{border-color:var(--accent);}
+.mapping-grid{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;margin-bottom:8px;}
+.mapping-label{color:var(--muted);font-size:11px;}
+.mapping-arrow{color:var(--accent);}
+.log-entry{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid rgba(30,45,61,.5);font-size:12px;}
+.log-entry:last-child{border-bottom:none;}
+.log-time{color:var(--muted);white-space:nowrap;font-size:11px;min-width:110px;}
+.log-type{width:70px;font-size:10px;text-transform:uppercase;}
+.log-purchase{color:var(--accent);}.log-sale{color:var(--danger);}.log-adjust{color:var(--accent2);}
+.log-info{flex:1;}
+.empty-state{text-align:center;padding:40px;color:var(--muted);}
+.empty-state .icon{font-size:36px;margin-bottom:10px;}
+#toast{position:fixed;bottom:24px;right:24px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 18px;font-size:12px;color:var(--text);z-index:9999;display:none;animation:toastIn .2s ease;max-width:320px;}
+#toast.show{display:flex;align-items:center;gap:10px;}
+#toast.success{border-color:var(--accent);}
+#toast.error{border-color:var(--danger);}
+#toast.warn{border-color:var(--warn);}
+@keyframes toastIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.modal-bg{display:none;position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,.75);backdrop-filter:blur(4px);align-items:center;justify-content:center;}
+.modal-bg.open{display:flex;}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:28px 32px;width:95%;max-height:90vh;overflow-y:auto;}
+.modal-title{font-family:var(--display);font-size:18px;font-weight:700;color:var(--text);margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;}
+.modal-close{background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;line-height:1;padding:0 4px;}
+.modal-close:hover{color:var(--text);}
+.form-grid{display:grid;gap:12px;margin-bottom:14px;}
+.form-grid.cols-2{grid-template-columns:1fr 1fr;}
+.form-grid.cols-3{grid-template-columns:1fr 1fr 1fr;}
+.form-group{display:flex;flex-direction:column;gap:5px;}
+.form-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;}
+.form-label span{color:var(--accent);}
+.modal-footer{display:flex;gap:10px;justify-content:flex-end;margin-top:16px;}
+/* Instructions */
+.instr-block{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:12px;}
+.instr-title{font-family:var(--display);font-weight:700;font-size:13px;color:var(--text);margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.instr-step{display:flex;gap:10px;margin-bottom:6px;font-size:12px;color:var(--muted);line-height:1.5;}
+.instr-step-num{background:var(--accent);color:var(--bg);border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;margin-top:1px;}
+.instr-step strong{color:var(--text);}
+.instr-tip{background:rgba(0,212,170,.06);border:1px solid rgba(0,212,170,.2);border-radius:7px;padding:10px 12px;font-size:12px;color:var(--accent);margin-top:10px;}
+/* Divergence */
+.div-row-ok td{color:var(--muted);}
+.div-row-warn td.div-val{color:var(--warn);}
+.div-row-bad td.div-val{color:var(--danger);font-weight:700;}
+/* Detail panel */
+.detail-panel{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:14px;margin-top:8px;}
+.detail-row{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(30,45,61,.4);font-size:12px;}
+.detail-row:last-child{border-bottom:none;}
+.detail-key{color:var(--muted);}
+.detail-val{font-weight:500;}
+.detail-val.pos{color:var(--accent);}.detail-val.neg{color:var(--danger);}
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+@media(max-width:640px){main{padding:12px;}.form-grid.cols-2,.form-grid.cols-3{grid-template-columns:1fr;}}
+/* Hamburger */
+.hamburger{background:none;border:1px solid var(--border);border-radius:7px;padding:5px 10px;cursor:pointer;color:var(--text);font-size:18px;line-height:1;flex-shrink:0;transition:all .15s;}
+.hamburger:hover{border-color:var(--accent);color:var(--accent);}
+/* Overflow menu panel */
+.overflow-menu{display:none;position:fixed;top:56px;right:0;width:260px;background:var(--surface);border:1px solid var(--border);border-top:none;border-radius:0 0 0 10px;z-index:500;padding:10px;box-shadow:-4px 4px 20px rgba(0,0,0,.3);}
+.overflow-menu.open{display:block;}
+.overflow-menu-section{display:flex;flex-direction:column;gap:4px;margin-bottom:10px;}
+.overflow-menu-section:last-child{margin-bottom:0;}
+.overflow-menu-section+.overflow-menu-section{padding-top:10px;border-top:1px solid var(--border);}
+.overflow-menu-section button{background:none;border:1px solid var(--border);border-radius:7px;color:var(--text);font-family:var(--mono);font-size:13px;padding:9px 14px;text-align:left;cursor:pointer;transition:all .15s;width:100%;}
+.overflow-menu-section button:hover,.overflow-menu-section button.active{background:rgba(0,212,170,.08);border-color:var(--accent);color:var(--accent);}
+.overflow-menu-toggles{display:flex;gap:8px;padding-top:10px;border-top:1px solid var(--border);}
+
+  /* Dark mode rework (visual only) */
+  body:not(.light){
+    background: linear-gradient(135deg, #0f172a 0%, #111827 100%) !important;
+    color: #e5e7eb !important;
+  }
+
+  body:not(.light) header{
+    background: rgba(17,24,39,.92) !important;
+    border: 1px solid rgba(59,130,246,.18) !important;
+    box-shadow: 0 10px 25px rgba(0,0,0,.35) !important;
+  }
+  body:not(.light) .logo{ color: #60a5fa !important; }
+  body:not(.light) .logo span{ color: #e5e7eb !important; }
+
+  body:not(.light) nav button{
+    color: #cbd5e1 !important;
+  }
+  body:not(.light) nav button:hover{
+    background: rgba(59,130,246,.14) !important;
+    color: #93c5fd !important;
+  }
+  body:not(.light) nav button.active{
+    background: rgba(59,130,246,.2) !important;
+    color: #bfdbfe !important;
+    border: 1px solid rgba(147,197,253,.22) !important;
+  }
+
+  body:not(.light) .header-stats{ color: #94a3b8 !important; }
+  body:not(.light) .header-stats strong{ color: #e5e7eb !important; }
+
+  body:not(.light) .theme-toggle,
+  body:not(.light) .hamburger{
+    background: #111827 !important;
+    color: #cbd5e1 !important;
+    border-color: #334155 !important;
+  }
+  body:not(.light) .theme-toggle:hover,
+  body:not(.light) .hamburger:hover{
+    border-color: #3b82f6 !important;
+    color: #93c5fd !important;
+    background: rgba(59,130,246,.08) !important;
+  }
+
+  body:not(.light) .card,
+  body:not(.light) .modal,
+  body:not(.light) .drawer,
+  body:not(.light) .panel{
+    background: #111827 !important;
+    color: #e5e7eb !important;
+    border: 1px solid #1f2937 !important;
+    box-shadow: 0 10px 25px rgba(0,0,0,.28) !important;
+  }
+
+  body:not(.light) .card-title{ color: #93c5fd !important; }
+  body:not(.light) .dot{
+    background: #60a5fa !important;
+    box-shadow: 0 0 0 4px rgba(96,165,250,.18) !important;
+  }
+
+  body:not(.light) .btn{
+    background: #0f172a !important;
+    border-color: #334155 !important;
+    color: #e5e7eb !important;
+  }
+  body:not(.light) .btn:hover{
+    background: rgba(59,130,246,.12) !important;
+    border-color: #3b82f6 !important;
+    color: #bfdbfe !important;
+  }
+  body:not(.light) .btn-primary{
+    background: #2563eb !important;
+    border-color: #2563eb !important;
+    color: #fff !important;
+  }
+  body:not(.light) .btn-primary:hover{
+    background: #3b82f6 !important;
+    border-color: #3b82f6 !important;
+  }
+  body:not(.light) .btn-blue{
+    background: rgba(59,130,246,.12) !important;
+    border-color: rgba(147,197,253,.24) !important;
+    color: #93c5fd !important;
+  }
+  body:not(.light) .btn-warn{
+    background: rgba(245,158,11,.08) !important;
+    border-color: rgba(245,158,11,.25) !important;
+    color: #fcd34d !important;
+  }
+  body:not(.light) .btn-danger{
+    background: rgba(239,68,68,.08) !important;
+    border-color: rgba(248,113,113,.24) !important;
+    color: #fca5a5 !important;
+  }
+
+  body:not(.light) .inp,
+  body:not(.light) input,
+  body:not(.light) select,
+  body:not(.light) textarea{
+    background: #0f172a !important;
+    color: #e5e7eb !important;
+    border-color: #334155 !important;
+  }
+  body:not(.light) .inp::placeholder,
+  body:not(.light) input::placeholder,
+  body:not(.light) textarea::placeholder{
+    color: #94a3b8 !important;
+  }
+  body:not(.light) .inp:focus,
+  body:not(.light) input:focus,
+  body:not(.light) select:focus,
+  body:not(.light) textarea:focus{
+    border-color: #3b82f6 !important;
+    box-shadow: 0 0 0 3px rgba(59,130,246,.2) !important;
+  }
+
+  body:not(.light) table{
+    border: 1px solid #1f2937 !important;
+  }
+  body:not(.light) th{
+    background: #1d4ed8 !important;
+    color: #eff6ff !important;
+    border-color: rgba(255,255,255,.08) !important;
+  }
+  body:not(.light) td{
+    background: #111827 !important;
+    color: #e5e7eb !important;
+    border-color: #1f2937 !important;
+  }
+  body:not(.light) tr:nth-child(even) td{ background: #0f172a !important; }
+  body:not(.light) tr:hover td{ background: rgba(59,130,246,.09) !important; }
+
+  body:not(.light) .metric,
+  body:not(.light) .stat,
+  body:not(.light) .stat-card,
+  body:not(.light) .kpi,
+  body:not(.light) .summary-card{
+    background: #0f172a !important;
+    border: 1px solid #1f2937 !important;
+    box-shadow: 0 4px 15px rgba(0,0,0,.2) !important;
+    color: #e5e7eb !important;
+  }
+
+  body:not(.light) .muted,
+  body:not(.light) .small,
+  body:not(.light) .hint,
+  body:not(.light) .subtle,
+  body:not(.light) .secondary{
+    color: #94a3b8 !important;
+  }
+
+  body:not(.light) .pill,
+  body:not(.light) .badge,
+  body:not(.light) .tag{
+    background: rgba(59,130,246,.12) !important;
+    border-color: rgba(147,197,253,.2) !important;
+    color: #93c5fd !important;
+  }
+
+  body:not(.light) .toast,
+  body:not(.light) .notice,
+  body:not(.light) .alert{
+    background: #0f172a !important;
+    border-color: #334155 !important;
+    color: #e5e7eb !important;
+  }
+
+  body:not(.light) .overflow-menu{
+    background: #111827 !important;
+    border: 1px solid #1f2937 !important;
+    box-shadow: 0 12px 26px rgba(0,0,0,.35) !important;
+  }
+  body:not(.light) .overflow-menu button{
+    color: #e5e7eb !important;
+    background: transparent !important;
+    border-color: #334155 !important;
+  }
+  body:not(.light) .overflow-menu button:hover{
+    background: rgba(59,130,246,.1) !important;
+    color: #bfdbfe !important;
+  }
+
+  body:not(.light) *::-webkit-scrollbar-thumb{ background: #475569; }
+
+</style>
+
+<style id="reclamacie-theme-override">
+  /* Réclamacie theme override (visual only) */
+  :root{
+    --primary:#2563eb;
+    --primary-light:#3b82f6;
+    --gray-light:#f8fafc;
+    --gray:#e2e8f0;
+    --text:#1e293b;
+    --text-soft:#475569;
+    --success:#10b981;
+    --warning:#f59e0b;
+    --danger:#ef4444;
+  }
+
+  body, body.light{
+    background: linear-gradient(135deg, #f0f4f8 0%, #d9e2ec 100%) !important;
+    color: var(--text) !important;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+    font-size: 14px !important;
+  }
+  body::before{ display:none !important; }
+
+  header{
+    background: #fff !important;
+    border: 1px solid rgba(37,99,235,.08) !important;
+    border-radius: 16px !important;
+    margin: 12px auto 0 !important;
+    max-width: 1500px;
+    box-shadow: 0 10px 25px rgba(0,0,0,.08) !important;
+    padding: 0 14px !important;
+    height: 62px !important;
+    backdrop-filter: none !important;
+  }
+
+  .logo{
+    color: var(--primary) !important;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+    font-weight: 700 !important;
+    font-size: 1.15rem !important;
+  }
+  .logo span{ color: var(--text) !important; }
+
+  nav button{
+    color: #475569 !important;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+    text-transform: none !important;
+    letter-spacing: 0 !important;
+    border-radius: 10px !important;
+    padding: 8px 12px !important;
+    font-size: .92rem !important;
+  }
+  nav button:hover{
+    background: #eff6ff !important;
+    color: var(--primary) !important;
+  }
+  nav button.active{
+    background: #dbeafe !important;
+    color: var(--primary) !important;
+    border: 1px solid #bfdbfe !important;
+  }
+
+  .header-stats{
+    color: #64748b !important;
+    font-size: .8rem !important;
+  }
+  .header-stats strong{ color: var(--text) !important; }
+
+  main{
+    max-width: 1500px !important;
+    padding: 16px !important;
+  }
+
+  .card{
+    background: #fff !important;
+    border: none !important;
+    border-radius: 16px !important;
+    box-shadow: 0 10px 25px rgba(0,0,0,.08) !important;
+    padding: 18px !important;
+  }
+
+  .card-title{
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+    color: var(--primary) !important;
+    font-size: 1rem !important;
+    font-weight: 700 !important;
+  }
+
+  .dot{
+    background: var(--primary) !important;
+    box-shadow: 0 0 0 4px rgba(37,99,235,.12) !important;
+  }
+
+  .btn{
+    background: #fff !important;
+    border: 1px solid var(--gray) !important;
+    color: var(--text) !important;
+    border-radius: 10px !important;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+    text-transform: none !important;
+    letter-spacing: 0 !important;
+    font-size: .9rem !important;
+    font-weight: 600 !important;
+    padding: 8px 12px !important;
+  }
+  .btn:hover{
+    border-color: var(--primary) !important;
+    color: var(--primary) !important;
+    background: #eff6ff !important;
+  }
+  .btn-primary{
+    background: var(--primary) !important;
+    border-color: var(--primary) !important;
+    color: #fff !important;
+  }
+  .btn-primary:hover{
+    background: var(--primary-light) !important;
+    border-color: var(--primary-light) !important;
+    color: #fff !important;
+  }
+  .btn-blue{
+    border-color: #93c5fd !important;
+    color: var(--primary) !important;
+    background: #eff6ff !important;
+  }
+  .btn-blue:hover{
+    background: #dbeafe !important;
+  }
+  .btn-warn{
+    border-color: #fcd34d !important;
+    color: #92400e !important;
+    background: #fffbeb !important;
+  }
+  .btn-warn:hover{
+    background: #fef3c7 !important;
+    color: #92400e !important;
+  }
+  .btn-danger{
+    border-color: #fecaca !important;
+    color: #b91c1c !important;
+    background: #fef2f2 !important;
+  }
+  .btn-danger:hover{
+    background: #fee2e2 !important;
+    color: #991b1b !important;
+  }
+
+  .inp, select.inp, textarea.inp{
+    background: #fff !important;
+    border: 1.5px solid var(--gray) !important;
+    color: var(--text) !important;
+    border-radius: 10px !important;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+  }
+  .inp:focus{
+    border-color: var(--primary) !important;
+    box-shadow: 0 0 0 3px rgba(37,99,235,.15) !important;
+  }
+  .inp::placeholder{ color: #94a3b8 !important; }
+
+  table{
+    border-collapse: separate !important;
+    border-spacing: 0 !important;
+    overflow: hidden;
+    border-radius: 12px !important;
+    width: 100%;
+  }
+  th{
+    background: var(--primary) !important;
+    color: #fff !important;
+    border-color: rgba(255,255,255,.15) !important;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+    font-weight: 600 !important;
+    text-transform: none !important;
+    letter-spacing: 0 !important;
+  }
+  td{
+    background: #fff !important;
+    border-color: #e2e8f0 !important;
+    color: var(--text) !important;
+  }
+  tr:nth-child(even) td{ background: #f8fafc !important; }
+  tr:hover td{ background: #eff6ff !important; }
+
+  .metric, .stat, .stat-card, .kpi, .summary-card{
+    background: #fff !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 12px !important;
+    box-shadow: 0 4px 15px rgba(0,0,0,.05) !important;
+  }
+
+  .muted, .small, .hint, .subtle, .secondary{ color: #64748b !important; }
+
+  .pill, .badge, .tag{
+    border-radius: 999px !important;
+    border: 1px solid #bfdbfe !important;
+    background: #eff6ff !important;
+    color: var(--primary) !important;
+  }
+
+  .modal, .drawer, .panel{
+    background: #fff !important;
+    border-color: #e2e8f0 !important;
+    color: var(--text) !important;
+  }
+
+  .toast, .notice, .alert{
+    border-radius: 10px !important;
+    border: 1px solid #e2e8f0 !important;
+  }
+
+  /* scrollbars */
+  *::-webkit-scrollbar{ height: 10px; width: 10px; }
+  *::-webkit-scrollbar-thumb{ background: #cbd5e1; border-radius: 999px; }
+  *::-webkit-scrollbar-track{ background: transparent; }
+
+  @media (max-width: 900px){
+    header{
+      border-radius: 12px !important;
+      margin: 8px 8px 0 !important;
+      max-width: none !important;
+      height: auto !important;
+      min-height: 62px !important;
+      padding: 10px !important;
+      align-items: flex-start !important;
+      flex-wrap: wrap !important;
+    }
+    main{ padding: 10px !important; }
+    nav button{ font-size: .85rem !important; }
+  }
+</style>
+
+
+<style id="reclamacie-ux-font-boost">
+  /* Readability + UX polish (CSS only) */
+  html{font-size:16px !important;}
+  body, body.light{font-size:15.5px !important; line-height:1.45 !important;}
+
+  /* Stronger type hierarchy */
+  .logo{font-size:1.25rem !important; letter-spacing:.1px;}
+  .header-stats{font-size:.88rem !important;}
+  .card-title{font-size:1.08rem !important; letter-spacing:.1px;}
+  nav button{font-size:.98rem !important; padding:9px 13px !important;}
+
+  /* Inputs and buttons easier to read / click */
+  .btn{font-size:.96rem !important; padding:9px 13px !important; min-height:40px !important;}
+  .inp, select.inp, textarea.inp, input, select, textarea{
+    font-size:.97rem !important;
+    min-height:40px !important;
+    line-height:1.35 !important;
+  }
+  textarea, textarea.inp{min-height:88px !important;}
+
+  /* Tables: denser readability improvements */
+  table{font-size:.94rem !important;}
+  th{font-size:.9rem !important; padding:10px 10px !important; position:sticky; top:0; z-index:2;}
+  td{font-size:.95rem !important; padding:10px 10px !important; vertical-align:middle !important;}
+
+  /* Card and panel comfort */
+  .card{padding:20px !important;}
+  .metric, .stat, .stat-card, .kpi, .summary-card{padding:10px !important;}
+  .modal, .drawer, .panel{border-radius:14px !important;}
+
+  /* Better focus visibility for keyboard use */
+  button:focus-visible,
+  .btn:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible{
+    outline:none !important;
+    box-shadow:0 0 0 3px rgba(37,99,235,.22) !important;
+    border-color:#3b82f6 !important;
+  }
+
+  /* Subtle visual polish */
+  .card{border:1px solid rgba(37,99,235,.06) !important;}
+  tr:hover td{transition:background-color .12s ease !important;}
+  .btn, .card, .inp, input, select, textarea{transition:all .15s ease !important;}
+
+  /* Dark mode readability + contrast tune */
+  body:not(.light){
+    color:#e5e7eb !important;
+    background:linear-gradient(135deg,#0b1220 0%, #111827 55%, #0f172a 100%) !important;
+  }
+  body:not(.light) .card{border:1px solid rgba(96,165,250,.10) !important;}
+  body:not(.light) .card-title{color:#bfdbfe !important;}
+  body:not(.light) nav button{font-size:.98rem !important;}
+  body:not(.light) .header-stats{font-size:.88rem !important;}
+  body:not(.light) .btn{background:#0b1220 !important;}
+  body:not(.light) .inp,
+  body:not(.light) input,
+  body:not(.light) select,
+  body:not(.light) textarea{background:#0b1220 !important;}
+  body:not(.light) td{color:#f1f5f9 !important;}
+  body:not(.light) tr:nth-child(even) td{background:#0b1220 !important;}
+  body:not(.light) tr:hover td{background:rgba(59,130,246,.14) !important;}
+  body:not(.light) button:focus-visible,
+  body:not(.light) .btn:focus-visible,
+  body:not(.light) input:focus-visible,
+  body:not(.light) select:focus-visible,
+  body:not(.light) textarea:focus-visible{
+    box-shadow:0 0 0 3px rgba(96,165,250,.28) !important;
+    border-color:#60a5fa !important;
+  }
+
+  /* Mobile tweaks */
+  @media (max-width: 900px){
+    body, body.light{font-size:15px !important;}
+    main{padding:12px !important;}
+    .card{padding:14px !important; border-radius:14px !important;}
+    nav button{font-size:.92rem !important; padding:8px 10px !important;}
+    .btn{font-size:.94rem !important; min-height:38px !important;}
+    table{font-size:.9rem !important;}
+    th,td{padding:8px 8px !important;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Nar<span>Count</span></div>
+  <nav style="display:flex;gap:2px;">
+    <button class="active" onclick="switchTab('scan')" data-i18n="nav_scan">🔍 Lookup</button>
+    <button onclick="switchTab('inventory')" data-i18n="nav_inventory">📦 Inventory</button>
+    <button onclick="switchTab('divergence')" data-i18n="nav_divergence">⚖️ Divergences</button>
+    <button onclick="switchTab('import')" data-i18n="nav_import">📥 Import</button>
+    <button class="btn btn-warn" style="font-size:11px;padding:6px 10px;margin-left:4px;" onclick="undoLast()" data-i18n="btn_undo">↩️ Undo</button>
+  </nav>
+  <input type="file" id="restore-file-input" accept=".json" style="display:none" onchange="fullRestore(event)">
+  <div style="display:flex;gap:6px;align-items:center;margin-left:auto;">
+    <button class="theme-toggle" id="lang-btn" onclick="toggleLang()" title="Toggle French/English" style="font-weight:700;font-size:12px;letter-spacing:.05em;">FR</button>
+    <button class="theme-toggle" id="theme-btn" onclick="toggleTheme()" title="Toggle light/dark mode">🌙</button>
+    <button class="hamburger" id="hamburger-btn" onclick="toggleOverflowMenu()" title="Menu">☰</button>
+  </div>
+</header>
+
+<!-- Overflow menu -->
+<div class="overflow-menu" id="overflow-menu">
+  <div class="overflow-menu-section">
+    <button onclick="switchTab('checklist');closeOverflowMenu()" data-i18n="nav_checklist">✅ Count</button>
+    <button onclick="switchTab('tools');closeOverflowMenu()" data-i18n="nav_tools">🔧 Tools</button>
+    <button onclick="switchTab('log');closeOverflowMenu()" data-i18n="nav_log">📋 Log</button>
+    <button onclick="switchTab('help');closeOverflowMenu()" data-i18n="nav_help">❓ Help</button>
+  </div>
+  <div class="overflow-menu-section">
+    <button onclick="fullBackup();closeOverflowMenu()" data-i18n="btn_backup">💾 Backup</button>
+    <button onclick="document.getElementById('restore-file-input').click();closeOverflowMenu()" data-i18n="btn_restore">📂 Restore</button>
+    <button class="btn-danger" onclick="document.getElementById('reset-modal').classList.add('open');closeOverflowMenu()" data-i18n="btn_reset">🗑️ Reset</button>
+  </div>
+  <div class="overflow-menu-toggles">
+    <button class="theme-toggle" onclick="toggleLang()" id="mobile-lang-btn" style="font-weight:700;font-size:12px;letter-spacing:.05em;">FR</button>
+    <button class="theme-toggle" id="mobile-theme-btn" onclick="toggleTheme()">🌙</button>
+  </div>
+</div>
+
+<main>
+
+<!-- ===== SCAN TAB ===== -->
+<div id="tab-scan" class="tab-content active">
+
+  <div class="card">
+    <div class="card-title"><span class="dot"></span><span data-i18n="card_lookup">Look Up Product</span></div>
+    <div class="scan-row">
+      <div class="scan-wrap" style="position:relative;">
+        <span class="scan-icon">🔍</span>
+        <input type="text" id="din-input" placeholder="Type DIN or drug name…" autofocus autocomplete="off"
+          oninput="scanSearch()"
+          onkeydown="scanKeyNav(event)">
+        <div id="scan-dropdown" class="scan-dropdown" style="display:none;"></div>
+      </div>
+      <button class="btn btn-primary" onclick="lookupDIN()"><span data-i18n="scan_lookup">Look Up</span></button>
+    </div>
+    <div id="lookup-result" class="card" style="background:var(--surface2);margin-bottom:0;">
+      <div class="result-grid" id="result-fields"></div>
+      <div class="qty-row">
+        <span style="color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.08em;">Adjust:</span>
+        <select class="qty-inp" id="adj-type" onchange="onAdjTypeChange()">
+          <option value="add"><span data-i18n="adj_add">➕ Purchase</span></option>
+          <option value="sub"><span data-i18n="adj_sub">➖ Sale/Dispense</span></option>
+          <option value="set"><span data-i18n="adj_set">🎯 Set Exact</span></option>
+          <option value="stock"><span data-i18n="adj_stock">📋 Current Stock</span></option>
+          <option value="expired"><span data-i18n="adj_expired">🗑 Expired</span></option>
+          <option value="lost"><span data-i18n="adj_lost">🩹 Lost/Damaged</span></option>
+          <option value="transfer"><span data-i18n="adj_transfer">🔀 Transfer to another DIN</span></option>
+        </select>
+        <input type="number" class="qty-inp" id="adj-qty" value="1" placeholder="" data-i18n-ph="ph_qty">
+        <select class="qty-inp" id="adj-reason" style="width:auto;font-size:12px;display:none;">
+          <option value="">— Select reason —</option>
+        </select>
+        <input type="text" class="qty-inp" id="adj-note" placeholder="" data-i18n-ph="ph_note" style="flex:1;width:auto;font-size:12px;">
+        <button class="btn btn-primary" onclick="applyAdjustment()">Apply</button>
+        <button class="btn btn-warn" onclick="undoLast()">↩️ Undo</button>
+        <button class="btn btn-danger" onclick="hideResult()">✖️</button>
+      </div>
+    </div>
+    <div id="not-found" style="display:none;" class="card" style="background:var(--surface2);margin-bottom:0;">
+      <div style="color:var(--muted);margin-bottom:12px;">No product found for DIN <strong id="nf-din" style="color:var(--text)"></strong>. Add it?</div>
+      <button class="btn btn-primary" onclick="openAddModal(document.getElementById('din-input').value.trim(),'')"><span data-i18n="inv_add">➕ Add Product</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== INVENTORY TAB ===== -->
+<div id="tab-inventory" class="tab-content">
+  <div class="card" style="margin-bottom:14px;">
+    <div class="card-title" style="margin-bottom:12px;cursor:pointer;" onclick="togglePeriodPanel()">
+      <span class="dot"></span><span data-i18n="inv_period_title"><span data-i18n="period_title">Inventory Period</span></span>
+      <span id="period-summary" style="color:var(--muted);font-size:11px;font-weight:400;margin-left:8px;"></span>
+      <span id="period-chevron" style="margin-left:auto;color:var(--muted);font-size:12px;">▼</span>
+    </div>
+    <div id="period-panel" style="display:none;">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:12px;">
+        <div class="form-group">
+          <div class="form-label"><span data-i18n="lbl_last_date">Last Count Date</span></div>
+          <input class="inp" type="date" id="period-last" onchange="savePeriod()">
+        </div>
+        <div class="form-group">
+          <div class="form-label"><span data-i18n="lbl_curr_date">Current Count Date</span></div>
+          <input class="inp" type="date" id="period-current" onchange="savePeriod()">
+        </div>
+        <div class="form-group">
+          <div class="form-label"><span data-i18n="lbl_counter">Counter (employee)</span></div>
+          <input class="inp" type="text" id="period-counter" placeholder="e.g. Marie L." onchange="savePeriod()">
+        </div>
+        <div class="form-group">
+          <div class="form-label"><span data-i18n="lbl_verifier">Verified by</span></div>
+          <input class="inp" type="text" id="period-verifier" placeholder="e.g. Dr. Tremblay" onchange="savePeriod()">
+        </div>
+      </div>
+      <div class="form-group" style="margin-bottom:12px;">
+        <div class="form-label"><span data-i18n="lbl_notes">Notes</span></div>
+        <input class="inp" type="text" id="period-notes" placeholder="e.g. End of month count, January 2026" onchange="savePeriod()">
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-primary" onclick="savePeriod();toast('Period saved','success')"><span data-i18n="btn_save">Save</span></button>
+        <button class="btn" onclick="exportPeriodReport()"><span data-i18n="inv_export_report">📄 Export Period Report</span></button>
+      </div>
+    </div>
+  </div>
+  <div class="search-bar">
+    <input type="text" id="inv-search" placeholder="Search by name, DIN, manufacturer… (e.g. Hydro, Dilaudid, Apotex)" oninput="renderInventory()" onkeyup="renderInventory()" autocomplete="off" style="flex:1;min-width:200px;">
+    <button class="btn" id="inv-search-clear" style="display:none;padding:8px 10px;" onclick="document.getElementById('inv-search').value='';document.getElementById('inv-search-clear').style.display='none';renderInventory();" title="Clear search">✖️</button>
+    <button class="btn" id="inv-hide-empty-btn" onclick="toggleHideEmpty()" title="Hide products where both expected and current stock are 0" data-i18n="btn_hide_empty">Hide Empty</button>
+    <button class="btn" onclick="exportCSV()"><span data-i18n="inv_export">📊 Export CSV</span></button>
+    <button class="btn btn-primary" onclick="openAddModal()"><span data-i18n="inv_add">➕ Add Product</span></button>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th onclick="sortBy('din')" data-i18n="col_din">DIN ⇅</th>
+          <th onclick="sortBy('name')"><span data-i18n="col_name">Drug Name</span> ⇅</th>
+          <th onclick="sortBy('prevQty')"><span data-i18n="col_prev_count">Prev. Count</span> ⇅</th>
+          <th onclick="sortBy('qty')"><span data-i18n="col_stock">Current Stock</span> ⇅</th>
+          <th onclick="sortBy('_div')" style="cursor:pointer;">Divergence ⇅</th>
+          <th data-i18n="col_expected">Expected</th>
+          <th data-i18n="col_actions">Actions</th>
+        </tr>
+      </thead>
+      <tbody id="inv-body"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ===== DIVERGENCES TAB ===== -->
+<div id="tab-divergence" class="tab-content">
+  <div class="card">
+    <div class="card-title"><span class="dot"></span><span data-i18n="div_title">Divergence Summary — Potential Issues</span></div>
+    <p style="color:var(--muted);font-size:12px;margin-bottom:16px;"><span data-i18n="div_desc_long">Products where the actual count diverges from what the system expects. Sorted by severity. Click a row to view the full calculation breakdown.</span></p>
+    <div class="search-bar" style="margin-bottom:12px;">
+      <input type="text" id="div-search" placeholder="Search divergences…" oninput="renderDivergences()">
+      <select class="map-select" id="div-filter" style="width:auto;" onchange="renderDivergences()">
+        <option value="">All</option>
+        <option value="bad"><span data-i18n="div_significant">Significant (&gt;10%)</span></option>
+        <option value="warn"><span data-i18n="div_minor">Minor (1–10%)</span></option>
+        <option value="unresolved"><span data-i18n="div_unresolved">Unresolved only</span></option>
+        <option value="resolved"><span data-i18n="div_resolved">Resolved only</span></option>
+      </select>
+      <button class="btn" id="div-hide-zero-btn" onclick="toggleHideZeroExpected()" title="Hide products with expected stock = 0 (removed from formulary)">Hide Formulary Removals</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th data-i18n="col_din">DIN</th><th data-i18n="col_name">Drug Name</th><th data-i18n="col_prev_count">Prev.</th><th data-i18n="col_purchases">Purchases</th><th data-i18n="col_sales">Sales</th><th data-i18n="col_adjustments">Adj.</th><th data-i18n="col_expected">Expected</th><th data-i18n="col_actual">Actual</th><th data-i18n="col_div">Divergence</th><th data-i18n="col_pct">%</th><th data-i18n="col_status">Note</th><th></th>
+          </tr>
+        </thead>
+        <tbody id="div-body"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CHECKLIST TAB ===== -->
+<div id="tab-checklist" class="tab-content">
+  <div class="card">
+    <div class="card-title"><span class="dot"></span><span data-i18n="cl_title">Physical Count Checklist</span>
+      <div style="margin-left:auto;display:flex;gap:8px;">
+        <button class="btn" onclick="checklistSelectAll()"><span data-i18n="cl_all">✅ All</span></button>
+        <button class="btn" onclick="checklistClearAll()"><span data-i18n="cl_none">🔲 None</span></button>
+        <button class="btn btn-primary" onclick="applyAllCounts()" title="Save all entered counts to inventory stock"><span data-i18n="cl_apply_counts">💾 Apply Counts</span></button>
+        <button class="btn btn-blue" onclick="printChecklist()"><span data-i18n="cl_print">🖨️ Print</span></button>
+        <button class="btn" onclick="resetChecklist()"><span data-i18n="cl_reset_btn">🔄 Reset</span></button>
+      </div>
+    </div>
+    <p style="color:var(--muted);font-size:12px;margin-bottom:12px;"><span data-i18n="cl_desc">Check off each product as you physically count it. Progress is saved automatically.</span></p>
+    <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
+      <input type="text" id="cl-search" placeholder="Search…" oninput="renderChecklist()" style="flex:1;min-width:140px;background:var(--surface);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:13px;padding:8px 12px;border-radius:7px;outline:none;">
+      <select class="map-select" id="cl-filter" style="width:auto;" onchange="renderChecklist()">
+        <option value="">All</option>
+        <option value="unchecked">Unchecked</option>
+        <option value="checked">Checked</option>
+      </select>
+    </div>
+    <div id="cl-progress" style="margin-bottom:12px;"></div>
+    <div id="cl-body"></div>
+  </div>
+</div>
+
+<!-- ===== TOOLS TAB ===== -->
+<div id="tab-tools" class="tab-content">
+  <div class="card" style="margin-bottom:16px;">
+    <div class="card-title"><span class="dot"></span><span data-i18n="tools_merge_title">Merge Duplicate DINs</span></div>
+    <p style="color:var(--muted);font-size:12px;margin-bottom:16px;"><span data-i18n="tools_merge_desc">Combine two products that share the same DIN or were imported under different names into one. Stock quantities are added together.</span></p>
+    <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:14px;align-items:start;margin-bottom:14px;">
+      <div class="form-group">
+        <div class="form-label"><span data-i18n="tools_keep">Keep this product</span> <span style="color:var(--accent)" data-i18n="tools_keep_sub">(primary)</span></div>
+        <div style="position:relative;">
+          <input class="inp" id="merge-keep-input" type="text" placeholder="Search by name or DIN…" oninput="mergeSearch('keep')" autocomplete="off">
+          <div id="merge-keep-dd" class="scan-dropdown" style="display:none;"></div>
+        </div>
+        <div id="merge-keep-info" style="font-size:11px;color:var(--muted);margin-top:6px;min-height:36px;"></div>
+      </div>
+      <div style="text-align:center;padding-top:32px;font-size:22px;color:var(--accent);">⟵</div>
+      <div class="form-group">
+        <div class="form-label"><span data-i18n="tools_del">Merge this into it</span> <span style="color:var(--danger)" data-i18n="tools_del_sub">(will be deleted)</span></div>
+        <div style="position:relative;">
+          <input class="inp" id="merge-del-input" type="text" placeholder="Search by name or DIN…" oninput="mergeSearch('del')" autocomplete="off">
+          <div id="merge-del-dd" class="scan-dropdown" style="display:none;"></div>
+        </div>
+        <div id="merge-del-info" style="font-size:11px;color:var(--muted);margin-top:6px;min-height:36px;"></div>
+      </div>
+    </div>
+    <div id="merge-preview" style="display:none;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:14px;margin-bottom:14px;font-size:12px;"></div>
+    <button class="btn btn-primary" onclick="executeMerge()"><span data-i18n="tools_merge_btn">🔀 Merge Products</span></button>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="dot"></span><span data-i18n="tools_dup_title">Duplicate DIN Detector</span>
+      <button class="btn" style="margin-left:auto;font-size:11px;padding:5px 10px;" onclick="runDuplicateDetect()"><span data-i18n="tools_dup_scan">🔍 Scan for Duplicates</span></button>
+    </div>
+    <p style="color:var(--muted);font-size:12px;margin-bottom:12px;"><span data-i18n="tools_dup_desc">Finds products sharing the same DIN, or with very similar names that may have been imported twice under different labels.</span></p>
+    <div id="dup-results"><div style="color:var(--muted);font-size:12px;">Click "Scan for Duplicates" to check your inventory.</div></div>
+  </div>
+</div>
+
+<!-- ===== IMPORT TAB ===== -->
+<div id="tab-import" class="tab-content">
+  <div class="card">
+    <div class="card-title"><span class="dot"></span><span data-i18n="imp_title">Import Data</span></div>
+
+    <!-- Mode selector always visible -->
+    <div style="margin-bottom:14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+      <span style="color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em;" data-i18n="imp_mode">Mode:</span>
+      <select class="map-select" id="import-mode" style="width:auto;" onchange="onImportModeChange()">
+        <option value="purchase"><span data-i18n="mode_purchase">Purchase — add to stock</span></option>
+        <option value="sale"><span data-i18n="mode_sale">Sale — subtract from stock</span></option>
+        <option value="legacy">📋 Migrate legacy inventory (DECOMPTE)</option>
+        <option value="backup">💾 NarCount Backup — start new period (qty → prev count)</option>
+        <option value="restore">🔄 NarCount Restore — keep everything as-is</option>
+        <option value="custom">🔧 Custom Import — map any column to any field</option>
+      </select>
+    </div>
+
+    <!-- Option A: Upload CSV file directly -->
+    <div style="margin-bottom:12px;">
+      <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;"><span data-i18n="imp_upload_title">Option A — Upload CSV File directly</span></div>
+      <label id="csv-drop" class="drop-zone" style="display:block;cursor:pointer;" ondragover="event.preventDefault();this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')" ondrop="handleFileDrop(event)">
+        <input type="file" id="csv-file-input" accept=".csv,.txt" style="display:none" onchange="handleFileSelect(event)">
+        <div class="icon">📄</div>
+        <div style="font-size:14px;margin-bottom:4px;">Drop CSV file here or <span style="color:var(--accent)">click to browse</span></div>
+        <div style="font-size:11px;color:var(--muted)">Accepts .csv files saved from Excel (semicolon or comma separated)</div>
+      </label>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;color:var(--muted);font-size:12px;">
+      <div style="flex:1;height:1px;background:var(--border);"></div>OR<div style="flex:1;height:1px;background:var(--border);"></div>
+    </div>
+
+    <!-- Option B: Paste text -->
+    <div>
+      <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;"><span data-i18n="imp_paste_title">Option B — Copy &amp; Paste from Excel (recommended)</span></div>
+      <textarea id="paste-area" placeholder="Open Excel → Ctrl+A (select all) → Ctrl+C (copy) → click here → Ctrl+V (paste)" style="width:100%;height:130px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:var(--mono);font-size:12px;padding:12px;outline:none;resize:vertical;line-height:1.5;transition:border-color .15s;" onpaste="setTimeout(parsePaste,50)" oninput="parsePaste()" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'"></textarea>
+    </div>
+
+    <div style="margin-top:10px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+      <button class="btn btn-primary" id="run-import-btn" onclick="runPasteImport()" disabled>📥 Import</button>
+      <button class="btn" onclick="clearPaste()">Clear</button>
+      <span id="paste-status" style="color:var(--muted);font-size:11px;"></span>
+    </div>
+    <div id="import-conflicts" style="display:none;margin-top:16px;background:var(--surface2);border:1px solid var(--warn);border-radius:10px;padding:16px;">
+      <div style="font-family:var(--display);font-size:14px;font-weight:700;margin-bottom:6px;color:var(--warn);" data-i18n="imp_conflicts_title">⚠ Unknown DINs — Review Before Importing</div>
+      <p style="color:var(--muted);font-size:12px;margin-bottom:10px;"><span data-i18n="imp_conflicts_desc_p">These DINs from the file don't exist in your inventory. Choose what to do with each one.</span></p>
+      <div id="conflict-list"></div>
+      <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">
+        <button class="btn btn-primary" onclick="applyConflictResolutions()"><span data-i18n="imp_apply_selected">✅ Apply Selected</span></button>
+        <button class="btn" onclick="setAllConflicts('add')">➕ Add All as New</button>
+        <button class="btn" onclick="setAllConflicts('skip')">⏭️ Skip All</button>
+        <button class="btn btn-danger" onclick="document.getElementById('import-conflicts').style.display='none'">✕ Cancel</button>
+      </div>
+    </div>
+  </div>
+  <div id="mapping-ui" class="card" style="display:none;">
+    <div class="card-title"><span class="dot"></span><span data-i18n="imp_mapping_title">Confirm Column Mapping</span></div>
+    <p style="color:var(--muted);font-size:12px;margin-bottom:12px;"><span data-i18n="imp_mapping_desc">Auto-detected — adjust any that look wrong.</span></p>
+    <div id="mapping-fields"></div>
+  </div>
+  <div id="import-preview" class="card" style="display:none;">
+    <div class="card-title"><span class="dot"></span><span data-i18n="imp_preview_title">Preview (first 5 rows)</span></div>
+    <div style="max-height:220px;overflow-y:auto;border-radius:8px;border:1px solid var(--border);" id="preview-table-wrap"></div>
+  </div>
+</div>
+
+<!-- ===== LOG TAB ===== -->
+<div id="tab-log" class="tab-content">
+  <div class="search-bar">
+    <input type="text" id="log-search" placeholder="" data-i18n-ph="ph_search_log" oninput="renderLog()">
+    <select class="map-select" id="log-filter" style="width:auto;" onchange="renderLog()">
+      <option value="">All</option><option value="purchase"><span data-i18n="log_purchases">Purchases</span></option><option value="sale"><span data-i18n="log_sales">Sales</span></option>
+      <option value="adjust"><span data-i18n="log_adjustments">Adjustments</span></option><option value="add"><span data-i18n="log_new">New Products</span></option><option value="count" data-i18n-opt="log_count_filter">Physical Counts</option>
+    </select>
+    <button class="btn btn-warn" onclick="undoLast()"><span data-i18n="log_undo_last">↩️ Undo Last</span></button>
+    <button class="btn btn-danger" onclick="if(confirm(t('log_clear_confirm'))){activityLog=[];saveData();renderLog();}"><span data-i18n="log_clear">Clear Log</span></button>
+  </div>
+  <div class="card"><div id="log-body"></div></div>
+</div>
+
+<!-- ===== HELP TAB ===== -->
+<div id="tab-help" class="tab-content">
+  <div class="card">
+    <div class="card-title"><span class="dot"></span><span data-i18n="help_sales_title">How to Import Sales (Stock OUT)</span></div>
+    <div class="instr-block">
+      <div class="instr-title" data-i18n="help_sales_instr_title">📤 Ubik — Sales Report (Rapport statistique des produits)</div>
+      <div class="instr-step"><div class="instr-step-num">1</div><div data-i18n="help_sales_s1">In Ubik, go to <strong>Gestion → Rapports → Autres → Rapport statistique des produits</strong></div></div>
+      <div class="instr-step"><div class="instr-step-num">2</div><div data-i18n="help_sales_s2">In the product type filter, select <strong>only</strong>: Contrôlé, Contrôlé rapportable, Narcotique, Narcotique rapportable, Substance ciblée</div></div>
+      <div class="instr-step"><div class="instr-step-num">3</div><div data-i18n="help_sales_s3">Generate the report in <strong>EXCEL</strong> format — open the file in Excel</div></div>
+      <div class="instr-step"><div class="instr-step-num">4</div><div data-i18n="help_sales_s4">In Excel, go to <strong>File → Save As</strong>, choose <strong>CSV (comma delimited) (*.csv)</strong> and save</div></div>
+      <div class="instr-step"><div class="instr-step-num">5</div><div data-i18n="help_sales_s5">Go to the <strong>Import tab</strong>, select <strong>"Sale — subtract from stock"</strong></div></div>
+      <div class="instr-step"><div class="instr-step-num">6</div><div data-i18n="help_sales_s6">Click <strong>"Upload CSV File"</strong> (Option A) and select the .csv file you just saved</div></div>
+      <div class="instr-tip" data-i18n="help_sales_tip">💡 <strong>Tip:</strong> If the file upload doesn't detect the right columns, use Option B (paste) instead: open the CSV in Notepad, press Ctrl+A then Ctrl+C, and paste into the text box.</div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title"><span class="dot"></span><span data-i18n="help_purchases_title">How to Import Purchases (Stock IN)</span></div>
+    <div class="instr-block">
+      <div class="instr-title" data-i18n="help_purch_instr_title">📥 Ubik — Purchase Report (Substances narcotiques et contrôlées)</div>
+      <div class="instr-step"><div class="instr-step-num">1</div><div data-i18n="help_purch_s1">In Ubik, go to <strong>Accueil → Rapports → Substances narcotiques et contrôlées</strong></div></div>
+      <div class="instr-step"><div class="instr-step-num">2</div><div data-i18n="help_purch_s2">Generate the report in <strong>EXCEL</strong> format — open the file in Excel</div></div>
+      <div class="instr-step"><div class="instr-step-num">3</div><div data-i18n="help_purch_s3">In Excel, go to <strong>File → Save As</strong>, choose <strong>CSV (comma delimited) (*.csv)</strong> and save</div></div>
+      <div class="instr-step"><div class="instr-step-num">4</div><div data-i18n="help_purch_s4">Go to the <strong>Import tab</strong>, select <strong>"Purchase — add to stock"</strong></div></div>
+      <div class="instr-step"><div class="instr-step-num">5</div><div data-i18n="help_purch_s5">Click <strong>"Upload CSV File"</strong> (Option A) and select the .csv file you just saved</div></div>
+      <div class="instr-tip" data-i18n="help_purch_tip">💡 <strong>Tip:</strong> Quantity is automatically calculated as <strong>boxes ordered × units per box</strong> (e.g. 2 boxes of 100 = 200 units). The package size is read from the drug name description.</div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title"><span class="dot"></span><span data-i18n="help_legacy_title">How to Migrate Your Legacy Inventory</span></div>
+    <div class="instr-block">
+      <div class="instr-title" data-i18n="help_legacy_instr_title">📋 Excel Legacy Report (DECOMPTE)</div>
+      <div class="instr-step"><div class="instr-step-num">1</div><div data-i18n="help_legacy_s1">Open your Excel inventory sheet (the one with DIN, PRODUIT, DECOMPTE columns)</div></div>
+      <div class="instr-step"><div class="instr-step-num">2</div><div data-i18n="help_legacy_s2">In Excel, go to <strong>File → Save As</strong>, choose <strong>CSV (comma delimited) (*.csv)</strong> and save</div></div>
+      <div class="instr-step"><div class="instr-step-num">3</div><div data-i18n="help_legacy_s3">Go to the <strong>Import tab</strong>, select <strong>"Migrate legacy inventory (DECOMPTE)"</strong></div></div>
+      <div class="instr-step"><div class="instr-step-num">4</div><div data-i18n="help_legacy_s4">Click <strong>"Upload CSV File"</strong> (Option A) and select the .csv file</div></div>
+      <div class="instr-step"><div class="instr-step-num">5</div><div data-i18n="help_legacy_s5">NarCount will automatically use the <strong>DECOMPTE column</strong> as the previous count baseline</div></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title"><span class="dot"></span><span data-i18n="help_adjustments_title">Stock Adjustments</span></div>
+    <div class="instr-block">
+      <div class="instr-title" data-i18n="help_adj_instr_title">⚙ Manual Adjustments (Lookup Tab)</div>
+      <div class="instr-step"><div class="instr-step-num">1</div><div data-i18n="help_adj_s1"><strong>Expired:</strong> Look up the product, select "Expired" and enter the quantity. Logged separately for audit trail.</div></div>
+      <div class="instr-step"><div class="instr-step-num">2</div><div data-i18n="help_adj_s2"><strong>Lost/Damaged:</strong> Look up the product, select "Lost/Damaged" and enter quantity with a note explaining the reason.</div></div>
+      <div class="instr-step"><div class="instr-step-num">3</div><div data-i18n="help_adj_s3"><strong>Manufacturer Balance:</strong> Look up the product, select "Transfer" and use the note to indicate the manufacturer.</div></div>
+    </div>
+  </div>
+</div>
+
+</main>
+<div id="toast"></div>
+
+<!-- RESET MODAL -->
+<div id="reset-modal" class="modal-bg">
+  <div class="modal" style="max-width:380px;text-align:center;">
+    <div style="font-size:36px;margin-bottom:12px;">⚠</div>
+    <div style="font-family:var(--display);font-size:18px;font-weight:700;margin-bottom:10px;"><span data-i18n="reset_title">Reset All Data?</span></div>
+    <div style="color:var(--muted);font-size:13px;margin-bottom:24px;line-height:1.6;"><span data-i18n="reset_desc">This will permanently delete all inventory and activity logs. Cannot be undone.</span></div>
+    <div style="display:flex;gap:10px;">
+      <button class="btn" style="flex:1;" onclick="document.getElementById('reset-modal').classList.remove('open')"><span data-i18n="btn_cancel">Cancel</span></button>
+      <button class="btn btn-danger" style="flex:1;" onclick="confirmReset()"><span data-i18n="btn_delete_all">🗑️ Delete Everything</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD PRODUCT MODAL -->
+<div id="add-modal" class="modal-bg">
+  <div class="modal" style="max-width:540px;">
+    <div class="modal-title">
+      <span data-i18n="modal_add_title">Add New Product</span>
+      <button class="modal-close" onclick="closeAddModal()">✖️</button>
+    </div>
+    <div class="form-grid cols-2">
+      <div class="form-group">
+        <div class="form-label"><span data-i18n="lbl_din">DIN</span> <span>*</span></div>
+        <input class="inp" id="am-din" type="text" placeholder="e.g. 02125323" oninput="checkDINExists()">
+        <div id="am-din-status" style="font-size:11px;height:14px;margin-top:2px;"></div>
+      </div>
+      <div class="form-group">
+        <div class="form-label"><span data-i18n="lbl_drug_name">Drug Name</span> <span>*</span></div>
+        <input class="inp" id="am-name" type="text" placeholder="" data-i18n-ph="ph_drug_name">
+      </div>
+      <div class="form-group">
+        <div class="form-label"><span data-i18n="lbl_mfr">Manufacturer</span></div>
+        <input class="inp" id="am-mfr" type="text" placeholder="" data-i18n-ph="ph_mfr">
+      </div>
+      <div class="form-group">
+        <div class="form-label"><span data-i18n="lbl_type">Type</span></div>
+        <select class="inp" id="am-type">
+          <option value="Rx">Rx</option>
+          <option value="Controlled">Controlled (Narcotic)</option>
+          <option value="OTC">OTC</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <div class="form-label"><span data-i18n="lbl_init_stock">Initial Stock (units)</span></div>
+        <input class="inp" id="am-qty" type="number" value="0">
+      </div>
+      <div class="form-group">
+        <div class="form-label"><span data-i18n="lbl_threshold">Low Stock Threshold</span></div>
+        <input class="inp" id="am-threshold" type="number" value="10">
+      </div>
+    </div>
+    <div class="form-group" style="margin-bottom:16px;">
+      <div class="form-label"><span data-i18n="lbl_notes">Notes</span></div>
+      <input class="inp" id="am-notes" type="text" placeholder="" data-i18n-ph="ph_notes">
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeAddModal()"><span data-i18n="btn_cancel">Cancel</span></button>
+      <button class="btn btn-primary" onclick="submitAddModal()">➕ Add to Inventory</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT PRODUCT MODAL -->
+<div id="edit-modal" class="modal-bg">
+  <div class="modal" style="max-width:580px;">
+    <div class="modal-title">
+      Edit Product
+      <button class="modal-close" onclick="document.getElementById('edit-modal').classList.remove('open')">✖️</button>
+    </div>
+    <div class="form-grid cols-2">
+      <div class="form-group">
+        <div class="form-label">DIN</div>
+        <input class="inp" id="em-din" type="text" disabled style="opacity:.5;">
+      </div>
+      <div class="form-group">
+        <div class="form-label"><span data-i18n="lbl_drug_name">Drug Name</span> <span>*</span></div>
+        <input class="inp" id="em-name" type="text">
+      </div>
+      <div class="form-group">
+        <div class="form-label"><span data-i18n="lbl_mfr">Manufacturer</span></div>
+        <input class="inp" id="em-mfr" type="text">
+      </div>
+      <div class="form-group">
+        <div class="form-label"><span data-i18n="lbl_type">Type</span></div>
+        <select class="inp" id="em-type">
+          <option value="Rx">Rx</option>
+          <option value="Controlled">Controlled (Narcotic)</option>
+          <option value="OTC">OTC</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <div class="form-label"><span data-i18n="lbl_curr_stock">Current Stock (units)</span></div>
+        <input class="inp" id="em-qty" type="number">
+      </div>
+      <div class="form-group">
+        <div class="form-label"><span data-i18n="lbl_threshold">Low Stock Threshold</span></div>
+        <input class="inp" id="em-threshold" type="number">
+      </div>
+      <div class="form-group">
+        <div class="form-label"><span data-i18n="lbl_prev_count">Previous Count (for divergence)</span></div>
+        <input class="inp" id="em-prevqty" type="number" placeholder="" data-i18n-ph="ph_prev_count">
+      </div>
+      <div class="form-group">
+        <div class="form-label"><span data-i18n="lbl_expiry">Expiry</span></div>
+        <input class="inp" id="em-expiry" type="text" placeholder="YYYY-MM">
+      </div>
+    </div>
+    <div class="form-group" style="margin-bottom:16px;">
+      <div class="form-label"><span data-i18n="lbl_notes">Notes</span></div>
+      <input class="inp" id="em-notes" type="text">
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="document.getElementById('edit-modal').classList.remove('open')"><span data-i18n="btn_cancel">Cancel</span></button>
+      <button class="btn btn-primary" onclick="submitEditModal()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- DETAIL MODAL -->
+<div id="detail-modal" class="modal-bg">
+  <div class="modal" style="max-width:620px;">
+    <div class="modal-title">
+      <span id="detail-title">Inventory Breakdown</span>
+      <button class="modal-close" onclick="document.getElementById('detail-modal').classList.remove('open')">✖️</button>
+    </div>
+    <div id="detail-body"></div>
+  </div>
+</div>
+
+<!-- TRANSFER MODAL -->
+<div id="transfer-modal" class="modal-bg">
+  <div class="modal" style="max-width:500px;">
+    <div class="modal-title">
+      <span data-i18n="modal_transfer_title">🔀 Transfer Units Between DINs</span>
+      <button class="modal-close" onclick="document.getElementById('transfer-modal').classList.remove('open')">✖️</button>
+    </div>
+    <p style="color:var(--muted);font-size:12px;margin-bottom:16px;">Move stock from one DIN to another — useful when units were dispensed under the wrong manufacturer.</p>
+    <div class="form-grid cols-2" style="margin-bottom:14px;">
+      <div class="form-group">
+        <div class="form-label">From DIN <span style="color:var(--danger)">−</span></div>
+        <div style="position:relative;">
+          <input class="inp" id="tr-from-input" type="text" placeholder="Search by name or DIN…" oninput="transferSearch('from')" autocomplete="off">
+          <div id="tr-from-dd" class="scan-dropdown" style="display:none;"></div>
+        </div>
+        <div id="tr-from-info" style="font-size:11px;color:var(--muted);margin-top:4px;min-height:14px;"></div>
+      </div>
+      <div class="form-group">
+        <div class="form-label">To DIN <span style="color:var(--accent)">+</span></div>
+        <div style="position:relative;">
+          <input class="inp" id="tr-to-input" type="text" placeholder="Search by name or DIN…" oninput="transferSearch('to')" autocomplete="off">
+          <div id="tr-to-dd" class="scan-dropdown" style="display:none;"></div>
+        </div>
+        <div id="tr-to-info" style="font-size:11px;color:var(--muted);margin-top:4px;min-height:14px;"></div>
+      </div>
+    </div>
+    <div class="form-grid cols-2" style="margin-bottom:14px;">
+      <div class="form-group">
+        <div class="form-label"><span data-i18n="lbl_transfer_qty">Quantity to Transfer</span></div>
+        <input class="inp" id="tr-qty" type="number" value="1" min="1" oninput="updateTransferSummary()">
+      </div>
+      <div class="form-group">
+        <div class="form-label"><span data-i18n="lbl_note_opt">Note (optional)</span></div>
+        <input class="inp" id="tr-note" type="text" placeholder="" data-i18n-ph="ph_transfer_note">
+      </div>
+    </div>
+    <div id="tr-summary" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px;font-size:12px;color:var(--muted);margin-bottom:16px;display:none;"></div>
+    <div class="modal-footer">
+      <button class="btn" onclick="document.getElementById('transfer-modal').classList.remove('open')"><span data-i18n="btn_cancel">Cancel</span></button>
+      <button class="btn btn-primary" onclick="submitTransfer()">🔀 Apply Transfer</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===================== STATE =====================
+let inventory = [];
+let activityLog = [];
+let currentProduct = null;
+let sortField = 'name';
+let sortAsc = true;
+let importData = [];
+let importHeaders = [];
+let editProductId = null;
+let inventoryPeriod = {lastDate:'',currentDate:'',counter:'',verifier:'',notes:''};
+let divergenceNotes = {}; // {productId: {text, resolved}}
+let pendingConflicts = []; // rows that had no matching DIN
+let pendingImportData = null; // {rows, mode, cols, batchId} saved for after conflict review
+let checklistState = {};  // {productId: {checked, note}}
+
+// Reason codes per adjustment type
+const REASON_CODES = {
+  expired: ['Routine expiry','Recalled product','Damaged packaging','Short expiry on receipt','Other'],
+  lost:    ['Breakage/spillage','Theft','Patient refusal — destroyed','Counting error','Lost in transit','Other'],
+  transfer:['Wrong manufacturer dispensed','DIN consolidation','Return to wholesaler','Inter-pharmacy transfer','Other'],
+  set:     ['Physical count correction','Opening balance','Data entry correction','Other'],
+  stock:   ['Physical count','Cycle count','Annual count','Other']
+};
+
+// ===================== PERSISTENCE =====================
+function saveData(){try{localStorage.setItem('rxstock_inv',JSON.stringify(inventory));localStorage.setItem('rxstock_log',JSON.stringify(activityLog));localStorage.setItem('rxstock_period',JSON.stringify(inventoryPeriod));}catch(e){}}
+function loadData(){try{const i=localStorage.getItem('rxstock_inv'),l=localStorage.getItem('rxstock_log'),p=localStorage.getItem('rxstock_period'),dn=localStorage.getItem('rxstock_divnotes'),cl=localStorage.getItem('rxstock_checklist');if(i)inventory=JSON.parse(i);if(l)activityLog=JSON.parse(l);if(p)inventoryPeriod=JSON.parse(p);if(dn)divergenceNotes=JSON.parse(dn);if(cl)checklistState=JSON.parse(cl);}catch(e){}}
+
+// ===================== TABS =====================
+function switchTab(name){
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  // Match nav button by onclick content rather than array index
+  document.querySelectorAll('nav button').forEach(b=>{
+    const oc=b.getAttribute('onclick')||'';
+    if(oc.includes("'"+name+"'"))b.classList.add('active');
+  });
+  if(name==='inventory')renderInventory();
+  if(name==='divergence')renderDivergences();
+  if(name==='log')renderLog();
+  if(name==='checklist')renderChecklist();
+  if(name==='tools')runDuplicateDetect();
+  syncMobileMenuActive();
+}
+
+// ===================== UTILS =====================
+function normalizeDIN(raw){const d=String(raw).replace(/\D/g,'');return d?d.padStart(8,'0'):'';}
+
+function typeBadge(t){
+  if(t==='Controlled')return '<span class="badge badge-ctrl">⚠️ Controlled</span>';
+  if(t==='Rx')return '<span class="badge badge-rx">Rx</span>';
+  return '<span class="badge badge-otc">OTC</span>';
+}
+
+// ===================== LOOKUP =====================
+let scanDDIndex=-1;
+
+function scanSearch(){
+  const raw=document.getElementById('din-input').value.trim();
+  const dd=document.getElementById('scan-dropdown');
+  if(!raw||raw.length<2){dd.style.display='none';return;}
+  const q=raw.toLowerCase();
+  const isNumeric=/^\d+$/.test(raw);
+  const din=isNumeric?normalizeDIN(raw):'';
+  // DIN prefix match only when input is purely numeric; otherwise search by name/manufacturer
+  const matches=inventory.filter(p=>
+    (isNumeric&&normalizeDIN(p.din).startsWith(din))||
+    p.name.toLowerCase().includes(q)||
+    (p.manufacturer||'').toLowerCase().includes(q)
+  ).slice(0,12);
+  if(!matches.length){dd.style.display='none';return;}
+  scanDDIndex=-1;
+  dd.innerHTML=matches.map((p,i)=>{
+    const sc=p.qty<0?'var(--danger)':p.qty===0?'var(--danger)':p.qty<=(p.threshold||10)?'var(--warn)':'var(--accent)';
+    return `<div class="scan-dropdown-item" data-idx="${i}" onmousedown="selectScanResult('${p.din}')">
+      <div><div class="scan-dd-name">${p.name}</div><div class="scan-dd-din">${p.din} · ${p.manufacturer||'—'}</div></div>
+      <div class="scan-dd-qty" style="color:${sc}">${p.qty}</div>
+    </div>`;
+  }).join('');
+  dd.style.display='block';
+}
+
+function selectScanResult(din){
+  document.getElementById('din-input').value=din;
+  document.getElementById('scan-dropdown').style.display='none';
+  scanDDIndex=-1;
+  lookupDIN();
+}
+
+function scanKeyNav(e){
+  const dd=document.getElementById('scan-dropdown');
+  const items=dd.querySelectorAll('.scan-dropdown-item');
+  if(dd.style.display==='none'||!items.length){
+    if(e.key==='Enter')lookupDIN();
+    return;
+  }
+  if(e.key==='ArrowDown'){
+    e.preventDefault();
+    scanDDIndex=Math.min(scanDDIndex+1,items.length-1);
+    items.forEach((el,i)=>el.classList.toggle('active',i===scanDDIndex));
+  } else if(e.key==='ArrowUp'){
+    e.preventDefault();
+    scanDDIndex=Math.max(scanDDIndex-1,-1);
+    items.forEach((el,i)=>el.classList.toggle('active',i===scanDDIndex));
+  } else if(e.key==='Enter'){
+    if(scanDDIndex>=0&&items[scanDDIndex]){
+      items[scanDDIndex].dispatchEvent(new MouseEvent('mousedown'));
+    } else {
+      dd.style.display='none';
+      lookupDIN();
+    }
+  } else if(e.key==='Escape'){
+    dd.style.display='none';
+    scanDDIndex=-1;
+  }
+}
+
+function lookupDIN(){
+  document.getElementById('scan-dropdown').style.display='none';
+  scanDDIndex=-1;
+  const raw=document.getElementById('din-input').value.trim();
+  if(!raw)return;
+  const din=normalizeDIN(raw);
+  const product=inventory.find(p=>normalizeDIN(p.din)===din||normalizeDIN(p.barcode||'')===din);
+  document.getElementById('not-found').style.display='none';
+  document.getElementById('lookup-result').classList.remove('show');
+  if(product){currentProduct=product;showResult(product);toast('✓ Found: '+product.name,'success');}
+  else{document.getElementById('nf-din').textContent=raw;document.getElementById('not-found').style.display='block';toast('Not found — add below','warn');}
+}
+
+function showResult(p){
+  document.getElementById('not-found').style.display='none';
+  const sc=p.qty<0?'danger':p.qty===0?'danger':p.qty<=(p.threshold||10)?'warn':'accent';
+  document.getElementById('result-fields').innerHTML=`
+    <div class="result-field"><div class="result-label">Drug Name</div><div class="result-value" style="font-size:18px;font-family:var(--display);font-weight:800;">${p.name}</div></div>
+    <div class="result-field"><div class="result-label">DIN</div><div class="result-value accent">${p.din}</div></div>
+    <div class="result-field"><div class="result-label"><span data-i18n="lbl_mfr">Manufacturer</span></div><div class="result-value">${p.manufacturer||'—'}</div></div>
+    <div class="result-field"><div class="result-label"><span data-i18n="lbl_type">Type</span></div><div class="result-value">${typeBadge(p.type)}</div></div>
+    <div class="result-field"><div class="result-label">Stock</div><div class="result-value ${sc}" style="font-size:24px;font-family:var(--display);font-weight:800;">${p.qty} <span style="font-size:12px;font-weight:400;">units</span></div></div>
+    <div class="result-field"><div class="result-label">Threshold</div><div class="result-value">${p.threshold||10}</div></div>
+    ${p.notes?`<div class="result-field"><div class="result-label">Notes</div><div class="result-value" style="color:var(--warn)">${p.notes}</div></div>`:''}
+  `;
+  document.getElementById('adj-qty').value=1;
+  document.getElementById('adj-note').value='';
+  document.getElementById('lookup-result').classList.add('show');
+}
+
+function hideResult(){
+  document.getElementById('lookup-result').classList.remove('show');
+  document.getElementById('not-found').style.display='none';
+  document.getElementById('din-input').value='';
+  document.getElementById('din-input').focus();
+  currentProduct=null;
+}
+
+function onAdjTypeChange(){
+  const type=document.getElementById('adj-type').value;
+  const reasonSel=document.getElementById('adj-reason');
+  if(type==='transfer'){
+    reasonSel.style.display='none';
+    openTransferModal();
+    return;
+  }
+  const codes=REASON_CODES[type];
+  if(codes){
+    reasonSel.innerHTML='<option value="">— Reason (optional) —</option>'+codes.map(r=>`<option value="${r}">${r}</option>`).join('');
+    reasonSel.style.display='';
+  } else {
+    reasonSel.style.display='none';
+  }
+}
+
+function applyAdjustment(){
+  if(!currentProduct)return;
+  const type=document.getElementById('adj-type').value;
+  if(type==='transfer'){openTransferModal();return;}
+  const qty=parseFloat(document.getElementById('adj-qty').value)||0;
+  const reasonEl=document.getElementById('adj-reason');
+  const reason=reasonEl&&reasonEl.style.display!=='none'?reasonEl.value:'';
+  const freeNote=document.getElementById('adj-note').value||'';
+  const note=[reason,freeNote].filter(Boolean).join(' — ');
+  const prev=currentProduct.qty;
+  let logType='adjust', delta=0, logNote=note;
+
+  if(type==='add'){currentProduct.qty=prev+qty;delta=qty;logType='purchase';}
+  else if(type==='sub'){currentProduct.qty=prev-qty;delta=-qty;logType='sale';}
+  else if(type==='set'){currentProduct.qty=qty;delta=qty-prev;logType='count';logNote='Set exact'+(note?' — '+note:'');}
+  else if(type==='stock'){currentProduct.qty=qty;delta=qty-prev;logType='count';logNote='Current stock count'+(note?' — '+note:'');}
+  else if(type==='expired'){currentProduct.qty=prev-qty;delta=-qty;logType='adjust';logNote='Expired'+(note?' — '+note:'');}
+  else if(type==='lost'){currentProduct.qty=prev-qty;delta=-qty;logType='adjust';logNote='Lost/Damaged'+(note?' — '+note:'');}
+
+  addLog(logType,currentProduct,delta,logNote,prev,null);
+  saveData();updateStats();showResult(currentProduct);
+  toast('✓ Updated: '+currentProduct.name+' → '+currentProduct.qty+' units','success');
+  document.getElementById('adj-qty').value=1;
+  const rs=document.getElementById('adj-reason');if(rs)rs.style.display='none';
+}
+
+// ===================== CAMERA =====================
+
+// ===================== INVENTORY TABLE =====================
+function renderInventory(){
+  const rawSearch=(document.getElementById('inv-search').value||'');
+  const search=rawSearch.toLowerCase().trim();
+  // Show/hide clear button
+  const clearBtn=document.getElementById('inv-search-clear');
+  if(clearBtn)clearBtn.style.display=search?'flex':'none';
+  // Split into words so "hydro contin" matches "HYDROMORPH CONTIN"
+  const terms=search?search.split(/\s+/).filter(Boolean):[];
+  const hideEmpty=window._invHideEmpty||false;
+  let items=inventory.filter(p=>{
+    const haystack=(p.name+' '+p.din+' '+(p.manufacturer||'')+' '+(p.notes||'')).toLowerCase();
+    const ms=!terms.length||terms.every(t=>haystack.includes(t));
+      const pStats=getProductStats(p);
+    const pPrev=p.prevQty!==undefined&&p.prevQty!==null?p.prevQty:null;
+    const pExp=pPrev!==null?pPrev+pStats.purchases-pStats.sales+pStats.adjustments:null;
+    if(hideEmpty&&p.qty===0&&(pExp===null||pExp===0))return false;
+    return ms;
+  });
+  items.sort((a,b)=>{
+    let av,bv;
+    if(sortField==='_div'){
+      const sa=getProductStats(a),sb=getProductStats(b);
+      const pa=a.prevQty!==undefined&&a.prevQty!==null?a.prevQty:null;
+      const pb=b.prevQty!==undefined&&b.prevQty!==null?b.prevQty:null;
+      const ea=pa!==null||sa.purchases||sa.sales||sa.adjustments?(( pa||0)+sa.purchases-sa.sales+sa.adjustments):null;
+      const eb=pb!==null||sb.purchases||sb.sales||sb.adjustments?((pb||0)+sb.purchases-sb.sales+sb.adjustments):null;
+      av=ea!==null?-(a.qty-ea):null; // displayDiv = expected-actual
+      bv=eb!==null?-(b.qty-eb):null;
+      av=av??-Infinity; bv=bv??-Infinity;
+    } else {
+      av=a[sortField]??''; bv=b[sortField]??'';
+    }
+    if(typeof av==='number')return sortAsc?av-bv:bv-av;
+    return sortAsc?String(av).localeCompare(String(bv)):String(bv).localeCompare(String(av));
+  });
+  const tbody=document.getElementById('inv-body');
+  if(!items.length){tbody.innerHTML=`<tr><td colspan="8"><div class="empty-state"><div class="icon">📦</div><p>${t("empty_no_products")}</p></div></td></tr>`;return;}
+  tbody.innerHTML=items.map(p=>{
+    const stats=getProductStats(p);
+    const prev=p.prevQty!==undefined&&p.prevQty!==null?p.prevQty:null;
+    // Always compute expected using 0 as fallback for prevQty so log activity is never lost
+    const hasActivity=stats.purchases!==0||stats.sales!==0||stats.adjustments!==0;
+    const expected=(prev!==null||hasActivity)?((prev||0)+stats.purchases-stats.sales+stats.adjustments):null;
+    const div=expected!==null?(p.qty-expected):null;
+    const displayDiv=div; // positive=actual>expected(green), negative=actual<expected(red)
+    const divPct=expected!==null&&expected!==0?((displayDiv/Math.abs(expected))*100).toFixed(1):null;
+    const divClass=displayDiv===null?'':displayDiv>0?'color:var(--accent);font-weight:700':displayDiv<0?'color:var(--danger);font-weight:700':'color:var(--muted)';
+    const pct=expected===null||expected<=0?0:Math.min(100,(p.qty/expected)*100);
+    const sc=p.qty<0?'stock-critical':p.qty===0?'stock-critical':expected!==null&&p.qty<expected?'stock-low':'stock-ok';
+    const qc=p.qty<0?'critical':expected!==null&&p.qty<expected?'low':'';
+    return `<tr>
+      <td class="din-cell">${p.din}</td>
+      <td class="name-cell" title="${p.name}">${p.name}</td>
+      <td style="color:var(--muted);">${prev!==null?prev:'—'}</td>
+      <td><div class="stock-bar-wrap ${sc}"><div class="stock-bar"><div class="stock-bar-fill" style="width:${pct}%"></div></div><span class="qty-num ${qc}">${p.qty}</span></div></td>
+      <td style="${divClass}">${displayDiv!==null?(displayDiv>0?'+':'')+displayDiv+(divPct!==null?' ('+divPct+'%)':''):'—'}</td>
+      <td style="color:var(--muted);">${expected!==null?expected.toFixed(0):'—'}</td>
+      <td><div style="display:flex;gap:3px;">
+        <button class="tbl-btn" onclick="quickScan('${p.din}')">${t("btn_scan")}</button>
+        <button class="tbl-btn" onclick="openDetailModal('${p.id}')">${t("btn_detail")}</button>
+        <button class="tbl-btn" onclick="openEditModal('${p.id}')">${t("btn_edit")}</button>
+        <button class="tbl-btn del" onclick="deleteProduct('${p.id}')">${t("btn_del")}</button>
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+
+function quickScan(din){document.getElementById('din-input').value=din;switchTab('scan');lookupDIN();}
+function sortBy(f){if(sortField===f)sortAsc=!sortAsc;else{sortField=f;sortAsc=true;}renderInventory();}
+function deleteProduct(id){if(!confirm(t('confirm_delete_product')))return;inventory=inventory.filter(p=>p.id!==id);saveData();updateStats();renderInventory();toast(currentLang==='fr'?'Supprimé':'Deleted','warn');}
+
+// ===================== DIVERGENCES =====================
+// Notes that identify a physical count entry regardless of stored type
+const PHYSICAL_COUNT_NOTES=/^(Physical count|Current stock count|Set exact|Cycle count|Annual count)/i;
+function isPhysicalCount(l){
+  return l.type==='count'||PHYSICAL_COUNT_NOTES.test(l.note||'');
+}
+
+function getProductStats(p){
+  const logs=activityLog.filter(l=>normalizeDIN(l.din)===normalizeDIN(p.din)&&!l.undone);
+  let purchases=0,sales=0,adjustments=0;
+  logs.forEach(l=>{
+    if(isPhysicalCount(l))return; // never affects expected stock formula
+    if(l.type==='purchase')purchases+=l.qty;
+    else if(l.type==='sale')sales+=Math.abs(l.qty);
+    else if(l.type==='adjust')adjustments+=l.qty;
+  });
+  return{purchases,sales,adjustments};
+}
+
+let _invHideEmpty=false;
+window._invHideEmpty=false;
+function toggleHideEmpty(){
+  _invHideEmpty=!_invHideEmpty;
+  window._invHideEmpty=_invHideEmpty;
+  const btn=document.getElementById('inv-hide-empty-btn');
+  if(btn){
+    btn.textContent=_invHideEmpty?t('btn_show_all'):t('btn_hide_empty');
+    btn.style.background=_invHideEmpty?'rgba(0,212,170,0.15)':'';
+    btn.style.borderColor=_invHideEmpty?'var(--accent)':'';
+    btn.style.color=_invHideEmpty?'var(--accent)':'';
+  }
+  renderInventory();
+}
+
+let divHideZeroExpected=false;
+window.divHideZeroExpected=false;
+function toggleHideZeroExpected(){
+  divHideZeroExpected=!divHideZeroExpected;
+  window.divHideZeroExpected=divHideZeroExpected;
+  const btn=document.getElementById('div-hide-zero-btn');
+  if(btn){
+    btn.textContent=divHideZeroExpected?t('btn_show_all'):t('btn_hide_formulary');
+    btn.style.background=divHideZeroExpected?'rgba(0,212,170,0.15)':'';
+    btn.style.borderColor=divHideZeroExpected?'var(--accent)':'';
+    btn.style.color=divHideZeroExpected?'var(--accent)':'';
+  }
+  renderDivergences();
+}
+
+function renderDivergences(){
+  const search=(document.getElementById('div-search').value||'').toLowerCase();
+  const filter=document.getElementById('div-filter').value;
+  let items=inventory.filter(p=>{
+    // Include if prevQty is set, OR if there is any log activity
+    if(p.prevQty!==undefined&&p.prevQty!==null)return true;
+    const s=getProductStats(p);
+    return s.purchases!==0||s.sales!==0||s.adjustments!==0;
+  });
+  items=items.map(p=>{
+    const stats=getProductStats(p);
+    const expected=(p.prevQty||0)+stats.purchases-stats.sales+stats.adjustments;
+    const actual=p.qty;
+    // displayDiv = actual - expected
+    // positive → actual > expected → more stock than formula predicts → green (oversold / extra)
+    // negative → actual < expected → less stock than formula predicts → red (undersold / theft)
+    // This holds correctly even when expected is negative.
+    const rawDiv=actual-expected;
+    const displayDiv=actual-expected; // same sign — positive=green, negative=red
+    const pct=expected!==0?((displayDiv/Math.abs(expected))*100):0;
+    const note=divergenceNotes[p.id]||{text:'',resolved:false};
+    return{...p,stats,expected,actual,rawDiv,displayDiv,pct,divNote:note};
+  });
+  items=items.filter(p=>{
+    if(p.rawDiv===0&&!p.divNote.text)return false;
+    if(divHideZeroExpected&&p.expected===0)return false;
+    const ms=!search||p.name.toLowerCase().includes(search)||p.din.includes(search);
+    const mf=!filter
+      ||(filter==='bad'&&Math.abs(p.pct)>10)
+      ||(filter==='warn'&&Math.abs(p.pct)>=1&&Math.abs(p.pct)<=10)
+      ||(filter==='unresolved'&&!p.divNote.resolved&&p.rawDiv!==0)
+      ||(filter==='resolved'&&p.divNote.resolved);
+    return ms&&mf;
+  });
+  items.sort((a,b)=>{
+    if(a.divNote.resolved!==b.divNote.resolved)return a.divNote.resolved?1:-1;
+    return Math.abs(b.rawDiv)-Math.abs(a.rawDiv);
+  });
+  const tbody=document.getElementById('div-body');
+  if(!items.length){tbody.innerHTML=`<tr><td colspan="12"><div class="empty-state"><div class="icon">✓</div><p>${t("empty_no_div")}</p></div></td></tr>`;return;}
+  tbody.innerHTML=items.map(p=>{
+    const bad=Math.abs(p.pct)>10&&!p.divNote.resolved;
+    const warn=!bad&&Math.abs(p.pct)>=1&&!p.divNote.resolved;
+    const rc=p.divNote.resolved?'div-row-ok':bad?'div-row-bad':warn?'div-row-warn':'div-row-ok';
+    // oversold (displayDiv > 0) = green; undersold/theft (displayDiv < 0) = red
+    const dc=p.divNote.resolved?'color:var(--muted)':p.displayDiv>0?'color:var(--accent)':p.displayDiv<0?'color:var(--danger)':'';
+    const noteText=p.divNote.text||'';
+    const resolved=p.divNote.resolved;
+    const divSign=p.displayDiv>0?'+':p.displayDiv<0?'-':'';
+    const divLabel=p.displayDiv>0?t('detail_extra'):t('detail_shortage');
+    return `<tr class="${rc}" style="${resolved?'opacity:.6':''}">
+      <td class="din-cell">${p.din}</td>
+      <td style="font-weight:500;max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${p.name}">${p.name}</td>
+      <td>${p.prevQty!==undefined&&p.prevQty!==null?p.prevQty:'—'}</td>
+      <td style="color:var(--accent)">+${p.stats.purchases}</td>
+      <td style="color:var(--danger)">−${p.stats.sales}</td>
+      <td style="color:var(--muted)">${p.stats.adjustments!==0?(p.stats.adjustments>0?'+':'')+p.stats.adjustments:'—'}</td>
+      <td>${p.expected.toFixed(1)}</td>
+      <td style="font-weight:600;">${p.actual}</td>
+      <td class="div-val" style="${dc};font-weight:700;">${divSign}${Math.abs(p.displayDiv).toFixed(1)}</td>
+      <td class="div-val" style="${dc};font-size:11px;">${p.displayDiv!==0?'<span style="font-size:10px;opacity:.7">'+divLabel+'</span> ':''}${p.pct.toFixed(1)}%</td>
+      <td style="display:flex;gap:4px;">
+        <input type="text" data-divid="${p.id}" value="${noteText.replace(/"/g,'&quot;')}" placeholder="${t("ph_note")}"
+          style="width:110px;background:var(--surface);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:11px;padding:3px 6px;border-radius:5px;outline:none;"
+          onchange="setDivNote('${p.id}',this.value,${resolved})">
+        <button class="tbl-btn" style="${resolved?'background:rgba(0,212,170,0.15);color:var(--accent)':''}" onclick="toggleDivResolved('${p.id}')" title="${resolved?(currentLang==='fr'?'Marquer non résolu':'Mark unresolved'):(currentLang==='fr'?'Marquer résolu':'Mark resolved')}">${resolved?'↺':'✓'}</button>
+      </td>
+      <td><button class="tbl-btn" onclick="openDetailModal('${p.id}')">${t("btn_detail")}</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function setDivNote(id,text,resolved){
+  divergenceNotes[id]={text:text.trim(),resolved};
+  localStorage.setItem('rxstock_divnotes',JSON.stringify(divergenceNotes));
+}
+function toggleDivResolved(id){
+  const n=divergenceNotes[id]||{text:'',resolved:false};
+  setDivNote(id,n.text,!n.resolved);
+  renderDivergences();
+}
+
+// ===================== DETAIL MODAL =====================
+function openDetailModal(id){
+  const p=inventory.find(x=>x.id===id);
+  if(!p)return;
+  const stats=getProductStats(p);
+  const expected=(p.prevQty||0)+stats.purchases-stats.sales+stats.adjustments;
+  const div=p.qty-expected;
+  const logs=activityLog.filter(l=>normalizeDIN(l.din)===normalizeDIN(p.din)&&!l.undone);
+  document.getElementById('detail-title').textContent=p.name+' — '+t('detail_breakdown');
+  const byType=(type)=>logs.filter(l=>l.type===type);
+  const fmt=(n)=>(n>=0?'+':'')+n;
+  // displayDiv: positive = oversold (green), negative = undersold/theft (red)
+  const displayDiv=p.qty-expected; // positive=more than expected(green), negative=less(red)
+  const divPct=expected!==0?((displayDiv/Math.abs(expected))*100).toFixed(1):0;
+  const divColor=displayDiv>0?'var(--accent)':displayDiv<0?'var(--danger)':'var(--muted)';
+  const divLabel=displayDiv>0?t('detail_extra'):t('detail_shortage');
+  document.getElementById('detail-body').innerHTML=`
+    <div class="detail-panel" style="margin-bottom:14px;">
+      <div class="detail-row"><span class="detail-key">${t("detail_prev_count")}</span><span class="detail-val">${p.prevQty!==undefined?p.prevQty:t('detail_not_set')}</span></div>
+      <div class="detail-row"><span class="detail-key">${t("detail_purchases")}</span><span class="detail-val pos">+${stats.purchases}</span></div>
+      <div class="detail-row"><span class="detail-key">${t("detail_sales")}</span><span class="detail-val neg">−${stats.sales}</span></div>
+      <div class="detail-row"><span class="detail-key">${t("detail_adjustments")}</span><span class="detail-val ${stats.adjustments<=0?'neg':'pos'}">${stats.adjustments>=0?'+':''}${stats.adjustments}</span></div>
+      <div class="detail-row" style="border-top:1px solid var(--border);margin-top:4px;padding-top:8px;"><span class="detail-key" style="color:var(--text);font-weight:700;">${t("detail_expected")}</span><span class="detail-val" style="font-size:16px;">${expected.toFixed(1)}</span></div>
+      <div class="detail-row"><span class="detail-key" style="color:var(--text);font-weight:700;">${t("detail_actual")}</span><span class="detail-val" style="font-size:16px;">${p.qty}</span></div>
+      <div class="detail-row" style="border-top:1px solid var(--accent);margin-top:4px;padding-top:8px;"><span class="detail-key" style="color:var(--text);font-weight:700;">${t("detail_divergence")}</span><span class="detail-val" style="font-size:16px;font-weight:800;color:${divColor};">${displayDiv>0?'+':''}${displayDiv.toFixed(1)} (${divPct}%)</span></div>
+      ${displayDiv!==0?`<div class="detail-row"><span class="detail-key" style="color:${divColor};font-size:11px;">${divLabel}</span><span class="detail-val" style="color:${divColor};font-size:11px;">${displayDiv>0?t('detail_extra_desc'):t('detail_shortage_desc')}</span></div>`:''}
+    </div>
+    <div style="font-family:var(--display);font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;">${t("detail_tx_history")}</div>
+    <div style="max-height:300px;overflow-y:auto;">
+      ${logs.length===0?'<div style="color:var(--muted);font-size:12px;padding:10px;">${t("detail_no_tx")}</div>':
+      logs.map(l=>{
+        const d=new Date(l.time);
+        const ts=d.toLocaleDateString()+' '+d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+        const isCount=isPhysicalCount(l);
+        const tc=l.type==='purchase'?'var(--accent)':l.type==='sale'?'var(--danger)':isCount?'var(--muted)':'var(--accent2)';
+        const tl=isCount?t('log_count'):l.type.toUpperCase();
+        return `<div class="detail-row">
+          <span class="detail-key" style="font-size:11px;">${ts}</span>
+          <span style="color:${tc};font-size:11px;width:70px;">${tl}</span>
+          <span style="color:${l.qty>=0?'var(--accent)':'var(--danger)'};font-weight:600;">${fmt(l.qty)}</span>
+          <span style="color:var(--muted);font-size:11px;flex:1;text-align:right;">${l.note||''}</span>
+        </div>`;
+      }).join('')}
+    </div>
+    <div class="modal-footer" style="margin-top:14px;">
+      <button class="btn" onclick="openEditModal('${p.id}');document.getElementById('detail-modal').classList.remove('open')"><span data-i18n="modal_edit_title">Edit Product</span></button>
+      <button class="btn btn-primary" onclick="quickScan('${p.din}');document.getElementById('detail-modal').classList.remove('open')"><span>${t("btn_scan_adjust")}</span></button>
+    </div>
+  `;
+  document.getElementById('detail-modal').classList.add('open');
+}
+
+// ===================== ADD PRODUCT MODAL =====================
+function openAddModal(prefillDin,prefillName){
+  document.getElementById('am-din').value=prefillDin||'';
+  document.getElementById('am-name').value=prefillName||'';
+  document.getElementById('am-mfr').value='';
+  document.getElementById('am-type').value='Rx';
+  document.getElementById('am-qty').value='0';
+  document.getElementById('am-threshold').value='10';
+  document.getElementById('am-notes').value='';
+  document.getElementById('am-din-status').textContent='';
+  document.getElementById('add-modal').classList.add('open');
+  setTimeout(()=>document.getElementById('am-din').focus(),50);
+}
+function closeAddModal(){document.getElementById('add-modal').classList.remove('open');}
+function checkDINExists(){
+  const din=normalizeDIN(document.getElementById('am-din').value.trim());
+  const el=document.getElementById('am-din-status');
+  if(!din){el.textContent='';return;}
+  const ex=inventory.find(p=>normalizeDIN(p.din)===din);
+  if(ex){el.textContent='⚠ Exists: '+ex.name;el.style.color='var(--warn)';}
+  else{el.textContent='✓ Available';el.style.color='var(--accent)';}
+}
+function submitAddModal(){
+  const din=normalizeDIN(document.getElementById('am-din').value.trim());
+  const name=document.getElementById('am-name').value.trim();
+  if(!din||!name){toast('DIN and name are required','error');return;}
+  if(inventory.find(p=>normalizeDIN(p.din)===din)){toast('DIN already exists','error');return;}
+  const qty=parseFloat(document.getElementById('am-qty').value)||0;
+  const product={id:Date.now()+'_'+Math.random(),din,barcode:din,name,
+    manufacturer:document.getElementById('am-mfr').value.trim(),
+    type:document.getElementById('am-type').value,qty,
+    threshold:parseInt(document.getElementById('am-threshold').value)||10,
+    expiry:'',notes:document.getElementById('am-notes').value.trim()};
+  inventory.push(product);
+  addLog('add',product,qty,'Manually added');
+  saveData();updateStats();renderInventory();closeAddModal();
+  toast('✓ Added: '+name,'success');
+}
+
+// ===================== EDIT PRODUCT MODAL =====================
+function openEditModal(id){
+  const p=inventory.find(x=>x.id===id);
+  if(!p)return;
+  editProductId=id;
+  document.getElementById('em-din').value=p.din;
+  document.getElementById('em-name').value=p.name;
+  document.getElementById('em-mfr').value=p.manufacturer||'';
+  document.getElementById('em-type').value=p.type||'Rx';
+  document.getElementById('em-qty').value=p.qty;
+  document.getElementById('em-threshold').value=p.threshold||10;
+  document.getElementById('em-prevqty').value=p.prevQty!==undefined?p.prevQty:'';
+  document.getElementById('em-expiry').value=p.expiry||'';
+  document.getElementById('em-notes').value=p.notes||'';
+  document.getElementById('edit-modal').classList.add('open');
+}
+function submitEditModal(){
+  const p=inventory.find(x=>x.id===editProductId);
+  if(!p)return;
+  const oldQty=p.qty;
+  p.name=document.getElementById('em-name').value.trim()||p.name;
+  p.manufacturer=document.getElementById('em-mfr').value.trim();
+  p.type=document.getElementById('em-type').value;
+  p.qty=parseFloat(document.getElementById('em-qty').value)||0;
+  p.threshold=parseInt(document.getElementById('em-threshold').value)||10;
+  const pv=document.getElementById('em-prevqty').value;
+  p.prevQty=pv!==''?parseFloat(pv):p.prevQty;
+  p.expiry=document.getElementById('em-expiry').value.trim();
+  p.notes=document.getElementById('em-notes').value.trim();
+  if(p.qty!==oldQty)addLog('adjust',p,p.qty-oldQty,'Manual edit',oldQty,null);
+  saveData();updateStats();renderInventory();
+  document.getElementById('edit-modal').classList.remove('open');
+  toast('✓ Product updated','success');
+}
+
+// ===================== EXPORT =====================
+function exportCSV(){
+  const h=['DIN','Name','Manufacturer','Type','PrevCount','Quantity','Threshold','Expiry','Notes'];
+  const rows=inventory.map(p=>[p.din,p.name,p.manufacturer||'',p.type,p.prevQty??'',p.qty,p.threshold||10,p.expiry||'',p.notes||'']);
+  const csv=[h,...rows].map(r=>r.map(c=>`"${c}"`).join(',')).join('\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download='narcount_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
+  toast('✓ CSV exported','success');
+}
+
+// ===================== IMPORT =====================
+function parseRowWith(line,delim){
+  if(delim===','||delim===';'){
+    const res=[];let cur='',inQ=false;
+    for(let i=0;i<line.length;i++){const c=line[i];if(c==='"'){inQ=!inQ;}else if(c===delim&&!inQ){res.push(cur.trim());cur='';}else{cur+=c;}}
+    res.push(cur.trim());return res;
+  }
+  return line.split('\t').map(c=>c.trim());
+}
+
+function handleFileDrop(e){
+  e.preventDefault();
+  document.getElementById('csv-drop').classList.remove('drag-over');
+  const file=e.dataTransfer.files[0];
+  if(file)readCSVFile(file);
+}
+function handleFileSelect(e){
+  const file=e.target.files[0];
+  if(file)readCSVFile(file);
+  e.target.value=''; // reset so same file can be re-selected
+}
+function readCSVFile(file){
+  const reader=new FileReader();
+  reader.onload=function(e){
+    document.getElementById('paste-area').value=e.target.result;
+    parsePaste();
+    toast('✓ File loaded: '+file.name,'success');
+  };
+  reader.onerror=function(){toast('Error reading file','error');};
+  reader.readAsText(file,'UTF-8');
+}
+function parsePaste(){
+  const raw=document.getElementById('paste-area').value.trim();
+  const status=document.getElementById('paste-status');
+  const btn=document.getElementById('run-import-btn');
+  if(!raw){status.textContent='';btn.disabled=true;document.getElementById('mapping-ui').style.display='none';document.getElementById('import-preview').style.display='none';importData=[];importHeaders=[];return;}
+  const allLines=raw.split(/\r?\n/);
+  // Collapse multi-line quoted strings FIRST (e.g. report title spanning several lines)
+  const collapsed=[];let buf='',inQ=false;
+  for(const line of allLines){
+    for(let i=0;i<line.length;i++){if(line[i]==='"')inQ=!inQ;}
+    buf+=buf?'\n'+line:line;
+    if(!inQ){collapsed.push(buf);buf='';}
+  }
+  if(buf)collapsed.push(buf);
+  // Detect delimiter AFTER collapsing, from a line with real content (not just separators)
+  const sample=collapsed.find(l=>l.replace(/[;,\t\s"]/g,'').length>2)||'';
+  const tc=(sample.match(/\t/g)||[]).length,sc=(sample.match(/;/g)||[]).length,cc=(sample.match(/,/g)||[]).length;
+  const delim=tc>=sc&&tc>=cc?'\t':sc>=cc?';':',';
+
+  const isJunk=line=>parseRowWith(line,delim).every(c=>c.trim()==='');
+  const nonEmpty=collapsed.filter(l=>l.trim()!==''&&!isJunk(l));
+
+  // A real header row has short cell values (not paragraphs) and matches known column names
+  const looksLikeHeader=line=>{
+    const cells=parseRowWith(line,delim).map(c=>c.trim().replace(/^"|"$/g,'')).filter(c=>c);
+    if(!cells.length)return false;
+    // If any cell matches known header names it's definitely a header
+    const known=/^(din|produit|description|qt[ée]|quantit[ée]|fabricant|fournisseur|format|co[uû]t|nombre|d[eé]compte|nom|type|narc|name|manufacturer|quantity|prevcount|threshold)/i;
+    if(cells.some(c=>known.test(c)))return true;
+    // Also accept if all cells are short (<=40 chars) and at least 3 cells — likely a header row
+    return cells.length>=3&&cells.every(c=>c.length<=40)&&/[a-zA-ZÀ-ÿ]/.test(line);
+  };
+
+  const hIdx=nonEmpty.findIndex(l=>looksLikeHeader(l));
+  if(hIdx===-1||hIdx>=nonEmpty.length-1){status.textContent='Need header + data rows';btn.disabled=true;return;}
+  const cleanLines=nonEmpty.slice(hIdx);
+  if(cleanLines.length<2){status.textContent='Need at least 2 rows';btn.disabled=true;return;}
+  const parseRow=line=>parseRowWith(line,delim);
+  importHeaders=parseRow(cleanLines[0]);
+  importData=cleanLines.slice(1).map(line=>{const cols=parseRow(line);const obj={};importHeaders.forEach((h,i)=>{obj[h]=cols[i]!==undefined?cols[i]:'';});return obj;});
+  status.textContent=importData.length+' rows detected';
+  btn.disabled=false;
+  autoDetectReportType(raw);
+  buildMappingUI();
+  buildPreviewTable();
+  document.getElementById('mapping-ui').style.display='block';
+  document.getElementById('import-preview').style.display='block';
+}
+
+function autoDetectReportType(raw){
+  const lower=raw.toLowerCase();
+  // Sales report: "rapport statistique des produits"
+  if(lower.includes('rapport statistique des produits')){
+    document.getElementById('import-mode').value='sale';
+    return;
+  }
+  // Purchase report: "substances narcotiques et contr"
+  if(lower.includes('substances narcotiques')||lower.includes('narcotiques et contr')){
+    document.getElementById('import-mode').value='purchase';
+    return;
+  }
+  // RxStock backup: has our own exported header columns
+  if(importHeaders.some(h=>/^prevcount$/i.test(h.trim()))||
+     (importHeaders.some(h=>/^din$/i.test(h.trim()))&&importHeaders.some(h=>/^quantity$/i.test(h.trim()))&&importHeaders.some(h=>/^threshold$/i.test(h.trim())))){
+    document.getElementById('import-mode').value='backup';
+    return;
+  }
+  // Legacy inventory: has "decompte" column
+  if(importHeaders.some(h=>/d[eé]compte/i.test(h))){
+    document.getElementById('import-mode').value='legacy';
+    return;
+  }
+}
+
+function onImportModeChange(){if(importHeaders.length>0)buildMappingUI();}
+
+function autoGuess(headers,field){
+  const mode=document.getElementById('import-mode')?document.getElementById('import-mode').value:'';
+  const isLeg=mode==='legacy';
+  const priorities={
+    din:[/^#?\s*din$/i,/\b(din|barcode|sku|product[\s_]?id|upc|code)\b/i],
+    name:[/^description$/i,/^produit$/i,/^name$/i,/\b(name|drug|product|produit|description|medication|nom)\b/i],
+    manufacturer:[/^manufacturer$/i,/^fabricant$/i,/^fournisseur$/i,/\b(mfr|manufacturer|vendor|supplier|brand|fabricant|fournisseur)\b/i],
+    qty:isLeg?[/^d[eé]compte$/i]:([/^quantity$/i,/^qt.{0,3}servi/i,/^quantit/i,/\b(qty|quantity|count|stock|units|amount|servi)\b/i]),
+    threshold:[/^threshold$/i,/\b(threshold|seuil|min|alert)\b/i],
+
+  };
+  const pats=priorities[field];if(!pats)return'(skip)';
+  if(field==='qty'&&isLeg){
+    const ms=headers.reduce((a,h)=>{if(/d[eé]compte/i.test(h.trim())&&!/pr[eé][cé]/i.test(h.trim()))a.push(h);return a;},[]);
+    if(ms.length>=2)return ms[1];if(ms.length===1)return ms[0];
+  }
+  for(const pat of pats){const m=headers.find(h=>pat.test(h.trim()));if(m)return m;}
+  return'(skip)';
+}
+
+function buildMappingUI(){
+  const mode=document.getElementById('import-mode').value;
+  const isLeg=mode==='legacy';
+  const isBkp=mode==='backup'||mode==='restore';
+  const fields=isBkp?[
+    {key:'din',label:'DIN',required:true},
+    {key:'name',label:'Drug Name'},
+    {key:'manufacturer',label:'Manufacturer'},
+    {key:'qty',label:'Quantity (→ becomes new Previous Count)',required:true},
+    {key:'threshold',label:'Threshold'}
+  ]:isLeg?[
+    {key:'din',label:'DIN',required:true},
+    {key:'name',label:'Drug Name (PRODUIT)'},
+    {key:'qty',label:'DECOMPTE (physical count → becomes Previous Count)',required:true}
+  ]:[
+    {key:'din',label:'DIN',required:true},
+    {key:'name',label:'Drug Name / Description'},
+    {key:'manufacturer',label:'Manufacturer'},
+    {key:'qty',label:'Quantity'}
+  ];
+  if(mode==='custom'){buildCustomMappingUI();return;}
+  const container=document.getElementById('mapping-fields');container.innerHTML='';
+  fields.forEach(f=>{
+    const guessed=autoGuess(importHeaders,f.key);
+    const row=document.createElement('div');row.className='mapping-grid';row.style.marginBottom='8px';
+    const lbl=document.createElement('div');lbl.className='mapping-label';lbl.innerHTML=f.label+(f.required?' <span style="color:var(--accent)">*</span>':'');
+    const arr=document.createElement('div');arr.className='mapping-arrow';arr.textContent='→';
+    const sel=document.createElement('select');sel.className='map-select';sel.id='map-'+f.key;
+    ['(skip)',...importHeaders].forEach(h=>{const o=document.createElement('option');o.value=h;o.textContent=h;if(h===guessed)o.selected=true;sel.appendChild(o);});
+    row.appendChild(lbl);row.appendChild(arr);row.appendChild(sel);container.appendChild(row);
+  });
+}
+
+function buildCustomMappingUI(){
+  const container=document.getElementById('mapping-fields');
+  container.innerHTML='';
+
+  const info=document.createElement('div');
+  info.style.cssText='background:rgba(0,144,255,0.08);border:1px solid rgba(0,144,255,0.2);border-radius:8px;padding:12px;margin-bottom:16px;font-size:12px;color:var(--muted);line-height:1.6;';
+  info.innerHTML='Map columns from your CSV to NarCount fields. Each field has a specific effect — unmapped fields are left unchanged on existing products.';
+  container.appendChild(info);
+
+  // Section helper
+  function section(title){
+    const d=document.createElement('div');
+    d.style.cssText='font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);padding:8px 0 6px;border-top:1px solid var(--border);margin-top:8px;';
+    d.textContent=title;
+    container.appendChild(d);
+  }
+
+  // Field row helper — returns the select element
+  function addField(key,label,desc,guessKey,accent,required){
+    const guessed=autoGuess(importHeaders,guessKey||key);
+    const row=document.createElement('div');
+    row.style.cssText='display:grid;grid-template-columns:220px 20px 1fr;align-items:start;gap:10px;margin-bottom:10px;';
+    const lbl=document.createElement('div');
+    lbl.innerHTML=`<div style="font-size:12px;font-weight:600;color:${accent||'var(--text)'};">${label}${required?'<span style="color:var(--accent)"> *</span>':''}</div><div style="font-size:10px;color:var(--muted);margin-top:2px;line-height:1.4;">${desc}</div>`;
+    const arr=document.createElement('div');arr.style.cssText='color:var(--muted);text-align:center;padding-top:2px;';arr.textContent='→';
+    const sel=document.createElement('select');sel.className='map-select';sel.id='map-custom-'+key;
+    sel.style.cssText='width:100%;';
+    sel.addEventListener('change',buildCustomPreview);
+    ['(skip)',...importHeaders].forEach(h=>{
+      const o=document.createElement('option');o.value=h;o.textContent=h;
+      if(h===guessed)o.selected=true;
+      sel.appendChild(o);
+    });
+    row.appendChild(lbl);row.appendChild(arr);row.appendChild(sel);
+    container.appendChild(row);
+    return sel;
+  }
+
+  section('Identifier');
+  addField('din','DIN','Drug Identification Number — required to match or create products','din','var(--accent)',true);
+  addField('name','Drug Name','Product name / description — overrides existing name if Force Update is on','name');
+  addField('mfr','Manufacturer','Supplier or brand name','manufacturer');
+  addField('type','Product Type','Rx / OTC / Controlled','type');
+  addField('expiry','Expiry Date','Expiry date','expiry');
+  addField('notes','Notes','Free-text notes','notes');
+
+  section('Options');
+  // Force update toggle
+  const forceRow=document.createElement('div');
+  forceRow.style.cssText='display:flex;align-items:center;gap:12px;margin-bottom:10px;';
+  forceRow.innerHTML=`
+    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;">
+      <input type="checkbox" id="custom-force" style="accent-color:var(--accent);width:15px;height:15px;">
+      <span><b style="color:var(--text);">Force Update</b> — overwrite Drug Name &amp; Manufacturer even if product already exists</span>
+    </label>`;
+  container.appendChild(forceRow);
+
+  section('Stock Values — map one or more columns');
+  addField('prev_count','Previous Physical Count','Baseline for the divergence formula (prevQty). Does not affect current stock.','prevcount','var(--accent2)');
+  addField('purchases','Purchases','Units received — added to current stock and logged as a purchase','qty','var(--accent)');
+  addField('sales','Sales','Units dispensed — subtracted from current stock and logged as a sale','qty','var(--danger)');
+  addField('current_count','Current Physical Count','Actual units counted on shelf — sets current stock and resets the divergence baseline','qty','var(--warn)');
+
+  // Build initial preview
+  buildCustomPreview();
+}
+
+function getCustomMap(key){const el=document.getElementById('map-custom-'+key);return el?el.value:'(skip)';}
+
+function buildCustomPreview(){
+  const wrap=document.getElementById('preview-table-wrap');
+  if(!wrap||!importData.length)return;
+
+  const dinCol=getCustomMap('din');
+  const nameCol=getCustomMap('name');
+  const mfrCol=getCustomMap('mfr');
+  const prevCountCol=getCustomMap('prev_count');
+  const purchasesCol=getCustomMap('purchases');
+  const salesCol=getCustomMap('sales');
+  const currentCountCol=getCustomMap('current_count');
+  const force=document.getElementById('custom-force')?.checked||false;
+
+  // Columns that are mapped (to show from CSV)
+  const csvCols=importHeaders.filter(h=>[dinCol,nameCol,mfrCol,prevCountCol,purchasesCol,salesCol,currentCountCol].includes(h));
+
+  // NarCount result columns
+  const resultCols=[];
+  if(dinCol!=='(skip)')resultCols.push({label:'DIN',key:'din',color:'var(--accent)'});
+  if(nameCol!=='(skip)')resultCols.push({label:'Name',key:'name',color:'var(--text)'});
+  if(mfrCol!=='(skip)')resultCols.push({label:'Manufacturer',key:'mfr',color:'var(--muted)'});
+  if(prevCountCol!=='(skip)')resultCols.push({label:'→ Prev Count',key:'prev_count',color:'var(--accent2)'});
+  if(purchasesCol!=='(skip)')resultCols.push({label:'→ +Purchases',key:'purchases',color:'var(--accent)'});
+  if(salesCol!=='(skip)')resultCols.push({label:'→ −Sales',key:'sales',color:'var(--danger)'});
+  if(currentCountCol!=='(skip)')resultCols.push({label:'→ Current Count',key:'current_count',color:'var(--warn)'});
+
+  let html='<table style="width:100%;border-collapse:collapse;font-size:11px;">';
+
+  // Header: CSV source cols | separator | result cols
+  html+='<thead><tr>';
+  csvCols.forEach(h=>{
+    const isMapped=[dinCol,nameCol,mfrCol,prevCountCol,purchasesCol,salesCol,currentCountCol].includes(h);
+    html+=`<th style="background:var(--surface2);padding:6px 10px;text-align:left;color:${isMapped?'var(--text)':'var(--muted)'};border-bottom:1px solid var(--border);white-space:nowrap;font-size:10px;">${h}</th>`;
+  });
+  if(resultCols.length){
+    html+=`<th style="background:var(--surface2);padding:6px 4px;border-bottom:1px solid var(--border);width:16px;"></th>`;
+    resultCols.forEach(c=>{
+      html+=`<th style="background:rgba(0,212,170,0.07);padding:6px 10px;text-align:left;color:${c.color};border-bottom:1px solid var(--border);white-space:nowrap;font-size:10px;">${c.label}</th>`;
+    });
+  }
+  html+='</tr></thead><tbody>';
+
+  // Rows: first 8
+  importData.slice(0,8).forEach((row,ri)=>{
+    const din=normalizeDIN(String(row[dinCol]||'').trim());
+    const existing=din?inventory.find(x=>normalizeDIN(x.din)===din||normalizeDIN(x.barcode||'')===din):null;
+    const isNew=!existing;
+    html+=`<tr style="background:${ri%2?'':'rgba(0,0,0,0.1)'}">`;
+
+    // CSV value cells
+    csvCols.forEach(h=>{
+      html+=`<td style="padding:5px 10px;border-bottom:1px solid rgba(30,45,61,.3);white-space:nowrap;color:var(--muted);font-size:11px;">${row[h]||''}</td>`;
+    });
+
+    if(resultCols.length){
+      // Status pill
+      const pill=isNew
+        ?`<span style="font-size:9px;background:rgba(0,212,170,0.15);color:var(--accent);padding:1px 5px;border-radius:4px;">NEW</span>`
+        :`<span style="font-size:9px;background:rgba(0,144,255,0.12);color:var(--accent2);padding:1px 5px;border-radius:4px;">UPDATE</span>`;
+      html+=`<td style="padding:5px 4px;border-bottom:1px solid rgba(30,45,61,.3);text-align:center;">${pill}</td>`;
+
+      resultCols.forEach(c=>{
+        let val='';
+        let note='';
+        if(c.key==='din')val=din||'—';
+        else if(c.key==='name'){
+          const csv=(row[nameCol]||'').trim();
+          val=csv;
+          if(!isNew&&!force)note='<br><span style="font-size:9px;color:var(--muted);">skipped (exists)</span>';
+          if(!isNew&&force)note='<br><span style="font-size:9px;color:var(--warn);">forced overwrite</span>';
+        }
+        else if(c.key==='mfr'){
+          val=(row[mfrCol]||'').trim();
+          if(!isNew&&!force)note='<br><span style="font-size:9px;color:var(--muted);">skipped (exists)</span>';
+        }
+        else if(c.key==='prev_count')val=(row[prevCountCol]||'').trim();
+        else if(c.key==='purchases'){
+          const v=parseFloat(row[purchasesCol]||'');
+          val=isNaN(v)?'':'+'+v;
+        }
+        else if(c.key==='sales'){
+          const v=parseFloat(row[salesCol]||'');
+          val=isNaN(v)?'':'\u2212'+Math.abs(v);
+        }
+        else if(c.key==='current_count')val=(row[currentCountCol]||'').trim();
+        html+=`<td style="padding:5px 10px;border-bottom:1px solid rgba(30,45,61,.3);white-space:nowrap;color:${c.color};font-weight:600;background:rgba(0,212,170,0.04);">${val}${note}</td>`;
+      });
+    }
+    html+='</tr>';
+  });
+  html+='</tbody></table>';
+  if(importData.length>8)html+=`<div style="padding:8px 10px;font-size:11px;color:var(--muted);">… and ${importData.length-8} more rows</div>`;
+  wrap.innerHTML=html;
+}
+
+function executeCustomImport(rows,dinCol,batchId){
+  const nameCol=getCustomMap('name');
+  const mfrCol=getCustomMap('mfr');
+  const prevCountCol=getCustomMap('prev_count');
+  const purchasesCol=getCustomMap('purchases');
+  const salesCol=getCustomMap('sales');
+  const currentCountCol=getCustomMap('current_count');
+  const expiryCol=getCustomMap('expiry');
+  const notesCol=getCustomMap('notes');
+  const typeCol=getCustomMap('type');
+  const force=document.getElementById('custom-force')?.checked||false;
+  let added=0,updated=0,skipped=0;
+
+  rows.forEach(row=>{
+    const din=normalizeDIN(String(row[dinCol]||'').trim());
+    if(!din){skipped++;return;}
+
+    const csvName=(row[nameCol]||'').trim();
+    const csvMfr=(row[mfrCol]||'').trim();
+    const csvExpiry=expiryCol!=='(skip)'?(row[expiryCol]||'').trim():'';
+    const csvNotes=notesCol!=='(skip)'?(row[notesCol]||'').trim():'';
+    const csvType=typeCol!=='(skip)'?(row[typeCol]||'').trim():'';
+
+    const rawPrev=prevCountCol!=='(skip)'?String(row[prevCountCol]||'').trim():'';
+    const prevCountVal=rawPrev!==''&&!isNaN(parseFloat(rawPrev))?parseFloat(rawPrev):null;
+
+    const rawPurch=purchasesCol!=='(skip)'?String(row[purchasesCol]||'').trim():'';
+    const purchasesVal=rawPurch!==''&&!isNaN(parseFloat(rawPurch))?parseFloat(rawPurch):null;
+
+    const rawSales=salesCol!=='(skip)'?String(row[salesCol]||'').trim():'';
+    const salesVal=rawSales!==''&&!isNaN(parseFloat(rawSales))?Math.abs(parseFloat(rawSales)):null;
+
+    const rawCurrent=currentCountCol!=='(skip)'?String(row[currentCountCol]||'').trim():'';
+    const currentCountVal=rawCurrent!==''&&!isNaN(parseFloat(rawCurrent))?parseFloat(rawCurrent):null;
+
+    let p=inventory.find(x=>normalizeDIN(x.din)===din||normalizeDIN(x.barcode||'')===din);
+    if(!p){
+      p={id:Date.now()+'_'+Math.random(),din,barcode:din,name:csvName||din,manufacturer:csvMfr,type:'Rx',qty:0,threshold:10,expiry:'',notes:''};
+      inventory.push(p);added++;
+    } else {
+      updated++;
+      // Only overwrite name/mfr on existing products if force is checked
+      if(force){
+        if(csvName)p.name=csvName;
+        if(csvMfr)p.manufacturer=csvMfr;
+      }
+    }
+
+    if(csvExpiry)p.expiry=csvExpiry;
+    if(csvNotes)p.notes=csvNotes;
+    if(csvType)p.type=normalizeType(csvType);
+
+    // Previous physical count — sets baseline, no log
+    if(prevCountVal!==null)p.prevQty=prevCountVal;
+
+    // Purchases — add to stock, log as purchase
+    if(purchasesVal!==null&&purchasesVal!==0){
+      const before=p.qty;
+      p.qty=before+purchasesVal;
+      addLog('purchase',p,purchasesVal,'Custom import',before,batchId);
+    }
+
+    // Sales — subtract from stock, log as sale
+    if(salesVal!==null&&salesVal!==0){
+      const before=p.qty;
+      p.qty=before-salesVal;
+      addLog('sale',p,-salesVal,'Custom import',before,batchId);
+    }
+
+    // Current physical count — sets qty
+    // Only use it as prevQty fallback if the prev_count field is NOT mapped at all
+    const prevCountMapped = prevCountCol !== '(skip)';
+
+    if(currentCountVal!==null){
+      p.qty=currentCountVal;
+
+      // Fallback baseline only when no prev_count column is mapped in this import
+      if(!prevCountMapped && (p.prevQty===undefined || p.prevQty===null)){
+        p.prevQty=currentCountVal;
+      }
+    }
+  });
+
+  saveData();updateStats();
+  toast('Custom import done — '+added+' new, '+updated+' updated, '+skipped+' skipped.','success');
+  switchTab('inventory');
+}
+
+function buildPreviewTable(){
+  const mode=document.getElementById('import-mode').value;
+  if(mode==='custom'){buildCustomPreview();return;}
+  const wrap=document.getElementById('preview-table-wrap');
+  const tbl=document.createElement('table');tbl.style.cssText='width:100%;border-collapse:collapse;font-size:11px;';
+  const thead=document.createElement('thead');const hr=document.createElement('tr');
+  importHeaders.forEach(h=>{const th=document.createElement('th');th.textContent=h;th.style.cssText='background:var(--surface2);padding:6px 10px;text-align:left;color:var(--muted);border-bottom:1px solid var(--border);white-space:nowrap;';hr.appendChild(th);});
+  thead.appendChild(hr);tbl.appendChild(thead);
+  const tbody=document.createElement('tbody');
+  importData.slice(0,5).forEach(row=>{const tr=document.createElement('tr');importHeaders.forEach(h=>{const td=document.createElement('td');td.textContent=row[h]||'';td.style.cssText='padding:6px 10px;border-bottom:1px solid rgba(30,45,61,.4);white-space:nowrap;';tr.appendChild(td);});tbody.appendChild(tr);});
+  tbl.appendChild(tbody);wrap.innerHTML='';wrap.appendChild(tbl);
+}
+
+function getMap(key){const el=document.getElementById('map-'+key);return el?el.value:'(skip)';}
+
+function parsePackageSize(desc){
+  if(!desc)return 1;
+  const s=String(desc).trim();
+  const mm=s.match(/(\d+)\s*[xX×]\s*[\d.]+\s*[a-zA-Z]/);if(mm)return parseInt(mm[1]);
+  const ns=s.match(/\d+/g);
+  if(ns&&ns.length>0){const last=parseInt(ns[ns.length-1]);if(last>=1&&last<=10000)return last;}
+  return 1;
+}
+
+function normalizeType(val){
+  const v=(val||'').toLowerCase();
+  if(v.includes('controlled')||v.includes('narcotic')||v.includes('schedule'))return'Controlled';
+  if(v.includes('rx')||v.includes('prescription'))return'Rx';
+  if(v.includes('otc')||v.includes('over'))return'OTC';
+  return'Rx';
+}
+
+function runPasteImport(){
+  const mode=document.getElementById('import-mode').value;
+  const batchId='import_'+Date.now();
+  // Custom mode has its own mapping UI
+  if(mode==='custom'){
+    const dinCol=getCustomMap('din');
+    if(dinCol==='(skip)'){toast('Please map the DIN column','error');return;}
+    executeCustomImport(importData,dinCol,batchId);
+    return;
+  }
+  const dinCol=getMap('din');
+  if(dinCol==='(skip)'){toast('Please map the DIN column','error');return;}
+  let added=0,updated=0,skipped=0;
+
+  if(mode==='restore'){
+    const nameCol=getMap('name'),mfrCol=getMap('manufacturer'),qtyCol=getMap('qty'),thrCol=getMap('threshold');
+    const prevCol='PrevCount'; // always present in rxstock exports
+    if(qtyCol==='(skip)'){toast('Please map the Quantity column','error');return;}
+    importData.forEach(row=>{
+      const din=normalizeDIN(String(row[dinCol]||'').trim());
+      if(!din){skipped++;return;}
+      const rawQ=String(row[qtyCol]||'').trim();
+      const qty=rawQ!==''&&!isNaN(parseFloat(rawQ))?parseFloat(rawQ):0;
+      const name=nameCol!=='(skip)'?(row[nameCol]||'').trim():'';
+      const mfr=mfrCol!=='(skip)'?(row[mfrCol]||'').trim():'';
+      const thr=thrCol!=='(skip)'?parseInt(row[thrCol]||'10')||10:10;
+      const rawPrev=String(row['PrevCount']||row['prevcount']||row['Prevcount']||'').trim();
+      const prevQty=rawPrev!==''&&!isNaN(parseFloat(rawPrev))?parseFloat(rawPrev):undefined;
+      let p=inventory.find(x=>normalizeDIN(x.din)===din);
+      const prev=p?p.qty:0;
+      if(!p){
+        p={id:Date.now()+'_'+Math.random(),din,barcode:din,name:name||din,manufacturer:mfr,type:'Rx',qty,threshold:thr,expiry:'',notes:''};
+        inventory.push(p);added++;
+      } else {
+        if(name)p.name=name;
+        if(mfr)p.manufacturer=mfr;
+        p.threshold=thr;
+        updated++;
+      }
+      p.qty=qty;
+      if(prevQty!==undefined)p.prevQty=prevQty;
+      addLog('adjust',p,qty-prev,'Full restore from backup',prev,batchId);
+    });
+    saveData();updateStats();
+    toast('✓ Restored — '+added+' new, '+updated+' updated. Quantities and previous counts preserved.','success');
+    switchTab('inventory');return;
+  }
+
+  if(mode==='backup'){
+    const nameCol=getMap('name'),mfrCol=getMap('manufacturer'),qtyCol=getMap('qty'),thrCol=getMap('threshold');
+    if(qtyCol==='(skip)'){toast('Please map the Quantity column','error');return;}
+    importData.forEach(row=>{
+      const din=normalizeDIN(String(row[dinCol]||'').trim());
+      if(!din){skipped++;return;}
+      const rawQ=String(row[qtyCol]||'').trim();
+      if(rawQ===''||isNaN(parseFloat(rawQ))){skipped++;return;}
+      const qty=parseFloat(rawQ);
+      const name=nameCol!=='(skip)'?(row[nameCol]||'').trim():'';
+      const mfr=mfrCol!=='(skip)'?(row[mfrCol]||'').trim():'';
+      const thr=thrCol!=='(skip)'?parseInt(row[thrCol]||'10')||10:10;
+      let p=inventory.find(x=>normalizeDIN(x.din)===din);
+      const prev=p?p.qty:0;
+      if(!p){
+        p={id:Date.now()+'_'+Math.random(),din,barcode:din,name:name||din,manufacturer:mfr,type:'Rx',qty:0,threshold:thr,expiry:'',notes:''};
+        inventory.push(p);added++;
+      } else {
+        if(name)p.name=name;
+        if(mfr)p.manufacturer=mfr;
+        p.threshold=thr;
+        updated++;
+      }
+      // Quantity from backup becomes the new previous count; current stock resets to 0
+      p.prevQty=qty;
+      p.qty=0;
+      addLog('adjust',p,-prev,'NarCount backup restore — qty '+qty+' set as prev count, stock reset to 0',prev,batchId);
+    });
+    saveData();updateStats();
+    toast('✓ Backup restored — '+added+' new, '+updated+' updated. Stock reset to 0, previous counts loaded.','success');
+    switchTab('inventory');return;
+  }
+
+  if(mode==='legacy'){
+    const nameCol=getMap('name'),qtyCol=getMap('qty');
+    if(qtyCol==='(skip)'){toast('Please map the DECOMPTE column','error');return;}
+    importData.forEach(row=>{
+      const din=normalizeDIN(String(row[dinCol]||'').trim());
+      if(!din){skipped++;return;}
+      const rawQ=String(row[qtyCol]||'').trim();
+      if(rawQ===''||isNaN(parseFloat(rawQ))){skipped++;return;}
+      const decompte=parseFloat(rawQ);
+      const name=nameCol!=='(skip)'?(row[nameCol]||'').trim():'';
+      let p=inventory.find(x=>normalizeDIN(x.din)===din);
+      const prev=p?p.qty:0;
+      if(!p){p={id:Date.now()+'_'+Math.random(),din,barcode:din,name:name||din,manufacturer:'',type:'Rx',qty:0,threshold:10,expiry:'',notes:''};inventory.push(p);added++;}
+      else{if(name)p.name=name;updated++;}
+      p.prevQty=decompte;
+      addLog('adjust',p,0,'Legacy migration — DECOMPTE set as previous count ('+decompte+')',prev,batchId);
+    });
+    saveData();updateStats();
+    toast('✓ Migration done — '+added+' new, '+updated+' updated, '+skipped+' skipped. Data kept — undo then re-import if needed.','success');
+    switchTab('inventory');return;
+  }
+
+  const nameCol=getMap('name'),mfrCol=getMap('manufacturer'),qtyCol=getMap('qty');
+
+  // Detect unknown DINs first (only for purchase/sale/inventory modes)
+  if(mode==='purchase'||mode==='sale'){
+    const unknowns=[];
+    importData.forEach(row=>{
+      const din=normalizeDIN(String(row[dinCol]||'').trim());
+      if(!din)return;
+      const existing=inventory.find(x=>normalizeDIN(x.din)===din||normalizeDIN(x.barcode||'')===din);
+      if(!existing){
+        const name=nameCol!=='(skip)'?(row[nameCol]||'').trim():'';
+        const mfr=mfrCol!=='(skip)'?(row[mfrCol]||'').trim():'';
+        const boxQty=qtyCol!=='(skip)'?(parseFloat(row[qtyCol])||0):0;
+        const pkgSize=mode==='purchase'?parsePackageSize(name):1;
+        unknowns.push({din,name,mfr,qty:boxQty*pkgSize,boxQty,pkgSize,row,action:'add'});
+      }
+    });
+    if(unknowns.length>0){
+      pendingConflicts=unknowns;
+      pendingImportData={rows:importData,mode,dinCol,nameCol,mfrCol,qtyCol,batchId};
+      showConflictPanel();
+      return;
+    }
+  }
+
+  executeMainImport(importData,mode,dinCol,nameCol,mfrCol,qtyCol,batchId);
+}
+
+function showConflictPanel(){
+  const panel=document.getElementById('import-conflicts');
+  const list=document.getElementById('conflict-list');
+  list.innerHTML=pendingConflicts.map((c,i)=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--border);border-radius:7px;margin-bottom:6px;flex-wrap:wrap;">
+      <div style="flex:1;min-width:160px;">
+        <div style="font-weight:600;font-size:13px;">${c.name||c.din}</div>
+        <div style="color:var(--muted);font-size:11px;">DIN: ${c.din}${c.mfr?' · '+c.mfr:''} · Qty: ${c.qty}</div>
+      </div>
+      <select data-idx="${i}" style="background:var(--surface);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:12px;padding:5px 8px;border-radius:6px;cursor:pointer;" onchange="pendingConflicts[${i}].action=this.value">
+        <option value="add">✚ Add as new product</option>
+        <option value="skip">✕ Skip this row</option>
+      </select>
+    </div>`).join('');
+  panel.style.display='block';
+  panel.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function setAllConflicts(action){
+  pendingConflicts.forEach(c=>c.action=action);
+  document.querySelectorAll('#conflict-list select').forEach(s=>s.value=action);
+}
+
+function applyConflictResolutions(){
+  if(!pendingImportData)return;
+  const{rows,mode,dinCol,nameCol,mfrCol,qtyCol,batchId}=pendingImportData;
+  // Apply actions: add chosen products, mark others to skip
+  const skipDins=new Set(pendingConflicts.filter(c=>c.action==='skip').map(c=>c.din));
+  const filteredRows=rows.filter(row=>{
+    const din=normalizeDIN(String(row[dinCol]||'').trim());
+    return !skipDins.has(din);
+  });
+  document.getElementById('import-conflicts').style.display='none';
+  pendingConflicts=[];
+  pendingImportData=null;
+  executeMainImport(filteredRows,mode,dinCol,nameCol,mfrCol,qtyCol,batchId);
+}
+
+function executeMainImport(rows,mode,dinCol,nameCol,mfrCol,qtyCol,batchId){
+  let added=0,updated=0,skipped=0;
+  rows.forEach(row=>{
+    const din=normalizeDIN(String(row[dinCol]||'').trim());
+    if(!din){skipped++;return;}
+    const name=nameCol!=='(skip)'?(row[nameCol]||'').trim():'';
+    const mfr=mfrCol!=='(skip)'?(row[mfrCol]||'').trim():'';
+    const boxQty=qtyCol!=='(skip)'?(parseFloat(row[qtyCol])||0):0;
+    const pkgSize=mode==='purchase'?parsePackageSize(name):1;
+    const qty=boxQty*pkgSize;
+    let p=inventory.find(x=>normalizeDIN(x.din)===din||normalizeDIN(x.barcode||'')===din);
+    if(!p){p={id:Date.now()+'_'+Math.random(),din,barcode:din,name:name||din,manufacturer:mfr,type:'Rx',qty:0,threshold:10,expiry:'',notes:''};inventory.push(p);added++;}
+    else{if(name)p.name=name;if(mfr)p.manufacturer=mfr;updated++;}
+    // qty is NOT modified — current stock is entered manually
+    // Imports only record the transaction in the log for divergence calculation
+    const prev=p.qty;
+    const delta=mode==='purchase'?qty:-qty; // purchase adds, sale subtracts
+    const noteStr=mode==='purchase'?boxQty+' box(es) × '+pkgSize+' units':'';
+    addLog(mode==='purchase'?'purchase':'sale',p,delta,noteStr,prev,batchId);
+  });
+  saveData();updateStats();
+  toast('Import done — '+added+' new, '+updated+' updated, '+skipped+' skipped.','success');
+  switchTab('inventory');
+}
+
+function clearPaste(){
+  document.getElementById('paste-area').value='';
+  document.getElementById('paste-status').textContent='';
+  document.getElementById('run-import-btn').disabled=true;
+  document.getElementById('mapping-ui').style.display='none';
+  document.getElementById('import-preview').style.display='none';
+  importData=[];importHeaders=[];
+}
+
+// ===================== LOG =====================
+function addLog(type,product,qty,note,stockBefore,batchId){
+  activityLog.unshift({
+    time:new Date().toISOString(),type,
+    din:product.din,name:product.name,qty,
+    note:note||'',
+    stockBefore:stockBefore!==undefined?stockBefore:(product.qty-qty),
+    stockAfter:product.qty,
+    batchId:batchId||null,undone:false
+  });
+  if(activityLog.length>3000)activityLog=activityLog.slice(0,3000);
+}
+
+function undoLast(){
+  const last=activityLog.find(l=>l.type!=='add'&&!isPhysicalCount(l)&&!l.undone);
+  if(!last){toast('Nothing to undo','warn');return;}
+  if(last.batchId){
+    const batch=activityLog.filter(l=>l.batchId===last.batchId&&!l.undone);
+    let n=0;
+    batch.forEach(entry=>{
+      const p=inventory.find(x=>normalizeDIN(x.din)===normalizeDIN(entry.din));
+      if(!p)return;
+      const pv=p.qty;p.qty=entry.stockBefore;entry.undone=true;n++;
+      if(currentProduct&&normalizeDIN(currentProduct.din)===normalizeDIN(p.din))showResult(p);
+    });
+    saveData();updateStats();renderLog();
+    toast('↩ Import undone — '+n+' products restored','success');return;
+  }
+  const p=inventory.find(x=>normalizeDIN(x.din)===normalizeDIN(last.din));
+  if(!p){toast('Product not found','error');return;}
+  const pv=p.qty;p.qty=last.stockBefore;last.undone=true;
+  addLog('adjust',p,p.qty-pv,'Undo: '+last.type,pv,null);
+  saveData();updateStats();
+  if(currentProduct&&normalizeDIN(currentProduct.din)===normalizeDIN(p.din))showResult(p);
+  renderLog();toast('↩ Undone: '+last.name+' → '+p.qty+' units','success');
+}
+
+function renderLog(){
+  const search=(document.getElementById('log-search').value||'').toLowerCase();
+  const tf=document.getElementById('log-filter').value;
+  const items=activityLog.filter(l=>{
+    const ms=!search||l.name.toLowerCase().includes(search)||l.din.includes(search)||(l.note||'').toLowerCase().includes(search);
+    return ms&&(!tf||l.type===tf);
+  });
+  const body=document.getElementById('log-body');
+  if(!items.length){body.innerHTML='<div class="empty-state"><div class="icon">📋</div><p>No activity yet</p></div>';return;}
+  const ic={purchase:'+',sale:'−',adjust:'≈',add:'✦',count:'📋'};
+  const cc={purchase:'log-purchase',sale:'log-sale',adjust:'log-adjust',add:'log-adjust',count:'log-adjust'};
+  body.innerHTML=items.slice(0,300).map(l=>{
+    const d=new Date(l.time);
+    const ts=d.toLocaleDateString()+' '+d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+    const qs=l.qty>=0?'+'+l.qty:l.qty;
+    return`<div class="log-entry">
+      <span class="log-time">${ts}</span>
+      <span class="log-type ${cc[l.type]||''}" style="${l.undone?'opacity:.4;text-decoration:line-through':''}">${ic[l.type]||'·'} ${l.type.toUpperCase()}${l.undone?' (undone)':''}</span>
+      <span class="log-info"><strong>${l.name}</strong> <span style="color:var(--muted)">(${l.din})</span>
+      — <span style="color:${l.qty>=0?'var(--accent)':'var(--danger)'};font-weight:600;">${qs}</span>
+      → <strong>${l.stockAfter}</strong>${l.note?` <span style="color:var(--muted)">· ${l.note}</span>`:''}${l.batchId?` <span style="color:var(--muted);font-size:10px;">[batch]</span>`:''}</span>
+    </div>`;
+  }).join('');
+}
+
+// ===================== STATS =====================
+function updateStats(){
+  // stat cards removed from UI — function kept for call-site compatibility
+}
+
+// ===================== TOAST =====================
+function toast(msg,type='success'){
+  const t=document.getElementById('toast');
+  const ic={success:'✓',error:'✕',warn:'⚠'};
+  t.className='show '+type;
+  t.innerHTML=`<span>${ic[type]||'·'}</span><span>${msg}</span>`;
+  clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),3500);
+}
+
+// ===================== RESET =====================
+function confirmReset(){
+  document.getElementById('reset-modal').classList.remove('open');
+  inventory=[];activityLog=[];currentProduct=null;
+  inventoryPeriod={lastDate:'',currentDate:'',counter:'',verifier:'',notes:''};
+  divergenceNotes={};checklistState={};
+  localStorage.removeItem('rxstock_inv');
+  localStorage.removeItem('rxstock_log');
+  localStorage.removeItem('rxstock_period');
+  localStorage.removeItem('rxstock_divnotes');
+  localStorage.removeItem('rxstock_checklist');
+  updateStats();renderInventory();renderLog();hideResult();loadPeriodUI();
+  toast('All data cleared','warn');
+}
+
+// ===================== INVENTORY PERIOD =====================
+function togglePeriodPanel(){
+  const panel=document.getElementById('period-panel');
+  const chevron=document.getElementById('period-chevron');
+  const open=panel.style.display==='none';
+  panel.style.display=open?'block':'none';
+  chevron.textContent=open?'▲':'▼';
+}
+
+function savePeriod(){
+  inventoryPeriod={
+    lastDate:document.getElementById('period-last').value,
+    currentDate:document.getElementById('period-current').value,
+    counter:document.getElementById('period-counter').value,
+    verifier:document.getElementById('period-verifier').value,
+    notes:document.getElementById('period-notes').value
+  };
+  saveData();
+  updatePeriodSummary();
+}
+
+function loadPeriodUI(){
+  document.getElementById('period-last').value=inventoryPeriod.lastDate||'';
+  document.getElementById('period-current').value=inventoryPeriod.currentDate||'';
+  document.getElementById('period-counter').value=inventoryPeriod.counter||'';
+  document.getElementById('period-verifier').value=inventoryPeriod.verifier||'';
+  document.getElementById('period-notes').value=inventoryPeriod.notes||'';
+  updatePeriodSummary();
+}
+
+function updatePeriodSummary(){
+  const el=document.getElementById('period-summary');
+  const p=inventoryPeriod;
+  if(!p.lastDate&&!p.currentDate){el.textContent='Not set';return;}
+  const fmt=d=>d?new Date(d+'T00:00:00').toLocaleDateString('fr-CA'):'?';
+  let s=fmt(p.lastDate)+' → '+fmt(p.currentDate);
+  if(p.counter)s+=' · '+p.counter;
+  el.textContent=s;
+}
+
+function exportPeriodReport(){
+  const p=inventoryPeriod;
+  const fmt=d=>d?new Date(d+'T00:00:00').toLocaleDateString('fr-CA'):'';
+  const header=['DIN','Drug Name','Manufacturer','Type','Prev Count ('+fmt(p.lastDate)+')','Current Stock ('+fmt(p.currentDate)+')','Purchases','Sales','Adjustments','Expected','Divergence','Divergence %','Threshold','Notes'];
+  const rows=inventory.map(prod=>{
+    const stats=getProductStats(prod);
+    const expected=(prod.prevQty||0)+stats.purchases-stats.sales+stats.adjustments;
+    const div=prod.qty-expected;
+    const pct=expected!==0?((div/Math.abs(expected))*100).toFixed(1):'';
+    return[prod.din,prod.name,prod.manufacturer||'',prod.type,prod.prevQty??'',prod.qty,stats.purchases,stats.sales,stats.adjustments,expected.toFixed(1),div.toFixed(1),pct,prod.threshold||10,prod.notes||''];
+  });
+  const meta=['<span data-i18n="period_title">Inventory Period</span> Report','','Last Count: '+fmt(p.lastDate),'Current Count: '+fmt(p.currentDate),'Counter: '+(p.counter||''),'Verified by: '+(p.verifier||''),'Notes: '+(p.notes||''),''];
+  const csv=[...meta.map(r=>[r]),header,...rows].map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\n');
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8'}));
+  a.download='narcount_period_'+( p.currentDate||new Date().toISOString().slice(0,10))+'.csv';
+  a.click();
+  toast('✓ Period report exported','success');
+}
+
+// ===================== TRANSFER =====================
+let trFromProduct = null;
+let trToProduct = null;
+
+function openTransferModal(){
+  trFromProduct = currentProduct || null;
+  trToProduct = null;
+  const fromInput = document.getElementById('tr-from-input');
+  const toInput = document.getElementById('tr-to-input');
+  fromInput.value = trFromProduct ? trFromProduct.din+' — '+trFromProduct.name : '';
+  toInput.value = '';
+  document.getElementById('tr-from-info').textContent = trFromProduct ? 'Stock: '+trFromProduct.qty : '';
+  document.getElementById('tr-to-info').textContent = '';
+  document.getElementById('tr-qty').value = 1;
+  document.getElementById('tr-note').value = '';
+  document.getElementById('tr-summary').style.display = 'none';
+  document.getElementById('tr-from-dd').style.display = 'none';
+  document.getElementById('tr-to-dd').style.display = 'none';
+  document.getElementById('transfer-modal').classList.add('open');
+  setTimeout(()=>document.getElementById('tr-to-input').focus(), 100);
+}
+
+function transferSearch(side){
+  const inputId = 'tr-'+side+'-input';
+  const ddId = 'tr-'+side+'-dd';
+  const q = document.getElementById(inputId).value.trim().toLowerCase();
+  const dd = document.getElementById(ddId);
+  if(!q){dd.style.display='none';return;}
+  const din = normalizeDIN(q);
+  const matches = inventory.filter(p=>
+    normalizeDIN(p.din).startsWith(din)||
+    p.din.includes(q)||
+    p.name.toLowerCase().includes(q)||
+    (p.manufacturer||'').toLowerCase().includes(q)
+  ).slice(0,8);
+  if(!matches.length){dd.style.display='none';return;}
+  dd.innerHTML = matches.map(p=>{
+    const sc = p.qty<0?'var(--danger)':p.qty<=(p.threshold||10)?'var(--warn)':'var(--accent)';
+    return `<div class="scan-dropdown-item" onmousedown="selectTransferProduct('${side}','${p.id}')">
+      <div><div class="scan-dd-name">${p.name}</div><div class="scan-dd-din">${p.din} · ${p.manufacturer||'—'}</div></div>
+      <div class="scan-dd-qty" style="color:${sc}">${p.qty}</div>
+    </div>`;
+  }).join('');
+  dd.style.display = 'block';
+}
+
+function selectTransferProduct(side, id){
+  const p = inventory.find(x=>x.id===id);
+  if(!p) return;
+  if(side==='from'){
+    trFromProduct = p;
+    document.getElementById('tr-from-input').value = p.din+' — '+p.name;
+    document.getElementById('tr-from-info').textContent = 'Stock: '+p.qty+' · '+( p.manufacturer||'—');
+    document.getElementById('tr-from-dd').style.display = 'none';
+  } else {
+    trToProduct = p;
+    document.getElementById('tr-to-input').value = p.din+' — '+p.name;
+    document.getElementById('tr-to-info').textContent = 'Stock: '+p.qty+' · '+(p.manufacturer||'—');
+    document.getElementById('tr-to-dd').style.display = 'none';
+  }
+  updateTransferSummary();
+}
+
+function updateTransferSummary(){
+  const summary = document.getElementById('tr-summary');
+  if(!trFromProduct||!trToProduct){summary.style.display='none';return;}
+  const qty = parseFloat(document.getElementById('tr-qty').value)||0;
+  summary.style.display = 'block';
+  summary.innerHTML = `
+    <div style="display:flex;gap:20px;align-items:center;justify-content:center;flex-wrap:wrap;">
+      <div style="text-align:center;">
+        <div style="color:var(--muted);font-size:10px;text-transform:uppercase;margin-bottom:4px;">From</div>
+        <div style="font-weight:600;color:var(--text);">${trFromProduct.name}</div>
+        <div style="color:var(--danger);font-size:13px;">${trFromProduct.qty} → ${trFromProduct.qty-qty}</div>
+      </div>
+      <div style="font-size:24px;color:var(--accent);">⇄</div>
+      <div style="text-align:center;">
+        <div style="color:var(--muted);font-size:10px;text-transform:uppercase;margin-bottom:4px;">To</div>
+        <div style="font-weight:600;color:var(--text);">${trToProduct.name}</div>
+        <div style="color:var(--accent);font-size:13px;">${trToProduct.qty} → ${trToProduct.qty+qty}</div>
+      </div>
+    </div>`;
+}
+
+function submitTransfer(){
+  if(!trFromProduct||!trToProduct){toast('Select both products first','error');return;}
+  if(trFromProduct.id===trToProduct.id){toast('Cannot transfer to the same product','error');return;}
+  const qty = parseFloat(document.getElementById('tr-qty').value)||0;
+  if(qty<=0){toast('Enter a quantity greater than 0','error');return;}
+  const note = document.getElementById('tr-note').value.trim();
+  const batchId = 'transfer_'+Date.now();
+  const noteStr = 'Transfer'+(note?' — '+note:'');
+
+  const fromPrev = trFromProduct.qty;
+  trFromProduct.qty -= qty;
+  addLog('adjust', trFromProduct, -qty, noteStr+' → to '+trToProduct.din, fromPrev, batchId);
+
+  const toPrev = trToProduct.qty;
+  trToProduct.qty += qty;
+  addLog('adjust', trToProduct, qty, noteStr+' ← from '+trFromProduct.din, toPrev, batchId);
+
+  saveData(); updateStats();
+  if(currentProduct && currentProduct.id===trFromProduct.id) showResult(currentProduct);
+  if(currentProduct && currentProduct.id===trToProduct.id) showResult(currentProduct);
+  document.getElementById('transfer-modal').classList.remove('open');
+  document.getElementById('adj-type').value = 'add';
+  toast('⇄ Transferred '+qty+' units: '+trFromProduct.name+' → '+trToProduct.name,'success');
+  trFromProduct = null; trToProduct = null;
+}
+
+// Close transfer dropdowns when clicking outside
+document.addEventListener('click', function(e){
+  if(!e.target.closest('#transfer-modal')){return;}
+  if(!e.target.closest('[style*="position:relative"]')){
+    document.getElementById('tr-from-dd').style.display='none';
+    document.getElementById('tr-to-dd').style.display='none';
+  }
+});
+
+// ===================== I18N =====================
+let currentLang = 'en';
+
+const TRANSLATIONS = {
+  en: {
+    // Nav
+    nav_scan:'🔍 Lookup', nav_inventory:'📦 Inventory', nav_divergence:'⚖️ Divergences',
+    nav_checklist:'✅ Count', nav_tools:'🔧 Tools', nav_import:'📥 Import',
+    nav_log:'📋 Log', nav_help:'❓ Help',
+    // Header buttons
+    btn_undo:'↩️ Undo', btn_backup:'💾 Backup', btn_restore:'📂 Restore', btn_reset:'🗑️ Reset',
+    btn_cancel:'Cancel', btn_delete_all:'🗑️ Delete Everything',
+    // Stats
+    stat_skus:'Total SKUs', stat_skus_sub:'unique products',
+    stat_units:'Total Units', stat_units_sub:'in stock',
+    stat_low:'Low Stock', stat_low_sub:'below threshold',
+    stat_neg:'Negative', stat_neg_sub:'stock errors',
+    // Import modes
+    mode_purchase:'Purchase — add to stock', mode_sale:'Sale — subtract from stock',
+    mode_inventory:'Inventory snapshot — set exact qty',
+    // Reset modal
+    reset_title:'Reset All Data?',
+    reset_desc:'This will permanently delete all inventory and activity logs. Cannot be undone.',
+    // Scan tab
+    card_lookup:'Look Up Product', scan_placeholder:'Type DIN or drug name…', scan_lookup:'Look Up',
+    scan_apply:'Apply', scan_adjust_label:'Adjust:',
+    adj_add:'➕ Purchase', adj_sub:'➖ Sale/Dispense', adj_set:'🎯 Set Exact',
+    adj_stock:'📋 Current Stock', adj_expired:'🗑 Expired',
+    adj_lost:'🩹 Lost/Damaged', adj_transfer:'🔀 Transfer to another DIN',
+    // Inventory tab
+    inv_search_placeholder:'Search by name, DIN, manufacturer…',
+    inv_export:'📊 Export CSV', inv_add:'➕ Add Product',
+    inv_period_title:'<span data-i18n="period_title">Inventory Period</span>',
+    inv_last_count:'Last Count Date', inv_current_count:'Current Count Date',
+    inv_counter:'Counter (employee)', inv_verifier:'Verified by',
+    inv_notes_label:'Notes',
+    inv_export_report:'📄 Export Period Report',
+    col_din:'DIN', col_name:'Drug Name', col_mfr:'Manufacturer',
+    col_prev:'Prev. Count', col_stock:'Stock', col_threshold:'Threshold',
+    col_divergence:'Divergence', col_actions:'Actions',
+    // Divergence tab
+    div_title:'Divergence Summary — Potential Issues',
+    div_desc:'Products where the actual count diverges from expected. Sorted by severity.',
+    div_search:'Search divergences…',
+    div_all:'All', div_significant:'Significant (>10%)', div_minor:'Minor (1–10%)',
+    div_unresolved:'Unresolved only', div_resolved:'Resolved only',
+    col_prev_count:'Prev. Count', col_purchases:'Purchases', col_sales:'Sales',
+    col_adjustments:'Adjustments', col_expected:'Expected', col_actual:'Actual',
+    col_div:'Divergence', col_pct:'%', col_status:'Status / Note',
+    // Checklist tab
+    cl_title:'Physical Count Checklist',
+    cl_desc:'<span data-i18n="cl_desc">Check off each product as you physically count it. Progress is saved automatically.</span>',
+    cl_all:'✅ All', cl_none:'🔲 None', cl_print:'🖨️ Print', cl_reset:'↺ Reset', cl_apply_counts:'💾 Apply Counts', cl_reset_btn:'🔄 Reset',
+    cl_search:'Search…', cl_all_filter:'All', cl_unchecked:'Unchecked', cl_checked:'Checked',
+    // Tools tab
+    tools_merge_title:'Merge Duplicate DINs',
+    tools_merge_desc:'Combine two products that share the same DIN or were imported under different names.',
+    tools_keep:'Keep this product (primary)', tools_del:'Merge this into it (will be deleted)',
+    tools_search_ph:'Search by name or DIN…',
+    tools_merge_btn:'🔀 Merge Products',
+    tools_dup_title:'Duplicate DIN Detector',
+    tools_dup_desc:'Finds products sharing the same DIN, or with very similar names.',
+    tools_dup_scan:'🔍 Scan for Duplicates',
+    // Import tab
+    imp_title:'Import Data', imp_mode:'Mode:',
+    imp_upload_title:'<span data-i18n="imp_upload_title">Option A — Upload CSV File directly</span>',
+    imp_paste_title:'Option B — Copy & Paste from Excel (recommended)',
+    imp_paste_ph:'Open Excel → Ctrl+A → Ctrl+C → click here → Ctrl+V (paste)',
+    imp_import_btn:'📤 Import', imp_clear:'Clear',
+    imp_conflicts_title:'⚠ Unknown DINs — Review Before Importing',
+    imp_conflicts_desc:"Ces DINs du fichier n'exist pas dans votre inventaire. Choisissez quoi faire avec chacun.",
+    imp_apply_selected:'✅ Apply Selected',
+    imp_add_all:'Add All as New', imp_skip_all:'Skip All',
+    // Log tab
+    log_title:'Activity Log', log_all:'All', log_purchases:'Purchases',
+    log_sales:'Sales', log_adjustments:'Adjustments',
+    log_undo_last:'↩️ Undo Last', log_clear:'Clear Log',
+    // Help tab
+    help_sales_title:'How to Import Sales (Stock OUT)',
+    help_purchases_title:'How to Import Purchases (Stock IN)',
+    help_legacy_title:'How to Migrate Your Legacy Inventory',
+    help_adjustments_title:'Stock Adjustments',
+    // Modals
+    modal_edit_title:'Edit Product',
+    modal_add_title:'Add New Product',
+    modal_transfer_title:'🔀 Transfer Units Between DINs',
+    modal_transfer_from:'From DIN −', modal_transfer_to:'To DIN +',
+    modal_transfer_qty:'Quantity to Transfer',
+    modal_transfer_note:'Note (optional)',
+    modal_transfer_btn:'🔀 Apply Transfer',
+    // Toast / misc
+    toast_updated:'Updated',
+    toast_merged:'Merged',
+    toast_import_done:'Import done',
+    btn_detail:'Detail', btn_scan:'Scan', btn_edit:'Edit', btn_del:'Del',
+    // Period
+    period_title:'Inventory Period',
+    lbl_last_date:'Last Count Date', lbl_curr_date:'Current Count Date',
+    lbl_counter:'Counter (employee)', lbl_verifier:'Verified by',
+    lbl_notes:'Notes', lbl_din:'DIN', lbl_drug_name:'Drug Name',
+    lbl_mfr:'Manufacturer', lbl_type:'Type',
+    lbl_init_stock:'Initial Stock (units)', lbl_threshold:'Low Stock Threshold',
+    lbl_curr_stock:'Current Stock (units)',
+    lbl_prev_count:'Previous Count (for divergence)',
+    lbl_expiry:'Expiry', lbl_transfer_qty:'Quantity to Transfer',
+    lbl_note_opt:'Note (optional)',
+    // Placeholders
+    ph_drug_name:'e.g. DILAUDID CO 4MG 100', ph_mfr:'e.g. PURDUE PHARMA',
+    ph_notes:'e.g. Schedule II, refrigerate…', ph_prev_count:'Set from last physical count',
+    ph_transfer_note:'e.g. wrong manufacturer dispensed',
+    ph_note:'Note…', ph_qty:'Qty', ph_search_log:'Search log…',
+    // Import
+    imp_mapping_title:'Confirm Column Mapping',
+    imp_mapping_desc:'Auto-detected — adjust any that look wrong.',
+    imp_preview_title:'Preview (first 5 rows)',
+    imp_upload_title:'Option A — Upload CSV File directly',
+    imp_paste_title:'Option B — Copy & Paste from Excel (recommended)',
+    // Descriptions
+    div_desc_long:'Products where the actual count diverges from what the system expects. Sorted by severity. Click a row to view the full calculation breakdown.',
+    cl_desc:'Check off each product as you physically count it. Progress is saved automatically.',
+    tools_merge_desc:'Combine two products that share the same DIN or were imported under different names into one. Stock quantities are added together.',
+    tools_keep_sub:'(primary)', tools_del_sub:'(will be deleted)',
+    tools_dup_desc:'Finds products sharing the same DIN, or with very similar names that may have been imported twice under different labels.',
+    imp_conflicts_desc_p:"These DINs from the file don't exist in your inventory. Choose what to do with each one.",
+    // Log
+    log_new:'New Products', log_clear:'Clear Log', log_count_filter:'Physical Counts',
+    log_clear_confirm:'Clear all logs?',
+    // Confirms
+    confirm_delete_product:'Delete this product?',
+    btn_save:'Save', btn_show_all:'Show All', btn_hide_empty:'Hide Empty', btn_hide_formulary:'Hide Formulary Removals',
+    empty_no_products:'No products match your filters', empty_no_div:'No divergences found',
+    detail_breakdown:'Inventory Breakdown', detail_prev_count:'Previous Physical Count', detail_not_set:'Not set',
+    detail_purchases:'Purchases (stock in)', detail_sales:'Sales (stock out)', detail_adjustments:'Adjustments (expired, destroyed, etc.)',
+    detail_expected:'Expected Stock', detail_actual:'Actual (Physical Count)', detail_divergence:'Divergence',
+    detail_extra:'Extra stock', detail_shortage:'Shortage', detail_extra_desc:'More units on hand than expected.', detail_shortage_desc:'Fewer units on hand than expected — investigate.',
+    detail_tx_history:'Transaction History', detail_no_tx:'No transactions recorded.', btn_scan_adjust:'Scan / Adjust', log_count:'COUNT',
+    // Help — sales
+    help_sales_instr_title:'📤 Ubik — Sales Report (Rapport statistique des produits)',
+    help_sales_s1:'In Ubik, go to <strong>Gestion → Rapports → Autres → Rapport statistique des produits</strong>',
+    help_sales_s2:'In the product type filter, select <strong>only</strong>: Contrôlé, Contrôlé rapportable, Narcotique, Narcotique rapportable, Substance ciblée',
+    help_sales_s3:'Generate the report in <strong>EXCEL</strong> format — open the file in Excel',
+    help_sales_s4:'In Excel, go to <strong>File → Save As</strong>, choose <strong>CSV (comma delimited) (*.csv)</strong> and save',
+    help_sales_s5:'Go to the <strong>Import tab</strong>, select <strong>"Sale — subtract from stock"</strong>',
+    help_sales_s6:'Click <strong>"Upload CSV File"</strong> (Option A) and select the .csv file you just saved',
+    help_sales_tip:"💡 <strong>Tip:</strong> If the file upload doesn't detect the right columns, use Option B (paste) instead: open the CSV in Notepad, press Ctrl+A then Ctrl+C, and paste into the text box.",
+    // Help — purchases
+    help_purch_instr_title:'📥 Ubik — Purchase Report (Substances narcotiques et contrôlées)',
+    help_purch_s1:'In Ubik, go to <strong>Accueil → Rapports → Substances narcotiques et contrôlées</strong>',
+    help_purch_s2:'Generate the report in <strong>EXCEL</strong> format — open the file in Excel',
+    help_purch_s3:'In Excel, go to <strong>File → Save As</strong>, choose <strong>CSV (comma delimited) (*.csv)</strong> and save',
+    help_purch_s4:'Go to the <strong>Import tab</strong>, select <strong>"Purchase — add to stock"</strong>',
+    help_purch_s5:'Click <strong>"Upload CSV File"</strong> (Option A) and select the .csv file you just saved',
+    help_purch_tip:'💡 <strong>Tip:</strong> Quantity is automatically calculated as <strong>boxes ordered × units per box</strong> (e.g. 2 boxes of 100 = 200 units). The package size is read from the drug name description.',
+    // Help — legacy
+    help_legacy_instr_title:'📋 Excel Legacy Report (DECOMPTE)',
+    help_legacy_s1:'Open your Excel inventory sheet (the one with DIN, PRODUIT, DECOMPTE columns)',
+    help_legacy_s2:'In Excel, go to <strong>File → Save As</strong>, choose <strong>CSV (comma delimited) (*.csv)</strong> and save',
+    help_legacy_s3:'Go to the <strong>Import tab</strong>, select <strong>"Migrate legacy inventory (DECOMPTE)"</strong>',
+    help_legacy_s4:'Click <strong>"Upload CSV File"</strong> (Option A) and select the .csv file',
+    help_legacy_s5:'NarCount will automatically use the <strong>DECOMPTE column</strong> as the previous count baseline',
+    // Help — adjustments
+    help_adj_instr_title:'⚙ Manual Adjustments (Lookup Tab)',
+    help_adj_s1:'<strong>Expired:</strong> Look up the product, select "Expired" and enter the quantity. Logged separately for audit trail.',
+    help_adj_s2:'<strong>Lost/Damaged:</strong> Look up the product, select "Lost/Damaged" and enter quantity with a note explaining the reason.',
+    help_adj_s3:'<strong>Manufacturer Balance:</strong> Look up the product, select "Transfer" and use the note to indicate the manufacturer.',
+  },
+  fr: {
+    // Nav
+    nav_scan:'🔍 Saisie', nav_inventory:'📦 Inventaire', nav_divergence:'⚖️ Divergences',
+    nav_checklist:'☑ Décompte', nav_tools:'🔧 Outils', nav_import:'⬆ Importer',
+    nav_log:'📋 Journal', nav_help:'? Aide',
+    // Header buttons
+    btn_undo:'↩️ Annuler', btn_backup:'💾 Sauveg.', btn_restore:'📂 Restaurer', btn_reset:'🗑️ Réinit.',
+    btn_cancel:'Annuler', btn_delete_all:'🗑️ Tout supprimer',
+    // Stats
+    stat_skus:'Total DINs', stat_skus_sub:'produits uniques',
+    stat_units:'Total unités', stat_units_sub:'en stock',
+    stat_low:'Stock bas', stat_low_sub:'sous le seuil',
+    stat_neg:'Négatif', stat_neg_sub:'erreurs de stock',
+    // Import modes
+    mode_purchase:'Achat — ajouter au stock', mode_sale:'Vente — soustraire du stock',
+    mode_inventory:'Instantané — fixer la quantité exacte',
+    // Reset modal
+    reset_title:'Réinitialiser toutes les données?',
+    reset_desc:"Ceci supprimera définitivement tout l'inventaire et les journaux. Impossible d'annuler.",
+    // Scan tab
+    card_lookup:'Rechercher un produit', scan_placeholder:'Saisir DIN ou nom du médicament…', scan_lookup:'Rechercher',
+    scan_apply:'Appliquer', scan_adjust_label:'Ajuster:',
+    adj_add:'+ Achat', adj_sub:'➖ Vente/Distribution', adj_set:'🎯 Fixer exact',
+    adj_stock:'📋 Stock actuel', adj_expired:'🗑 Expiré',
+    adj_lost:'🩹 Perdu/Endommagé', adj_transfer:'🔀 Transférer vers autre DIN',
+    // Inventory tab
+    inv_search_placeholder:'Rechercher par nom, DIN, fabricant…',
+    inv_export:'⬇ Exporter CSV', inv_add:'➕ Ajouter produit',
+    inv_period_title:"Période d'inventaire",
+    inv_last_count:'Date dernier décompte', inv_current_count:'Date décompte actuel',
+    inv_counter:'Compteur (employé)', inv_verifier:'Vérifié par',
+    inv_notes_label:'Notes',
+    inv_export_report:'📄 Exporter rapport de période',
+    col_din:'DIN', col_name:'Médicament', col_mfr:'Fabricant',
+    col_prev:'Déc. préc.', col_stock:'Stock', col_threshold:'Seuil',
+    col_divergence:'Divergence', col_actions:'Actions',
+    // Divergence tab
+    div_title:'Résumé des divergences — Problèmes potentiels',
+    div_desc:"Produits dont le décompte réel diverge de l'attendu. Triés par sévérité.",
+    div_search:'Rechercher des divergences…',
+    div_all:'Tous', div_significant:'Significatives (>10%)', div_minor:'Mineures (1–10%)',
+    div_unresolved:'Non résolues seulement', div_resolved:'Résolues seulement',
+    col_prev_count:'Déc. préc.', col_purchases:'Achats', col_sales:'Ventes',
+    col_adjustments:'Ajustements', col_expected:'Attendu', col_actual:'Réel',
+    col_div:'Divergence', col_pct:'%', col_status:'Statut / Note',
+    // Checklist tab
+    cl_title:'Liste de décompte physique',
+    cl_desc:'Cochez chaque produit au fur et à mesure. La progression est sauvegardée automatiquement.',
+    cl_all:'✅ Tous', cl_none:'🔲 Aucun', cl_print:'🖨️ Imprimer', cl_reset:'↺ Réinitialiser',
+    cl_search:'Rechercher…', cl_all_filter:'Tous', cl_unchecked:'Non cochés', cl_checked:'Cochés',
+    // Tools tab
+    tools_merge_title:'Fusionner les DINs en double',
+    tools_merge_desc:'Combiner deux produits ayant le même DIN ou importés sous des noms différents.',
+    tools_keep:'Garder ce produit (primaire)', tools_del:'Fusionner dans celui-ci (sera supprimé)',
+    tools_search_ph:'Rechercher par nom ou DIN…',
+    tools_merge_btn:'🔀 Fusionner les produits',
+    tools_dup_title:'Détecteur de DINs en double',
+    tools_dup_desc:'Trouve les produits ayant le même DIN ou des noms très similaires.',
+    tools_dup_scan:'🔍 Analyser les doublons',
+    // Import tab
+    imp_title:'Importer des données', imp_mode:'Mode:',
+    imp_upload_title:'Option A — Téléverser un fichier CSV directement',
+    imp_paste_title:'Option B — Copier-coller depuis Excel (recommandé)',
+    imp_paste_ph:"Ouvrir Excel → Ctrl+A → Ctrl+C → cliquer ici → Ctrl+V (coller)",
+    imp_import_btn:'⬆ Importer', imp_clear:'Effacer',
+    imp_conflicts_title:"⚠ DINs inconnus — Vérifier avant d'importer",
+    imp_conflicts_desc:"Ces DINs du fichier n'existent pas dans votre inventaire. Choisissez quoi faire avec chacun.",
+    imp_apply_selected:'✅ Appliquer la sélection',
+    imp_add_all:'Tout ajouter comme nouveaux', imp_skip_all:'Tout ignorer',
+    // Log tab
+    log_title:"Journal d'activité", log_all:'Tous', log_purchases:'Achats',
+    log_sales:'Ventes', log_adjustments:'Ajustements',
+    log_undo_last:'↩️ Annuler dernier', log_clear:'Effacer journal',
+    // Help tab
+    help_sales_title:'Comment importer les ventes (Stock SORTANT)',
+    help_purchases_title:'Comment importer les achats (Stock ENTRANT)',
+    help_legacy_title:'Comment migrer votre inventaire existant',
+    help_adjustments_title:'Ajustements de stock',
+    // Modals
+    modal_edit_title:'Modifier le produit',
+    modal_add_title:'Ajouter un nouveau produit',
+    modal_transfer_title:'🔀 Transférer des unités entre DINs',
+    modal_transfer_from:'DIN source −', modal_transfer_to:'DIN destination +',
+    modal_transfer_qty:'Quantité à transférer',
+    modal_transfer_note:'Note (facultatif)',
+    modal_transfer_btn:'🔀 Appliquer le transfert',
+    // Toast / misc
+    toast_updated:'Mis à jour',
+    toast_merged:'Fusionné',
+    toast_import_done:'Importation terminée',
+    btn_detail:'Détail', btn_scan:'Saisie', btn_edit:'Modifier', btn_del:'Suppr.',
+    // Period
+    period_title:'Période de décompte',
+    lbl_last_date:'Date du dernier décompte', lbl_curr_date:'Date du décompte actuel',
+    lbl_counter:'Compteur (employé)', lbl_verifier:'Vérifié par',
+    lbl_notes:'Notes', lbl_din:'DIN', lbl_drug_name:'Nom du médicament',
+    lbl_mfr:'Fabricant', lbl_type:'Type',
+    lbl_init_stock:'Stock initial (unités)', lbl_threshold:'Seuil de stock bas',
+    lbl_curr_stock:'Stock actuel (unités)',
+    lbl_prev_count:'Décompte précédent (pour divergence)',
+    lbl_expiry:"Date d'expiration", lbl_transfer_qty:'Quantité à transférer',
+    lbl_note_opt:'Note (facultatif)',
+    // Placeholders
+    ph_drug_name:'ex. DILAUDID CO 4MG 100', ph_mfr:'ex. PURDUE PHARMA',
+    ph_notes:'ex. Annexe II, réfrigérer…', ph_prev_count:'Valeur du dernier décompte physique',
+    ph_transfer_note:'ex. mauvais fabricant distribué',
+    ph_note:'Note…', ph_qty:'Qté', ph_search_log:'Rechercher dans le journal…',
+    // Import
+    imp_mapping_title:'Confirmer le mappage des colonnes',
+    imp_mapping_desc:'Détection automatique — ajustez si nécessaire.',
+    imp_preview_title:'Aperçu (5 premières lignes)',
+    imp_upload_title:'Option A — Téléverser un fichier CSV directement',
+    imp_paste_title:'Option B — Copier-coller depuis Excel (recommandé)',
+    // Descriptions
+    div_desc_long:"Produits dont le décompte réel diverge de l'attendu. Triés par sévérité. Cliquez sur une ligne pour voir le détail du calcul.",
+    cl_desc:'Cochez chaque produit au fur et à mesure du décompte physique. La progression est sauvegardée automatiquement.',
+    tools_merge_desc:'Combiner deux produits ayant le même DIN ou importés sous des noms différents. Les quantités en stock sont additionnées.',
+    tools_keep_sub:'(primaire)', tools_del_sub:'(sera supprimé)',
+    tools_dup_desc:'Trouve les produits partageant le même DIN ou avec des noms très similaires pouvant avoir été importés deux fois.',
+    imp_conflicts_desc_p:"Ces DINs du fichier n'existent pas dans votre inventaire. Choisissez quoi faire avec chacun.",
+    // Log
+    log_new:'Nouveaux produits', log_clear:'Effacer le journal', log_count_filter:'Décomptes physiques',
+    log_clear_confirm:'Effacer tous les journaux?',
+    // Confirms
+    confirm_delete_product:'Supprimer ce produit?',
+    btn_save:'Enregistrer', btn_show_all:'Tout afficher', btn_hide_empty:'Masquer vides', btn_hide_formulary:'Masquer retraits de formulaire',
+    empty_no_products:'Aucun produit ne correspond aux filtres', empty_no_div:'Aucune divergence trouvée',
+    detail_breakdown:"Détail de l'inventaire", detail_prev_count:'Décompte physique précédent', detail_not_set:'Non défini',
+    detail_purchases:'Achats (entrée de stock)', detail_sales:'Ventes (sortie de stock)', detail_adjustments:'Ajustements (expiré, détruit, etc.)',
+    detail_expected:'Stock attendu', detail_actual:'Réel (décompte physique)', detail_divergence:'Divergence',
+    detail_extra:'Surplus', detail_shortage:'Manque', detail_extra_desc:'Plus d’unités en main que prévu.', detail_shortage_desc:'Moins d’unités en main que prévu — à vérifier.',
+    detail_tx_history:'Historique des transactions', detail_no_tx:'Aucune transaction enregistrée.', btn_scan_adjust:'Saisie / Ajuster', log_count:'DÉCOMPTE',
+    // Help — sales
+    help_sales_instr_title:'📤 Ubik — Rapport des ventes (Rapport statistique des produits)',
+    help_sales_s1:'Dans Ubik, aller à <strong>Gestion → Rapports → Autres → Rapport statistique des produits</strong>',
+    help_sales_s2:'Dans le filtre de type de produit, sélectionner <strong>uniquement</strong> : Contrôlé, Contrôlé rapportable, Narcotique, Narcotique rapportable, Substance ciblée',
+    help_sales_s3:'Générer le rapport en format <strong>EXCEL</strong> — ouvrir le fichier dans Excel',
+    help_sales_s4:'Dans Excel, aller à <strong>Fichier → Enregistrer sous</strong>, choisir <strong>CSV (délimité par des virgules) (*.csv)</strong> et enregistrer',
+    help_sales_s5:"Aller dans l'<strong>onglet Importer</strong>, sélectionner <strong>«Vente — soustraire du stock»</strong>",
+    help_sales_s6:'Cliquer sur <strong>"Téléverser fichier CSV"</strong> (Option A) et sélectionner le fichier .csv enregistré',
+    help_sales_tip:"💡 <strong>Astuce :</strong> Si le téléversement ne détecte pas les bonnes colonnes, utiliser l'Option B (coller) : ouvrir le CSV dans le Bloc-notes, Ctrl+A puis Ctrl+C, et coller dans la zone de texte.",
+    // Help — purchases
+    help_purch_instr_title:'📥 Ubik — Rapport des achats (Substances narcotiques et contrôlées)',
+    help_purch_s1:'Dans Ubik, aller à <strong>Accueil → Rapports → Substances narcotiques et contrôlées</strong>',
+    help_purch_s2:'Générer le rapport en format <strong>EXCEL</strong> — ouvrir le fichier dans Excel',
+    help_purch_s3:'Dans Excel, aller à <strong>Fichier → Enregistrer sous</strong>, choisir <strong>CSV (délimité par des virgules) (*.csv)</strong> et enregistrer',
+    help_purch_s4:"Aller dans l'<strong>onglet Importer</strong>, sélectionner <strong>«Achat — ajouter au stock»</strong>",
+    help_purch_s5:'Cliquer sur <strong>"Téléverser fichier CSV"</strong> (Option A) et sélectionner le fichier .csv enregistré',
+    help_purch_tip:'💡 <strong>Astuce :</strong> La quantité est calculée automatiquement : <strong>boîtes commandées × unités par boîte</strong> (ex. 2 boîtes de 100 = 200 unités). La taille du paquet est lue dans la description du médicament.',
+    // Help — legacy
+    help_legacy_instr_title:'📋 Rapport Excel existant (DECOMPTE)',
+    help_legacy_s1:'Ouvrir la feuille Excel de votre inventaire (celle avec les colonnes DIN, PRODUIT, DECOMPTE)',
+    help_legacy_s2:'Dans Excel, aller à <strong>Fichier → Enregistrer sous</strong>, choisir <strong>CSV (délimité par des virgules) (*.csv)</strong> et enregistrer',
+    help_legacy_s3:"Aller dans l'<strong>onglet Importer</strong>, sélectionner <strong>«Migrer inventaire existant (DECOMPTE)»</strong>",
+    help_legacy_s4:'Cliquer sur <strong>"Téléverser fichier CSV"</strong> (Option A) et sélectionner le fichier .csv',
+    help_legacy_s5:'NarCount utilisera automatiquement la <strong>colonne DECOMPTE</strong> comme base du décompte précédent',
+    // Help — adjustments
+    help_adj_instr_title:'⚙ Ajustements manuels (onglet Saisie)',
+    help_adj_s1:"<strong>Expiré :</strong> Rechercher le produit, sélectionner «Expiré» et saisir la quantité. Consigné séparément pour la piste d'audit.",
+    help_adj_s2:"<strong>Perdu/Endommagé :</strong> Rechercher le produit, sélectionner «Perdu/Endommagé» et saisir la quantité avec une note expliquant la raison.",
+    help_adj_s3:'<strong>Balance fabricant :</strong> Rechercher le produit, sélectionner « Transfert » et utiliser la note pour indiquer le fabricant concerné.',
+  }
+};
+
+function t(key){
+  return TRANSLATIONS[currentLang][key] || TRANSLATIONS['en'][key] || key;
+}
+
+function applyI18n(){
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const key=el.getAttribute('data-i18n');
+    const val=t(key);
+    // Use innerHTML for keys that contain HTML markup (help steps, tips)
+    if(val.includes('<')){el.innerHTML=val;}
+    else{el.textContent=val;}
+  });
+  // Handle placeholder translations
+  document.querySelectorAll('[data-i18n-ph]').forEach(el=>{
+    el.placeholder=t(el.getAttribute('data-i18n-ph'));
+  });
+  // Update dynamic elements
+  document.getElementById('lang-btn').textContent=currentLang==='en'?'FR':'EN';
+  document.documentElement.lang=currentLang;
+  // Update placeholders
+  const dinInput=document.getElementById('din-input');
+  if(dinInput)dinInput.placeholder=t('scan_placeholder');
+  const invSearch=document.getElementById('inv-search');
+  if(invSearch)invSearch.placeholder=t('inv_search_placeholder');
+  const divSearch=document.getElementById('div-search');
+  if(divSearch)divSearch.placeholder=t('div_search');
+  const clSearch=document.getElementById('cl-search');
+  if(clSearch)clSearch.placeholder=t('cl_search');
+  // Update select options with spans
+  document.querySelectorAll('[data-i18n-opt]').forEach(el=>{
+    el.textContent=t(el.getAttribute('data-i18n-opt'));
+  });
+  // Update import mode select options directly (spans inside option don't render in all browsers)
+  const modeSelect=document.getElementById('import-mode');
+  if(modeSelect){
+    const opts=modeSelect.querySelectorAll('option');
+    const modeKeys=['mode_purchase','mode_sale','mode_inventory',null,null,null];
+    // Only update first 3 options; legacy/backup/restore keep their labels
+  }
+  // Patch remaining titles/placeholders not tagged
+  const invClr=document.getElementById('inv-search-clear');
+  if(invClr) invClr.title=currentLang==='fr'?'Effacer la recherche':'Clear search';
+  const invHide=document.getElementById('inv-hide-empty-btn');
+  if(invHide) invHide.textContent=(window._invHideEmpty?t('btn_show_all'):t('btn_hide_empty'));
+  const divHide=document.getElementById('div-hide-zero-btn');
+  if(divHide) divHide.textContent=(window.divHideZeroExpected?t('btn_show_all'):t('btn_hide_formulary'));
+  // Sync mobile lang button
+  const mlb=document.getElementById('mobile-lang-btn');
+  if(mlb)mlb.textContent=currentLang==='en'?'FR':'EN';
+  // Sync mobile menu active tab
+  syncMobileMenuActive();
+  // Re-render dynamic content if visible
+  if(document.getElementById('tab-inventory').classList.contains('active'))renderInventory();
+  if(document.getElementById('tab-divergence').classList.contains('active'))renderDivergences();
+  if(document.getElementById('tab-checklist').classList.contains('active'))renderChecklist();
+  if(document.getElementById('tab-log').classList.contains('active'))renderLog();
+}
+
+function syncMobileMenuActive(){
+  // Sync header nav buttons
+  document.querySelectorAll('header nav button[onclick*="switchTab"]').forEach(btn=>{
+    const m=btn.getAttribute('onclick').match(/'([^']+)'/);
+    if(m)btn.classList.toggle('active', document.getElementById('tab-'+m[1])?.classList.contains('active'));
+  });
+  // Sync overflow menu buttons
+  document.querySelectorAll('.overflow-menu-section button[onclick*="switchTab"]').forEach(btn=>{
+    const m=btn.getAttribute('onclick').match(/'([^']+)'/);
+    if(m)btn.classList.toggle('active', document.getElementById('tab-'+m[1])?.classList.contains('active'));
+  });
+}
+function toggleOverflowMenu(){
+  const menu=document.getElementById('overflow-menu');
+  const btn=document.getElementById('hamburger-btn');
+  const open=menu.classList.toggle('open');
+  btn.textContent=open?'✖️':'☰';
+}
+function closeOverflowMenu(){
+  const menu=document.getElementById('overflow-menu');
+  if(menu)menu.classList.remove('open');
+  const btn=document.getElementById('hamburger-btn');
+  if(btn)btn.textContent='☰';
+}
+// Close overflow menu when clicking outside
+document.addEventListener('click',function(e){
+  if(!e.target.closest('#overflow-menu')&&!e.target.closest('#hamburger-btn')){
+    closeOverflowMenu();
+  }
+});
+
+function toggleLang(){
+  currentLang=currentLang==='en'?'fr':'en';
+  localStorage.setItem('rxstock_lang',currentLang);
+  applyI18n();
+}
+
+function loadLang(){
+  const saved=localStorage.getItem('rxstock_lang');
+  if(saved)currentLang=saved;
+  applyI18n();
+}
+
+// ===================== THEME =====================
+function toggleTheme(){
+  const isLight=document.body.classList.toggle('light');
+  document.getElementById('theme-btn').textContent=isLight?'🌙':'☀️';const mtb=document.getElementById('mobile-theme-btn');if(mtb)mtb.textContent=isLight?'🌙':'☀️';
+  localStorage.setItem('rxstock_theme',isLight?'light':'dark');
+}
+function loadTheme(){
+  const t=localStorage.getItem('rxstock_theme');
+  if(t==='light'){document.body.classList.add('light');document.getElementById('theme-btn').textContent='🌙';const mb=document.getElementById('mobile-theme-btn');if(mb)mb.textContent='🌙';}
+}
+
+// ===================== FULL BACKUP / RESTORE =====================
+function fullBackup(){
+  const data={
+    version:1,
+    exportedAt:new Date().toISOString(),
+    inventory,
+    activityLog,
+    inventoryPeriod,
+    divergenceNotes,
+    checklistState
+  };
+  const json=JSON.stringify(data,null,2);
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([json],{type:'application/json'}));
+  const date=new Date().toISOString().slice(0,10);
+  a.download='narcount_full_backup_'+date+'.json';
+  a.click();
+  toast('✓ Full backup downloaded','success');
+}
+
+function fullRestore(e){
+  const file=e.target.files[0];
+  e.target.value='';
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=function(ev){
+    try{
+      const data=JSON.parse(ev.target.result);
+      if(!data.inventory||!Array.isArray(data.inventory)){
+        toast('Invalid backup file','error');return;
+      }
+      if(!confirm('This will REPLACE all current data with the backup from '+( data.exportedAt?new Date(data.exportedAt).toLocaleString():'unknown date')+'. Continue?'))return;
+      inventory=data.inventory||[];
+      activityLog=data.activityLog||[];
+      inventoryPeriod=data.inventoryPeriod||{lastDate:'',currentDate:'',counter:'',verifier:'',notes:''};
+      divergenceNotes=data.divergenceNotes||{};
+      checklistState=data.checklistState||{};
+      localStorage.setItem('rxstock_divnotes',JSON.stringify(divergenceNotes));
+      localStorage.setItem('rxstock_checklist',JSON.stringify(checklistState));
+      saveData();
+      loadPeriodUI();
+      updateStats();
+      renderInventory();
+      renderLog();
+      toast('✓ Backup restored — '+inventory.length+' products, '+activityLog.length+' log entries','success');
+    }catch(err){
+      toast('Error reading backup file: '+err.message,'error');
+    }
+  };
+  reader.readAsText(file,'UTF-8');
+}
+
+// ===================== CHECKLIST =====================
+function renderChecklist(){
+  const search=(document.getElementById('cl-search').value||'').toLowerCase();
+  const filter=document.getElementById('cl-filter').value;
+  // Only include products with a set previous count (expected stock > 0)
+  const sorted=[...inventory]
+    .filter(p=>{if(p.prevQty!==undefined&&p.prevQty!==null&&p.prevQty!==0)return true;const s=getProductStats(p);return s.purchases!==0||s.sales!==0||s.adjustments!==0;})
+    .sort((a,b)=>a.name.localeCompare(b.name));
+  const total=sorted.length;
+  const checked=sorted.filter(p=>checklistState[p.id]&&checklistState[p.id].checked).length;
+  const pct=total?Math.round((checked/total)*100):0;
+  document.getElementById('cl-progress').innerHTML=`
+    <div style="display:flex;align-items:center;gap:12px;">
+      <div style="flex:1;height:8px;background:var(--surface2);border-radius:4px;overflow:hidden;">
+        <div style="width:${pct}%;height:100%;background:var(--accent);transition:width .3s;border-radius:4px;"></div>
+      </div>
+      <span style="font-size:12px;color:var(--muted);white-space:nowrap;">${checked} / ${total} counted (${pct}%)</span>
+    </div>`;
+  const items=sorted.filter(p=>{
+    const ms=!search||p.name.toLowerCase().includes(search)||p.din.includes(search)||(p.manufacturer||'').toLowerCase().includes(search);
+    const st=checklistState[p.id]||{};
+    const mf=!filter||(filter==='checked'&&st.checked)||(filter==='unchecked'&&!st.checked);
+    return ms&&mf;
+  });
+  const body=document.getElementById('cl-body');
+  if(!items.length){body.innerHTML='<div class="empty-state"><div class="icon">☑</div><p>No products match</p></div>';return;}
+  body.innerHTML=items.map(p=>{
+    const st=checklistState[p.id]||{checked:false,count:'',note:''};
+    const bg=st.checked?'background:rgba(0,212,170,0.06);border-color:rgba(0,212,170,0.2)':'';
+    return `<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--border);border-radius:8px;margin-bottom:6px;${bg};transition:all .15s;">
+      <input type="checkbox" style="width:18px;height:18px;accent-color:var(--accent);cursor:pointer;flex-shrink:0;" ${st.checked?'checked':''} onchange="setChecklist('${p.id}','checked',this.checked)">
+      <div style="flex:1;min-width:0;">
+        <div style="font-weight:${st.checked?'400':'600'};color:${st.checked?'var(--muted)':'var(--text)'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-decoration:${st.checked?'line-through':''}">${p.name}</div>
+        <div style="font-size:11px;color:var(--muted);">${p.din} · Stock: <span style="color:${st.applied?'var(--accent)':'var(--muted)'}">${p.qty}${st.applied?' ✅':''}</span></div>
+      </div>
+      <input type="number" placeholder="Count" value="${st.count||''}" style="width:72px;background:var(--surface);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:12px;padding:5px 8px;border-radius:6px;outline:none;text-align:center;" onchange="setChecklist('${p.id}','count',this.value)" title="Enter physical count">
+      <input type="text" placeholder="${t("ph_note")}" value="${(st.note||'').replace(/"/g,'&quot;')}" style="width:110px;background:var(--surface);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:11px;padding:5px 8px;border-radius:6px;outline:none;" onchange="setChecklist('${p.id}','note',this.value)">
+      <button class="tbl-btn${st.applied?' btn-primary':''}" onclick="applyCount('${p.id}')" title="Save this count to inventory" style="flex-shrink:0;white-space:nowrap;">${st.applied?'✅ Saved':'💾 Save'}</button>
+    </div>`;
+  }).join('');
+}
+
+function setChecklist(id,field,value){
+  if(!checklistState[id])checklistState[id]={checked:false,count:'',note:''};
+  checklistState[id][field]=value;
+  localStorage.setItem('rxstock_checklist',JSON.stringify(checklistState));
+  // re-render just the progress bar without full re-render to avoid losing focus
+  const sorted=[...inventory].filter(p=>{if(p.prevQty!==undefined&&p.prevQty!==null&&p.prevQty!==0)return true;const s=getProductStats(p);return s.purchases!==0||s.sales!==0||s.adjustments!==0;});
+  const total=sorted.length;
+  const checked=sorted.filter(p=>checklistState[p.id]&&checklistState[p.id].checked).length;
+  const pct=total?Math.round((checked/total)*100):0;
+  const el=document.getElementById('cl-progress');
+  if(el)el.innerHTML=`<div style="display:flex;align-items:center;gap:12px;"><div style="flex:1;height:8px;background:var(--surface2);border-radius:4px;overflow:hidden;"><div style="width:${pct}%;height:100%;background:var(--accent);transition:width .3s;border-radius:4px;"></div></div><span style="font-size:12px;color:var(--muted);white-space:nowrap;">${checked} / ${total} counted (${pct}%)</span></div>`;
+}
+
+function checklistSelectAll(){inventory.filter(p=>{if(p.prevQty!==undefined&&p.prevQty!==null&&p.prevQty!==0)return true;const s=getProductStats(p);return s.purchases!==0||s.sales!==0||s.adjustments!==0;}).forEach(p=>{if(!checklistState[p.id])checklistState[p.id]={checked:false,count:'',note:''};checklistState[p.id].checked=true;});localStorage.setItem('rxstock_checklist',JSON.stringify(checklistState));renderChecklist();}
+function checklistClearAll(){inventory.filter(p=>{if(p.prevQty!==undefined&&p.prevQty!==null&&p.prevQty!==0)return true;const s=getProductStats(p);return s.purchases!==0||s.sales!==0||s.adjustments!==0;}).forEach(p=>{if(checklistState[p.id])checklistState[p.id].checked=false;});localStorage.setItem('rxstock_checklist',JSON.stringify(checklistState));renderChecklist();}
+function resetChecklist(){if(!confirm('Reset all checklist items (uncheck all, clear counts and notes)?'))return;checklistState={};localStorage.setItem('rxstock_checklist',JSON.stringify(checklistState));renderChecklist();}
+
+function applyCount(id){
+  const p=inventory.find(x=>x.id===id);
+  const st=checklistState[id];
+  if(!p||!st)return;
+  const countVal=st.count;
+  if(countVal===''||countVal===undefined||countVal===null){toast('Enter a count first','warn');return;}
+  const newQty=parseFloat(countVal);
+  if(isNaN(newQty)){toast('Invalid count value','error');return;}
+  // Physical count sets qty and prevQty — no log entry.
+  // prevQty is the new divergence baseline; future purchases/sales accrue from here.
+  p.qty=newQty;
+  p.prevQty=newQty;
+  st.applied=true;
+  st.checked=true;
+  saveData();
+  localStorage.setItem('rxstock_checklist',JSON.stringify(checklistState));
+  renderChecklist();
+  toast('✅ Saved: '+p.name+' → '+newQty,'success');
+}
+
+function applyAllCounts(){
+  const st_list=Object.keys(checklistState).filter(id=>{
+    const st=checklistState[id];
+    return st&&st.count!==''&&st.count!==undefined&&st.count!==null&&!st.applied;
+  });
+  if(!st_list.length){toast('No new counts to apply','warn');return;}
+  if(!confirm('Apply '+st_list.length+' count(s) to inventory stock?'))return;
+  const batchId='count_'+Date.now();
+  let n=0;
+  st_list.forEach(id=>{
+    const p=inventory.find(x=>x.id===id);
+    const st=checklistState[id];
+    if(!p||st.count===''||st.count===undefined)return;
+    const newQty=parseFloat(st.count);
+    if(isNaN(newQty))return;
+    // Physical count — sets qty and prevQty silently, no log entry
+    p.qty=newQty;
+    p.prevQty=newQty;
+    st.applied=true;
+    st.checked=true;
+    n++;
+  });
+  saveData();
+  localStorage.setItem('rxstock_checklist',JSON.stringify(checklistState));
+  renderChecklist();
+  toast('✅ Applied '+n+' count(s) to inventory','success');
+}
+
+function printChecklist(){
+  const sorted=[...inventory].filter(p=>{if(p.prevQty!==undefined&&p.prevQty!==null&&p.prevQty!==0)return true;const s=getProductStats(p);return s.purchases!==0||s.sales!==0||s.adjustments!==0;}).sort((a,b)=>a.name.localeCompare(b.name));
+  const period=inventoryPeriod;
+  const rows=sorted.map(p=>{
+    const st=checklistState[p.id]||{};
+    return `<tr>
+      <td style="padding:6px 8px;border:1px solid #ccc;font-size:12px;">${p.din}</td>
+      <td style="padding:6px 8px;border:1px solid #ccc;font-size:12px;font-weight:600;">${p.name}</td>
+      <td style="padding:6px 8px;border:1px solid #ccc;font-size:12px;">${p.manufacturer||'—'}</td>
+      <td style="padding:6px 8px;border:1px solid #ccc;text-align:center;font-size:14px;">${st.checked?'☑':'☐'}</td>
+      <td style="padding:6px 8px;border:1px solid #ccc;text-align:center;font-size:12px;">${st.count||''}</td>
+      <td style="padding:6px 8px;border:1px solid #ccc;font-size:11px;color:#666;">${st.note||''}</td>
+    </tr>`;
+  }).join('');
+  const checked=sorted.filter(p=>checklistState[p.id]&&checklistState[p.id].checked).length;
+  const html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Count Checklist</title>
+  <style>body{font-family:Arial,sans-serif;margin:20px;}h1{font-size:18px;margin-bottom:4px;}
+  .meta{font-size:12px;color:#666;margin-bottom:16px;}
+  table{width:100%;border-collapse:collapse;}th{background:#f0f0f0;padding:6px 8px;border:1px solid #ccc;font-size:11px;text-transform:uppercase;text-align:left;}
+  .footer{margin-top:20px;font-size:11px;color:#888;display:flex;gap:40px;}
+  .sig{border-top:1px solid #000;padding-top:4px;width:180px;margin-top:30px;}
+  @media print{button{display:none!important;}}</style></head><body>
+  <h1>Physical Count Checklist</h1>
+  <div class="meta">
+    Period: ${period.lastDate||'—'} → ${period.currentDate||'—'} &nbsp;|&nbsp;
+    Counter: ${period.counter||'—'} &nbsp;|&nbsp;
+    Verified by: ${period.verifier||'—'} &nbsp;|&nbsp;
+    Progress: ${checked}/${sorted.length}
+  </div>
+  <table><thead><tr>
+    <th style="width:80px">DIN</th><th>Drug Name</th><th><span data-i18n="lbl_mfr">Manufacturer</span></th>
+    <th style="width:40px;text-align:center">✓</th>
+    <th style="width:70px;text-align:center">Count</th>
+    <th style="width:160px">Note</th>
+  </tr></thead><tbody>${rows}</tbody></table>
+  <div style="display:flex;gap:60px;margin-top:30px;">
+    <div class="sig"><div>Counter signature</div></div>
+    <div class="sig"><div>Verifier signature</div></div>
+    <div class="sig"><div>Date</div></div>
+  </div>
+  <script>window.onload=function(){window.print();}<\/script>
+  </body></html>`;
+  const w=window.open('','_blank');
+  w.document.write(html);w.document.close();
+}
+
+// ===================== MERGE DUPLICATE DINs =====================
+let mergeKeepProduct=null, mergeDelProduct=null;
+
+function mergeSearch(side){
+  const inputId='merge-'+side+'-input';
+  const ddId='merge-'+side+'-dd';
+  const q=document.getElementById(inputId).value.trim().toLowerCase();
+  const dd=document.getElementById(ddId);
+  if(q.length<2){dd.style.display='none';return;}
+  const isNum=/^\d+$/.test(q);
+  const din=isNum?normalizeDIN(q):'';
+  const matches=inventory.filter(p=>
+    (isNum&&normalizeDIN(p.din).startsWith(din))||
+    p.name.toLowerCase().includes(q)||
+    (p.manufacturer||'').toLowerCase().includes(q)
+  ).slice(0,8);
+  if(!matches.length){dd.style.display='none';return;}
+  dd.innerHTML=matches.map(p=>`<div class="scan-dropdown-item" onmousedown="selectMergeProduct('${side}','${p.id}')">
+    <div><div class="scan-dd-name">${p.name}</div><div class="scan-dd-din">${p.din} · ${p.manufacturer||'—'}</div></div>
+    <div class="scan-dd-qty">${p.qty}</div>
+  </div>`).join('');
+  dd.style.display='block';
+}
+
+function selectMergeProduct(side,id){
+  const p=inventory.find(x=>x.id===id);
+  if(!p)return;
+  if(side==='keep'){
+    mergeKeepProduct=p;
+    document.getElementById('merge-keep-input').value=p.name;
+    document.getElementById('merge-keep-info').innerHTML=`<b>${p.din}</b> · ${p.manufacturer||'—'} · Stock: <b>${p.qty}</b>${p.prevQty!==undefined?' · Prev: '+p.prevQty:''}`;
+    document.getElementById('merge-keep-dd').style.display='none';
+  } else {
+    mergeDelProduct=p;
+    document.getElementById('merge-del-input').value=p.name;
+    document.getElementById('merge-del-info').innerHTML=`<b>${p.din}</b> · ${p.manufacturer||'—'} · Stock: <b>${p.qty}</b>${p.prevQty!==undefined?' · Prev: '+p.prevQty:''}`;
+    document.getElementById('merge-del-dd').style.display='none';
+  }
+  updateMergePreview();
+}
+
+function updateMergePreview(){
+  const preview=document.getElementById('merge-preview');
+  if(!mergeKeepProduct||!mergeDelProduct){preview.style.display='none';return;}
+  if(mergeKeepProduct.id===mergeDelProduct.id){preview.style.display='block';preview.innerHTML='<span style="color:var(--danger)">⚠ Cannot merge a product with itself</span>';return;}
+  const newQty=mergeKeepProduct.qty+mergeDelProduct.qty;
+  const newPrev=(mergeKeepProduct.prevQty||0)+(mergeDelProduct.prevQty||0);
+  preview.style.display='block';
+  preview.innerHTML=`<div style="font-weight:600;margin-bottom:8px;color:var(--text);">Merge Preview</div>
+    <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center;">
+      <div>
+        <div style="color:var(--muted);font-size:10px;text-transform:uppercase;margin-bottom:3px;">Keep (primary)</div>
+        <div style="font-weight:600;">${mergeKeepProduct.name}</div>
+        <div style="color:var(--muted);font-size:11px;">${mergeKeepProduct.din} · Stock: ${mergeKeepProduct.qty}${mergeKeepProduct.prevQty!==undefined?' · Prev: '+mergeKeepProduct.prevQty:''}</div>
+      </div>
+      <div style="color:var(--accent);font-size:20px;">⟵</div>
+      <div>
+        <div style="color:var(--muted);font-size:10px;text-transform:uppercase;margin-bottom:3px;">Delete after merge</div>
+        <div style="font-weight:600;color:var(--danger);">${mergeDelProduct.name}</div>
+        <div style="color:var(--muted);font-size:11px;">${mergeDelProduct.din} · Stock: ${mergeDelProduct.qty}${mergeDelProduct.prevQty!==undefined?' · Prev: '+mergeDelProduct.prevQty:''}</div>
+      </div>
+    </div>
+    <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);color:var(--text);">
+      Result: <b>${mergeKeepProduct.name}</b> · Stock: <b style="color:var(--accent)">${newQty}</b> · Prev Count: <b>${newPrev}</b>
+      <div style="color:var(--muted);font-size:11px;margin-top:3px;">All log entries from "${mergeDelProduct.name}" will be re-attributed to the primary product. The secondary product will be permanently deleted.</div>
+    </div>`;
+}
+
+function executeMerge(){
+  if(!mergeKeepProduct||!mergeDelProduct){toast('Select both products first','error');return;}
+  if(mergeKeepProduct.id===mergeDelProduct.id){toast('Cannot merge a product with itself','error');return;}
+  if(!confirm(`Merge "${mergeDelProduct.name}" into "${mergeKeepProduct.name}"? This cannot be undone.`))return;
+  // Combine stock and prev counts
+  const keep=inventory.find(p=>p.id===mergeKeepProduct.id);
+  const del=inventory.find(p=>p.id===mergeDelProduct.id);
+  keep.qty+=del.qty;
+  if(del.prevQty!==undefined)keep.prevQty=(keep.prevQty||0)+del.prevQty;
+  // Re-attribute all log entries from deleted product
+  const delDin=normalizeDIN(del.din);
+  activityLog.forEach(l=>{if(normalizeDIN(l.din)===delDin){l.din=keep.din;l.name=keep.name;}});
+  // Re-attribute checklist and divergence notes
+  if(checklistState[del.id])checklistState[keep.id]=checklistState[del.id];
+  delete checklistState[del.id];
+  if(divergenceNotes[del.id])divergenceNotes[keep.id]=divergenceNotes[del.id];
+  delete divergenceNotes[del.id];
+  // Remove the deleted product
+  inventory=inventory.filter(p=>p.id!==del.id);
+  saveData();
+  localStorage.setItem('rxstock_divnotes',JSON.stringify(divergenceNotes));
+  localStorage.setItem('rxstock_checklist',JSON.stringify(checklistState));
+  updateStats();renderInventory();
+  toast('✓ Merged "'+del.name+'" into "'+keep.name+'" — stock: '+keep.qty,'success');
+  // Reset
+  mergeKeepProduct=null;mergeDelProduct=null;
+  document.getElementById('merge-keep-input').value='';
+  document.getElementById('merge-del-input').value='';
+  document.getElementById('merge-keep-info').innerHTML='';
+  document.getElementById('merge-del-info').innerHTML='';
+  document.getElementById('merge-preview').style.display='none';
+}
+
+// Close merge dropdowns on outside click
+document.addEventListener('click',function(e){
+  if(!e.target.closest('#tab-tools')){return;}
+  if(!e.target.closest('[style*="position:relative"]')){
+    const kd=document.getElementById('merge-keep-dd');
+    const dd=document.getElementById('merge-del-dd');
+    if(kd)kd.style.display='none';
+    if(dd)dd.style.display='none';
+  }
+});
+
+// ===================== DUPLICATE DETECTOR =====================
+function runDuplicateDetect(){
+  const results=document.getElementById('dup-results');
+  const groups={};
+  // Group by normalized DIN
+  inventory.forEach(p=>{
+    const din=normalizeDIN(p.din);
+    if(!groups[din])groups[din]=[];
+    groups[din].push(p);
+  });
+  const dinDups=Object.values(groups).filter(g=>g.length>1);
+
+  // Find similar names (same first 10 chars, different DINs)
+  const nameDups=[];
+  const seen=new Set();
+  inventory.forEach((a,i)=>{
+    inventory.forEach((b,j)=>{
+      if(i>=j)return;
+      if(normalizeDIN(a.din)===normalizeDIN(b.din))return; // already caught above
+      const ka=a.name.replace(/\s+/g,' ').trim().toUpperCase().slice(0,14);
+      const kb=b.name.replace(/\s+/g,' ').trim().toUpperCase().slice(0,14);
+      const key=[a.id,b.id].sort().join('|');
+      if(ka===kb&&ka.length>=8&&!seen.has(key)){
+        seen.add(key);
+        nameDups.push([a,b]);
+      }
+    });
+  });
+
+  if(!dinDups.length&&!nameDups.length){
+    results.innerHTML='<div style="color:var(--accent);font-size:13px;padding:10px 0;">✓ No duplicates found — inventory looks clean.</div>';
+    return;
+  }
+
+  let html='';
+  if(dinDups.length){
+    html+=`<div style="font-weight:700;font-size:13px;margin-bottom:8px;color:var(--danger);">Same DIN (${dinDups.length} group${dinDups.length>1?'s':''})</div>`;
+    dinDups.forEach(group=>{
+      html+=`<div style="background:var(--surface2);border:1px solid var(--danger);border-radius:8px;padding:12px;margin-bottom:10px;">`;
+      group.forEach(p=>{
+        html+=`<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+          <div style="flex:1;"><div style="font-weight:600;">${p.name}</div><div style="color:var(--muted);font-size:11px;">DIN: ${p.din} · ${p.manufacturer||'—'} · Stock: ${p.qty}</div></div>
+          <button class="tbl-btn" onclick="prefillMerge('${p.id}','keep')">Set as Primary</button>
+          <button class="tbl-btn del" onclick="prefillMerge('${p.id}','del')">Set as Duplicate</button>
+        </div>`;
+      });
+      html+=`<div style="font-size:11px;color:var(--muted);margin-top:4px;">→ Use the Merge tool above to combine these</div></div>`;
+    });
+  }
+  if(nameDups.length){
+    html+=`<div style="font-weight:700;font-size:13px;margin-bottom:8px;margin-top:${dinDups.length?'14px':'0'};color:var(--warn);">Similar Names — Possible Duplicates (${nameDups.length})</div>`;
+    nameDups.forEach(([a,b])=>{
+      html+=`<div style="background:var(--surface2);border:1px solid var(--warn);border-radius:8px;padding:12px;margin-bottom:8px;">
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <div style="flex:1;min-width:140px;"><div style="font-weight:600;">${a.name}</div><div style="color:var(--muted);font-size:11px;">DIN: ${a.din} · Stock: ${a.qty}</div></div>
+          <div style="color:var(--muted);align-self:center;">≈</div>
+          <div style="flex:1;min-width:140px;"><div style="font-weight:600;">${b.name}</div><div style="color:var(--muted);font-size:11px;">DIN: ${b.din} · Stock: ${b.qty}</div></div>
+        </div>
+        <div style="display:flex;gap:6px;margin-top:8px;">
+          <button class="tbl-btn" onclick="prefillMergeTwo('${a.id}','${b.id}')">Set up Merge</button>
+          <span style="font-size:11px;color:var(--muted);align-self:center;">Different DINs — review carefully before merging</span>
+        </div>
+      </div>`;
+    });
+  }
+  results.innerHTML=html;
+}
+
+function prefillMerge(id,side){
+  const p=inventory.find(x=>x.id===id);
+  if(!p)return;
+  if(side==='keep'){mergeKeepProduct=p;document.getElementById('merge-keep-input').value=p.name;document.getElementById('merge-keep-info').innerHTML=`<b>${p.din}</b> · ${p.manufacturer||'—'} · Stock: <b>${p.qty}</b>`;}
+  else{mergeDelProduct=p;document.getElementById('merge-del-input').value=p.name;document.getElementById('merge-del-info').innerHTML=`<b>${p.din}</b> · ${p.manufacturer||'—'} · Stock: <b>${p.qty}</b>`;}
+  updateMergePreview();
+  document.getElementById('merge-keep-input').scrollIntoView({behavior:'smooth',block:'center'});
+}
+function prefillMergeTwo(idA,idB){
+  prefillMerge(idA,'keep');
+  prefillMerge(idB,'del');
+}
+
+// ===================== INIT =====================
+document.addEventListener('click',function(e){
+  if(!e.target.closest('.scan-wrap'))document.getElementById('scan-dropdown').style.display='none';
+});
+loadData();loadTheme();loadLang();loadPeriodUI();updateStats();renderInventory();renderLog();
+</script>
+</body>
+</html>
