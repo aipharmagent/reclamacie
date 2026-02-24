@@ -632,6 +632,11 @@ td.name-cell{font-weight:500;max-width:200px;white-space:nowrap;overflow:hidden;
 
   /* Dark mode readability + contrast tune */
   body:not(.light){
+    /* Dark-mode token overrides so inline styles using var(--text)/var(--muted) stay readable */
+    --text:#e5e7eb !important;
+    --text-soft:#cbd5e1 !important;
+    --gray:#334155 !important;
+    --muted:#94a3b8 !important;
     color:#e5e7eb !important;
     background:linear-gradient(135deg,#0b1220 0%, #111827 55%, #0f172a 100%) !important;
   }
@@ -645,6 +650,15 @@ td.name-cell{font-weight:500;max-width:200px;white-space:nowrap;overflow:hidden;
   body:not(.light) select,
   body:not(.light) textarea{background:#0b1220 !important;}
   body:not(.light) td{color:#f1f5f9 !important;}
+  body:not(.light) .detail-key{color:#cbd5e1 !important;}
+  body:not(.light) .detail-val{color:#f8fafc !important;}
+  body:not(.light) .modal,
+  body:not(.light) .drawer,
+  body:not(.light) .panel{
+    background:#111827 !important;
+    color:#e5e7eb !important;
+    border-color:#334155 !important;
+  }
   body:not(.light) tr:nth-child(even) td{background:#0b1220 !important;}
   body:not(.light) tr:hover td{background:rgba(59,130,246,.14) !important;}
   body:not(.light) button:focus-visible,
@@ -654,6 +668,69 @@ td.name-cell{font-weight:500;max-width:200px;white-space:nowrap;overflow:hidden;
   body:not(.light) textarea:focus-visible{
     box-shadow:0 0 0 3px rgba(96,165,250,.28) !important;
     border-color:#60a5fa !important;
+  }
+
+  /* Professional font consistency across UI */
+  body, body *:not(.fa):not(.fas):not(.far):not(.fab){
+    font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+  }
+  /* Keep code-ish bits readable but aligned */
+  .din-cell, .code, code, pre, .mono{
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace !important;
+  }
+
+  /* Toast / save notifications readability */
+  #toast{
+    font-size:.95rem !important;
+    line-height:1.35 !important;
+    padding:12px 14px !important;
+    border-radius:12px !important;
+    box-shadow:0 8px 20px rgba(15,23,42,.14) !important;
+  }
+
+  /* Better contrast for secondary labels */
+  .detail-key, .form-label, .result-label, .stat-label, .stat-sub{
+    color:#64748b !important;
+  }
+
+  /* Dark mode token and component fixes (toasts, notices, labels) */
+  body:not(.light){
+    --bg:#0b1220 !important;
+    --surface:#111827 !important;
+    --surface2:#0f172a !important;
+    --border:#334155 !important;
+    --text:#e5e7eb !important;
+    --text-soft:#cbd5e1 !important;
+    --muted:#a8b5c7 !important;
+    --header-bg:rgba(17,24,39,.92) !important;
+  }
+  body:not(.light) #toast{
+    background:#111827 !important;
+    color:#f8fafc !important;
+    border:1px solid #475569 !important;
+    box-shadow:0 12px 28px rgba(0,0,0,.38) !important;
+  }
+  body:not(.light) #toast.success{ border-color: rgba(16,185,129,.55) !important; }
+  body:not(.light) #toast.warn{ border-color: rgba(245,158,11,.55) !important; }
+  body:not(.light) #toast.error{ border-color: rgba(239,68,68,.55) !important; }
+
+  body:not(.light) .detail-key,
+  body:not(.light) .form-label,
+  body:not(.light) .result-label,
+  body:not(.light) .stat-label,
+  body:not(.light) .stat-sub,
+  body:not(.light) .header-stats,
+  body:not(.light) .muted,
+  body:not(.light) .small,
+  body:not(.light) .hint,
+  body:not(.light) .subtle,
+  body:not(.light) .secondary{
+    color:#b8c4d4 !important;
+  }
+  body:not(.light) .detail-val,
+  body:not(.light) .result-value,
+  body:not(.light) .stat-value{
+    color:#f8fafc !important;
   }
 
   /* Mobile tweaks */
@@ -668,7 +745,7 @@ td.name-cell{font-weight:500;max-width:200px;white-space:nowrap;overflow:hidden;
   }
 </style>
 </head>
-<body>
+<body class="light">
 
 <header>
   <div class="logo">Nar<span>Count</span></div>
@@ -803,6 +880,7 @@ td.name-cell{font-weight:500;max-width:200px;white-space:nowrap;overflow:hidden;
         <tr>
           <th onclick="sortBy('din')" data-i18n="col_din">DIN ⇅</th>
           <th onclick="sortBy('name')"><span data-i18n="col_name">Drug Name</span> ⇅</th>
+          <th onclick="sortBy('strength')"><span data-i18n="col_strength">Strength</span> ⇅</th>
           <th onclick="sortBy('prevQty')"><span data-i18n="col_prev_count">Prev. Count</span> ⇅</th>
           <th onclick="sortBy('qty')"><span data-i18n="col_stock">Current Stock</span> ⇅</th>
           <th onclick="sortBy('_div')" style="cursor:pointer;">Divergence ⇅</th>
@@ -1348,13 +1426,20 @@ function lookupDIN(){
 function showResult(p){
   document.getElementById('not-found').style.display='none';
   const sc=p.qty<0?'danger':p.qty===0?'danger':p.qty<=(p.threshold||10)?'warn':'accent';
+  const stats=getProductStats(p);
+  const hasBaseline=(p.prevQty!==undefined&&p.prevQty!==null&&p.prevQty!=='');
+  const hasActivity=(stats.purchases||stats.sales||stats.adjustments);
+  const expected=(hasBaseline||hasActivity)?((Number(p.prevQty)||0)+stats.purchases-stats.sales+stats.adjustments):null;
+  const divergence=(expected===null)?null:(Number(p.qty)||0)-expected;
+  const divClass=divergence===null?'':(divergence===0?'ok':(divergence>0?'warn':'danger'));
   document.getElementById('result-fields').innerHTML=`
     <div class="result-field"><div class="result-label">Drug Name</div><div class="result-value" style="font-size:18px;font-family:var(--display);font-weight:800;">${p.name}</div></div>
     <div class="result-field"><div class="result-label">DIN</div><div class="result-value accent">${p.din}</div></div>
+    <div class="result-field"><div class="result-label"><span data-i18n="col_strength">Strength</span></div><div class="result-value">${p.strength||'—'}</div></div>
     <div class="result-field"><div class="result-label"><span data-i18n="lbl_mfr">Manufacturer</span></div><div class="result-value">${p.manufacturer||'—'}</div></div>
     <div class="result-field"><div class="result-label"><span data-i18n="lbl_type">Type</span></div><div class="result-value">${typeBadge(p.type)}</div></div>
     <div class="result-field"><div class="result-label">Stock</div><div class="result-value ${sc}" style="font-size:24px;font-family:var(--display);font-weight:800;">${p.qty} <span style="font-size:12px;font-weight:400;">units</span></div></div>
-    <div class="result-field"><div class="result-label">Threshold</div><div class="result-value">${p.threshold||10}</div></div>
+    <div class="result-field"><div class="result-label"><span data-i18n="col_div">Divergence</span></div><div class="result-value ${divClass}">${divergence===null?'—':(divergence>0?'+':'')+divergence}</div></div>
     ${p.notes?`<div class="result-field"><div class="result-label">Notes</div><div class="result-value" style="color:var(--warn)">${p.notes}</div></div>`:''}
   `;
   document.getElementById('adj-qty').value=1;
@@ -1403,8 +1488,8 @@ function applyAdjustment(){
   else if(type==='sub'){currentProduct.qty=prev-qty;delta=-qty;logType='sale';}
   else if(type==='set'){currentProduct.qty=qty;delta=qty-prev;logType='count';logNote='Set exact'+(note?' — '+note:'');}
   else if(type==='stock'){currentProduct.qty=qty;delta=qty-prev;logType='count';logNote='Current stock count'+(note?' — '+note:'');}
-  else if(type==='expired'){currentProduct.qty=prev-qty;delta=-qty;logType='adjust';logNote='Expired'+(note?' — '+note:'');}
-  else if(type==='lost'){currentProduct.qty=prev-qty;delta=-qty;logType='adjust';logNote='Lost/Damaged'+(note?' — '+note:'');}
+  else if(type==='expired'){delta=-qty;logType='adjust';logNote='Expired'+(note?' — '+note:'');}
+  else if(type==='lost'){delta=-qty;logType='adjust';logNote='Lost/Damaged'+(note?' — '+note:'');}
 
   addLog(logType,currentProduct,delta,logNote,prev,null);
   saveData();updateStats();showResult(currentProduct);
@@ -1452,7 +1537,7 @@ function renderInventory(){
     return sortAsc?String(av).localeCompare(String(bv)):String(bv).localeCompare(String(av));
   });
   const tbody=document.getElementById('inv-body');
-  if(!items.length){tbody.innerHTML=`<tr><td colspan="8"><div class="empty-state"><div class="icon">📦</div><p>${t("empty_no_products")}</p></div></td></tr>`;return;}
+  if(!items.length){tbody.innerHTML=`<tr><td colspan="9"><div class="empty-state"><div class="icon">📦</div><p>${t("empty_no_products")}</p></div></td></tr>`;return;}
   tbody.innerHTML=items.map(p=>{
     const stats=getProductStats(p);
     const prev=p.prevQty!==undefined&&p.prevQty!==null?p.prevQty:null;
@@ -1469,6 +1554,7 @@ function renderInventory(){
     return `<tr>
       <td class="din-cell">${p.din}</td>
       <td class="name-cell" title="${p.name}">${p.name}</td>
+      <td style="color:var(--muted);white-space:nowrap;">${p.strength||'—'}</td>
       <td style="color:var(--muted);">${prev!==null?prev:'—'}</td>
       <td><div class="stock-bar-wrap ${sc}"><div class="stock-bar"><div class="stock-bar-fill" style="width:${pct}%"></div></div><span class="qty-num ${qc}">${p.qty}</span></div></td>
       <td style="${divClass}">${displayDiv!==null?(displayDiv>0?'+':'')+displayDiv+(divPct!==null?' ('+divPct+'%)':''):'—'}</td>
@@ -1746,11 +1832,60 @@ function submitEditModal(){
 
 // ===================== EXPORT =====================
 function exportCSV(){
-  const h=['DIN','Name','Manufacturer','Type','PrevCount','Quantity','Threshold','Expiry','Notes'];
-  const rows=inventory.map(p=>[p.din,p.name,p.manufacturer||'',p.type,p.prevQty??'',p.qty,p.threshold||10,p.expiry||'',p.notes||'']);
-  const csv=[h,...rows].map(r=>r.map(c=>`"${c}"`).join(',')).join('\n');
-  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
-  a.download='narcount_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
+  // Export should match inventory/divergence math shown in the UI (not raw storage fields)
+  const rowsData=inventory.map(p=>{
+    const stats=getProductStats(p);
+    const prev=(p.prevQty!==undefined&&p.prevQty!==null)?p.prevQty:'';
+    const hasActivity=stats.purchases!==0||stats.sales!==0||stats.adjustments!==0;
+    const expected=((p.prevQty!==undefined&&p.prevQty!==null)||hasActivity)
+      ? ((p.prevQty||0)+stats.purchases-stats.sales+stats.adjustments)
+      : '';
+    const divergence=(expected==='') ? '' : (p.qty-expected);
+
+    return {
+      DIN: p.din||'',
+      Name: p.name||'',
+      Strength: p.strength||'',
+      Manufacturer: p.manufacturer||'',
+      PrevCount: prev,
+      Purchases: stats.purchases!==0 ? stats.purchases : '',
+      Sales: stats.sales!==0 ? stats.sales : '',
+      Quantity: p.qty ?? '',
+      Expected: expected===''
+        ? ''
+        : (Number.isInteger(expected) ? expected : Number(expected.toFixed(2))),
+      Divergence: divergence===''
+        ? ''
+        : (Number.isInteger(divergence) ? divergence : Number(divergence.toFixed(2))),
+      Type: p.type||'',
+      Expiry: p.expiry||'',
+      Notes: p.notes||''
+    };
+  });
+
+  const preferredOrder=['DIN','Name','Strength','Manufacturer','PrevCount','Purchases','Sales','Quantity','Expected','Divergence','Type','Expiry','Notes'];
+
+  // Remove columns that are entirely blank so export only includes visible/useful data
+  const hasAnyValue=(key)=>rowsData.some(r=>{
+    const v=r[key];
+    return v!=='' && v!==null && v!==undefined;
+  });
+
+  const headers=preferredOrder.filter(hasAnyValue);
+
+  const esc=(v)=>{
+    const s=String(v??'');
+    return '"'+s.replace(/"/g,'""')+'"';
+  };
+
+  const csv=[headers, ...rowsData.map(r=>headers.map(h=>r[h]))]
+    .map(row=>row.map(esc).join(','))
+    .join('\n');
+
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'}));
+  a.download='narcount_'+new Date().toISOString().slice(0,10)+'.csv';
+  a.click();
   toast('✓ CSV exported','success');
 }
 
@@ -1956,6 +2091,7 @@ function buildCustomMappingUI(){
   addField('din','DIN','Drug Identification Number — required to match or create products','din','var(--accent)',true);
   addField('name','Drug Name','Product name / description — overrides existing name if Force Update is on','name');
   addField('mfr','Manufacturer','Supplier or brand name','manufacturer');
+  addField('strength','Strength (mg)','Medication strength (e.g. 5 mg, 10mg/mL)','strength');
   addField('type','Product Type','Rx / OTC / Controlled','type');
   addField('expiry','Expiry Date','Expiry date','expiry');
   addField('notes','Notes','Free-text notes','notes');
@@ -1990,6 +2126,7 @@ function buildCustomPreview(){
   const dinCol=getCustomMap('din');
   const nameCol=getCustomMap('name');
   const mfrCol=getCustomMap('mfr');
+  const strengthCol=getCustomMap('strength');
   const prevCountCol=getCustomMap('prev_count');
   const purchasesCol=getCustomMap('purchases');
   const salesCol=getCustomMap('sales');
@@ -1997,13 +2134,14 @@ function buildCustomPreview(){
   const force=document.getElementById('custom-force')?.checked||false;
 
   // Columns that are mapped (to show from CSV)
-  const csvCols=importHeaders.filter(h=>[dinCol,nameCol,mfrCol,prevCountCol,purchasesCol,salesCol,currentCountCol].includes(h));
+  const csvCols=importHeaders.filter(h=>[dinCol,nameCol,mfrCol,strengthCol,prevCountCol,purchasesCol,salesCol,currentCountCol].includes(h));
 
   // NarCount result columns
   const resultCols=[];
   if(dinCol!=='(skip)')resultCols.push({label:'DIN',key:'din',color:'var(--accent)'});
   if(nameCol!=='(skip)')resultCols.push({label:'Name',key:'name',color:'var(--text)'});
   if(mfrCol!=='(skip)')resultCols.push({label:'Manufacturer',key:'mfr',color:'var(--muted)'});
+  if(strengthCol!=='(skip)')resultCols.push({label:'Strength',key:'strength',color:'var(--text)'});
   if(prevCountCol!=='(skip)')resultCols.push({label:'→ Prev Count',key:'prev_count',color:'var(--accent2)'});
   if(purchasesCol!=='(skip)')resultCols.push({label:'→ +Purchases',key:'purchases',color:'var(--accent)'});
   if(salesCol!=='(skip)')resultCols.push({label:'→ −Sales',key:'sales',color:'var(--danger)'});
@@ -2014,7 +2152,7 @@ function buildCustomPreview(){
   // Header: CSV source cols | separator | result cols
   html+='<thead><tr>';
   csvCols.forEach(h=>{
-    const isMapped=[dinCol,nameCol,mfrCol,prevCountCol,purchasesCol,salesCol,currentCountCol].includes(h);
+    const isMapped=[dinCol,nameCol,mfrCol,strengthCol,prevCountCol,purchasesCol,salesCol,currentCountCol].includes(h);
     html+=`<th style="background:var(--surface2);padding:6px 10px;text-align:left;color:${isMapped?'var(--text)':'var(--muted)'};border-bottom:1px solid var(--border);white-space:nowrap;font-size:10px;">${h}</th>`;
   });
   if(resultCols.length){
@@ -2058,6 +2196,7 @@ function buildCustomPreview(){
           val=(row[mfrCol]||'').trim();
           if(!isNew&&!force)note='<br><span style="font-size:9px;color:var(--muted);">skipped (exists)</span>';
         }
+        else if(c.key==='strength')val=(row[strengthCol]||'').trim();
         else if(c.key==='prev_count')val=(row[prevCountCol]||'').trim();
         else if(c.key==='purchases'){
           const v=parseFloat(row[purchasesCol]||'');
@@ -2081,6 +2220,7 @@ function buildCustomPreview(){
 function executeCustomImport(rows,dinCol,batchId){
   const nameCol=getCustomMap('name');
   const mfrCol=getCustomMap('mfr');
+  const strengthCol=getCustomMap('strength');
   const prevCountCol=getCustomMap('prev_count');
   const purchasesCol=getCustomMap('purchases');
   const salesCol=getCustomMap('sales');
@@ -2097,6 +2237,7 @@ function executeCustomImport(rows,dinCol,batchId){
 
     const csvName=(row[nameCol]||'').trim();
     const csvMfr=(row[mfrCol]||'').trim();
+    const csvStrength=strengthCol!=='(skip)'?(row[strengthCol]||'').trim():'';
     const csvExpiry=expiryCol!=='(skip)'?(row[expiryCol]||'').trim():'';
     const csvNotes=notesCol!=='(skip)'?(row[notesCol]||'').trim():'';
     const csvType=typeCol!=='(skip)'?(row[typeCol]||'').trim():'';
@@ -2115,7 +2256,7 @@ function executeCustomImport(rows,dinCol,batchId){
 
     let p=inventory.find(x=>normalizeDIN(x.din)===din||normalizeDIN(x.barcode||'')===din);
     if(!p){
-      p={id:Date.now()+'_'+Math.random(),din,barcode:din,name:csvName||din,manufacturer:csvMfr,type:'Rx',qty:0,threshold:10,expiry:'',notes:''};
+      p={id:Date.now()+'_'+Math.random(),din,barcode:din,name:csvName||din,manufacturer:csvMfr,strength:csvStrength||'',type:'Rx',qty:0,threshold:10,expiry:'',notes:''};
       inventory.push(p);added++;
     } else {
       updated++;
@@ -2126,6 +2267,7 @@ function executeCustomImport(rows,dinCol,batchId){
       }
     }
 
+    if(csvStrength)p.strength=csvStrength;
     if(csvExpiry)p.expiry=csvExpiry;
     if(csvNotes)p.notes=csvNotes;
     if(csvType)p.type=normalizeType(csvType);
@@ -2543,7 +2685,7 @@ function exportPeriodReport(){
     const pct=expected!==0?((div/Math.abs(expected))*100).toFixed(1):'';
     return[prod.din,prod.name,prod.manufacturer||'',prod.type,prod.prevQty??'',prod.qty,stats.purchases,stats.sales,stats.adjustments,expected.toFixed(1),div.toFixed(1),pct,prod.threshold||10,prod.notes||''];
   });
-  const meta=['<span data-i18n="period_title">Inventory Period</span> Report','','Last Count: '+fmt(p.lastDate),'Current Count: '+fmt(p.currentDate),'Counter: '+(p.counter||''),'Verified by: '+(p.verifier||''),'Notes: '+(p.notes||''),''];
+  const meta=[`${t('period_title')} Report`,'','Last Count: '+fmt(p.lastDate),'Current Count: '+fmt(p.currentDate),'Counter: '+(p.counter||''),'Verified by: '+(p.verifier||''),'Notes: '+(p.notes||''),''];
   const csv=[...meta.map(r=>[r]),header,...rows].map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\n');
   const a=document.createElement('a');
   a.href=URL.createObjectURL(new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8'}));
@@ -2708,7 +2850,7 @@ const TRANSLATIONS = {
     inv_counter:'Counter (employee)', inv_verifier:'Verified by',
     inv_notes_label:'Notes',
     inv_export_report:'📄 Export Period Report',
-    col_din:'DIN', col_name:'Drug Name', col_mfr:'Manufacturer',
+    col_din:'DIN', col_name:'Drug Name', col_strength:'Strength', col_mfr:'Manufacturer',
     col_prev:'Prev. Count', col_stock:'Stock', col_threshold:'Threshold',
     col_divergence:'Divergence', col_actions:'Actions',
     // Divergence tab
@@ -2765,7 +2907,7 @@ const TRANSLATIONS = {
     toast_updated:'Updated',
     toast_merged:'Merged',
     toast_import_done:'Import done',
-    btn_detail:'Detail', btn_scan:'Scan', btn_edit:'Edit', btn_del:'Del',
+    btn_detail:'Detail', btn_scan:'Add', btn_edit:'Edit', btn_del:'Del',
     // Period
     period_title:'Inventory Period',
     lbl_last_date:'Last Count Date', lbl_curr_date:'Current Count Date',
@@ -2806,7 +2948,7 @@ const TRANSLATIONS = {
     detail_purchases:'Purchases (stock in)', detail_sales:'Sales (stock out)', detail_adjustments:'Adjustments (expired, destroyed, etc.)',
     detail_expected:'Expected Stock', detail_actual:'Actual (Physical Count)', detail_divergence:'Divergence',
     detail_extra:'Extra stock', detail_shortage:'Shortage', detail_extra_desc:'More units on hand than expected.', detail_shortage_desc:'Fewer units on hand than expected — investigate.',
-    detail_tx_history:'Transaction History', detail_no_tx:'No transactions recorded.', btn_scan_adjust:'Scan / Adjust', log_count:'COUNT',
+    detail_tx_history:'Transaction History', detail_no_tx:'No transactions recorded.', btn_scan_adjust:'Add / Adjust', log_count:'COUNT',
     // Help — sales
     help_sales_instr_title:'📤 Ubik — Sales Report (Rapport statistique des produits)',
     help_sales_s1:'In Ubik, go to <strong>Gestion → Rapports → Autres → Rapport statistique des produits</strong>',
@@ -2870,7 +3012,7 @@ const TRANSLATIONS = {
     inv_counter:'Compteur (employé)', inv_verifier:'Vérifié par',
     inv_notes_label:'Notes',
     inv_export_report:'📄 Exporter rapport de période',
-    col_din:'DIN', col_name:'Médicament', col_mfr:'Fabricant',
+    col_din:'DIN', col_name:'Médicament', col_strength:'Teneur', col_mfr:'Fabricant',
     col_prev:'Déc. préc.', col_stock:'Stock', col_threshold:'Seuil',
     col_divergence:'Divergence', col_actions:'Actions',
     // Divergence tab
@@ -3110,7 +3252,11 @@ function toggleTheme(){
 }
 function loadTheme(){
   const t=localStorage.getItem('rxstock_theme');
-  if(t==='light'){document.body.classList.add('light');document.getElementById('theme-btn').textContent='🌙';const mb=document.getElementById('mobile-theme-btn');if(mb)mb.textContent='🌙';}
+  const useLight = (t!=='dark'); // default to light unless user explicitly chose dark
+  document.body.classList.toggle('light', useLight);
+  const icon = useLight ? '🌙' : '☀️';
+  document.getElementById('theme-btn').textContent = icon;
+  const mb=document.getElementById('mobile-theme-btn'); if(mb) mb.textContent = icon;
 }
 
 // ===================== FULL BACKUP / RESTORE =====================
