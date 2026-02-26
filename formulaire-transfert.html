@@ -100,9 +100,6 @@
       padding:10mm 10mm 8mm;
     }
     .print-header{
-      display:flex;
-      align-items:flex-end;
-      justify-content:space-between;
       border-bottom:2px solid #1d4ed8;
       padding-bottom:6px;
       margin-bottom:10px;
@@ -113,8 +110,6 @@
       text-transform:uppercase;
       letter-spacing:.8px;
     }
-    .print-date{ font-size:11px; color:var(--muted); }
-
     .print-label{
       font-weight:700;
       text-transform:uppercase;
@@ -323,7 +318,6 @@
           <div class="print-page">
             <div class="print-header">
               <div class="print-title">Formulaire de demande de transfert</div>
-              <div class="print-date" id="pvDateHeader"></div>
             </div>
 
             <div class="print-block">
@@ -456,9 +450,6 @@
     }
 
     function buildPrintView(){
-      const dateVal = $("dateForm").value.trim();
-      $("pvDateHeader").textContent = dateVal ? `Date : ${dateVal}` : "";
-
       $("pvPharmacie").textContent = $("pharmacieRequerante").value.trim();
       const tel = $("telRequerant").value.trim();
       const fax = $("faxRequerant").value.trim();
@@ -466,7 +457,7 @@
 
       $("pvPatient").textContent = $("patient").value.trim();
       $("pvDdn").textContent = $("ddn").value.trim();
-      $("pvDate").textContent = dateVal;
+      $("pvDate").textContent = $("dateForm").value.trim();
 
       const ctel = $("pharmacieContactTel").value.trim();
       const cfax = $("pharmacieContactFax").value.trim();
