@@ -95,6 +95,14 @@
     }
     button.secondary{ background:#fff; color:#111; }
 
+    /* Print view */
+    #printView{ display:none; }
+    .print-row{ display:flex; gap:10px; margin:6px 0; }
+    .print-col{ flex:1; }
+    .print-box{ border:1px solid #000; padding:6px; min-height:24px; }
+    .print-label{ font-weight:700; text-transform:uppercase; font-size:.72rem; letter-spacing:.4px; margin-bottom:2px; }
+    .print-line{ border-bottom:1px solid #000; min-height:18px; }
+
     @media (max-width:768px){
       .hero{ padding:.9rem; }
       .hero h1{ font-size:1.3rem; }
@@ -104,12 +112,10 @@
 
     @media print{
       body{ background:#fff; padding:0; }
-      .hero{ display:none !important; }
+      .hero, .actions, #formView{ display:none !important; }
       .card{ box-shadow:none; border-radius:0; }
-      .actions{ display:none !important; }
+      #printView{ display:block; }
       input, textarea, select{ border:1px solid #000; border-radius:0; }
-      .section-title{ font-size:.75rem; }
-      textarea{ min-height:52px; }
     }
   </style>
 </head>
@@ -123,151 +129,236 @@
     <div class="card">
       <div class="card-header">FORMULAIRE DE DEMANDE DE TRANSFERT</div>
       <div class="card-body">
-        <div class="row" style="margin-top:0;">
-          <div class="field">
-            <label>Pharmacie requérante</label>
-            <textarea id="pharmacieRequerante" aria-label="Pharmacie requérante"></textarea>
+        <!-- Form (screen) -->
+        <div id="formView">
+          <div class="row" style="margin-top:0;">
+            <div class="field">
+              <label>Pharmacie requérante (nom + adresse)</label>
+              <textarea id="pharmacieRequerante" aria-label="Pharmacie requérante"></textarea>
+            </div>
           </div>
-        </div>
 
-        <div class="row">
-          <div class="field small">
-            <label>Date</label>
-            <input type="date" id="dateForm" />
+          <div class="row">
+            <div class="field small">
+              <label>Téléphone</label>
+              <input type="tel" id="telRequerant" placeholder="___-___-____" />
+            </div>
+            <div class="field small">
+              <label>Télécopieur</label>
+              <input type="tel" id="faxRequerant" placeholder="___-___-____" />
+            </div>
           </div>
-          <div class="field">
-            <label>Patient</label>
-            <input type="text" id="patient" placeholder="Nom, prénom" />
-          </div>
-          <div class="field small">
-            <label>DDN</label>
-            <input type="date" id="ddn" />
-          </div>
-        </div>
 
-        <div class="row">
-          <div class="field small">
-            <label>Téléphone</label>
-            <input type="tel" id="telRequerant" placeholder="___-___-____" />
+          <div class="row">
+            <div class="field small">
+              <label>Date</label>
+              <input type="date" id="dateForm" />
+            </div>
+            <div class="field">
+              <label>Patient</label>
+              <input type="text" id="patient" placeholder="Nom, prénom" />
+            </div>
+            <div class="field small">
+              <label>DDN</label>
+              <input type="date" id="ddn" />
+            </div>
           </div>
-          <div class="field small">
-            <label>Télécopieur</label>
-            <input type="tel" id="faxRequerant" placeholder="___-___-____" />
-          </div>
-        </div>
 
-        <div class="section-title">Pharmacie à contacter</div>
-        <div class="row">
-          <div class="field small">
-            <label>Téléphone</label>
-            <input type="tel" id="pharmacieContactTel" placeholder="___-___-____" />
+          <div class="section-title">Pharmacie à contacter</div>
+          <div class="row">
+            <div class="field small">
+              <label>Téléphone</label>
+              <input type="tel" id="pharmacieContactTel" placeholder="___-___-____" />
+            </div>
+            <div class="field small">
+              <label>Télécopieur</label>
+              <input type="tel" id="pharmacieContactFax" placeholder="___-___-____" />
+            </div>
           </div>
-          <div class="field small">
-            <label>Télécopieur</label>
-            <input type="tel" id="pharmacieContactFax" placeholder="___-___-____" />
-          </div>
-        </div>
 
-        <div class="row">
-          <label class="inline">
-            <input type="checkbox" id="consentement" />
-            <span>Consentement au transfert obtenu de la part du patient.</span>
-          </label>
-          <div class="field tiny">
-            <label>Initiales ATP</label>
-            <input type="text" id="initialesAtp" />
-          </div>
-        </div>
-
-        <div class="section-title">À transférer</div>
-        <div class="checks">
-          <div class="checkline">
-            <input type="checkbox" id="dossierCompletUneFois" />
-            <label for="dossierCompletUneFois" class="inline">
-              <span>Dossier complet pour</span>
-              <input type="text" id="dossierCompletJours" inputmode="numeric" placeholder="___" />
-              <span>jours</span>
+          <div class="row">
+            <label class="inline">
+              <input type="checkbox" id="consentement" />
+              <span>Consentement au transfert obtenu de la part du patient.</span>
             </label>
-            <label class="inline" style="margin-left:auto;">
-              <input type="checkbox" id="dossierCompletDefinitivement" />
-              <span>Définitivement</span>
+            <div class="field tiny">
+              <label>Initiales ATP</label>
+              <input type="text" id="initialesAtp" />
+            </div>
+          </div>
+
+          <div class="section-title">À transférer</div>
+          <div class="checks">
+            <div class="checkline">
+              <input type="checkbox" id="dossierCompletUneFois" />
+              <label for="dossierCompletUneFois" class="inline">
+                <span>Dossier complet pour</span>
+                <input type="text" id="dossierCompletJours" inputmode="numeric" placeholder="___" />
+                <span>jours</span>
+              </label>
+              <label class="inline" style="margin-left:auto;">
+                <input type="checkbox" id="dossierCompletDefinitivement" />
+                <span>Définitivement</span>
+              </label>
+            </div>
+
+            <div class="checkline">
+              <input type="checkbox" id="seulementMeds" />
+              <label for="seulementMeds" class="inline">
+                <span>Seulement les médicaments suivants pour</span>
+                <input type="text" id="seulementMedsJours" inputmode="numeric" placeholder="___" />
+                <span>jours</span>
+              </label>
+              <label class="inline" style="margin-left:auto;">
+                <input type="checkbox" id="seulementMedsDefinitivement" />
+                <span>Définitivement</span>
+              </label>
+            </div>
+
+            <div class="box">
+              <label style="margin-bottom:4px;">Médicaments / détails</label>
+              <textarea id="medsDetails" placeholder="Liste des médicaments ou informations pertinentes..."></textarea>
+            </div>
+          </div>
+
+          <div class="section-title">Information complémentaire</div>
+          <div class="checks">
+            <label class="inline">
+              <input type="checkbox" id="infoAssurances" />
+              <span>Information des assurances</span>
+            </label>
+
+            <div class="box">
+              <label style="margin-bottom:4px;">Notes</label>
+              <textarea id="infoNotes" placeholder="Information complémentaire..."></textarea>
+            </div>
+
+            <label class="inline">
+              <input type="checkbox" id="joindreDossierMaitre" />
+              <span>SVP joindre le dossier maître.</span>
             </label>
           </div>
 
-          <div class="checkline">
-            <input type="checkbox" id="seulementMeds" />
-            <label for="seulementMeds" class="inline">
-              <span>Seulement les médicaments suivants pour</span>
-              <input type="text" id="seulementMedsJours" inputmode="numeric" placeholder="___" />
-              <span>jours</span>
-            </label>
-            <label class="inline" style="margin-left:auto;">
-              <input type="checkbox" id="seulementMedsDefinitivement" />
-              <span>Définitivement</span>
-            </label>
-          </div>
+          <div class="section-title">Réservé à la pharmacie receveuse</div>
+          <div class="receiver">Espace pour notes / confirmations (à remplir par la pharmacie receveuse).</div>
 
-          <div class="box">
-            <label style="margin-bottom:4px;">Médicaments / détails</label>
-            <textarea id="medsDetails" placeholder="Liste des médicaments ou informations pertinentes..."></textarea>
-          </div>
-        </div>
+          <div class="divider"></div>
 
-        <div class="section-title">Information complémentaire</div>
-        <div class="checks">
-          <label class="inline">
-            <input type="checkbox" id="infoAssurances" />
-            <span>Information des assurances</span>
-          </label>
-
-          <div class="box">
-            <label style="margin-bottom:4px;">Notes</label>
-            <textarea id="infoNotes" placeholder="Information complémentaire..."></textarea>
-          </div>
-
-          <label class="inline">
-            <input type="checkbox" id="joindreDossierMaitre" />
-            <span>SVP joindre le dossier maître.</span>
-          </label>
-        </div>
-
-        <div class="section-title">Réservé à la pharmacie receveuse</div>
-        <div class="receiver">Espace pour notes / confirmations (à remplir par la pharmacie receveuse).</div>
-
-        <div class="divider"></div>
-
-        <div class="row">
-          <div class="field">
-            <label>Assistant‑technique</label>
-            <input type="text" id="assistantTechnique" />
-          </div>
-
-          <div class="field">
-            <label>Pharmacien en service</label>
-            <div class="row" style="margin:0;">
-              <div class="field" style="min-width: 200px;">
-                <select id="pharmacienSelect" aria-label="Choisir pharmacien">
-                  <option value="Danny Ho|213605">Danny Ho – 213605</option>
-                  <option value="Florence Le|212522">Florence Le – 212522</option>
-                  <option value="Anousone Kitisa|207190">Anousone Kitisa – 207190</option>
-                  <option value="__AUTRE__">Autre (entrer manuellement)</option>
-                </select>
+          <div class="row">
+            <div class="field">
+              <label>Pharmacien en service (sélection rapide)</label>
+              <div class="row" style="margin:0;">
+                <div class="field" style="min-width: 200px;">
+                  <select id="pharmacienSelect" aria-label="Choisir pharmacien">
+                    <option value="Danny Ho|213605">Danny Ho – 213605</option>
+                    <option value="Florence Le|212522">Florence Le – 212522</option>
+                    <option value="Anousone Kitisa|207190">Anousone Kitisa – 207190</option>
+                    <option value="__AUTRE__">Autre (entrer manuellement)</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <input type="text" id="pharmacienNom" placeholder="Nom du pharmacien" />
+                </div>
               </div>
-              <div class="field">
-                <input type="text" id="pharmacienNom" placeholder="Nom du pharmacien" />
-              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="field">
+              <label>Signature du pharmacien</label>
+              <input type="text" id="signaturePharmacien" placeholder="(taper le nom / initiales)" />
+            </div>
+            <div class="field small">
+              <label># Licence</label>
+              <input type="text" id="licence" placeholder="_____" />
             </div>
           </div>
         </div>
 
-        <div class="row">
-          <div class="field">
-            <label>Signature du pharmacien</label>
-            <input type="text" id="signaturePharmacien" placeholder="(taper le nom / initiales)" />
+        <!-- Print view (clean 1-page) -->
+        <div id="printView">
+          <div class="print-row">
+            <div class="print-col">
+              <div class="print-label">Pharmacie requérante</div>
+              <div class="print-box" id="pvPharmacie"></div>
+            </div>
+            <div class="print-col" style="max-width:260px;">
+              <div class="print-label">Téléphone / Fax</div>
+              <div class="print-box" id="pvTelFax"></div>
+            </div>
           </div>
-          <div class="field small">
-            <label># Licence</label>
-            <input type="text" id="licence" placeholder="_____" />
+
+          <div class="print-row">
+            <div class="print-col">
+              <div class="print-label">Patient</div>
+              <div class="print-box" id="pvPatient"></div>
+            </div>
+            <div class="print-col" style="max-width:140px;">
+              <div class="print-label">DDN</div>
+              <div class="print-box" id="pvDdn"></div>
+            </div>
+            <div class="print-col" style="max-width:140px;">
+              <div class="print-label">Date</div>
+              <div class="print-box" id="pvDate"></div>
+            </div>
+          </div>
+
+          <div class="print-row">
+            <div class="print-col" style="max-width:260px;">
+              <div class="print-label">Pharmacie à contacter – Téléphone</div>
+              <div class="print-box" id="pvContactTel"></div>
+            </div>
+            <div class="print-col" style="max-width:260px;">
+              <div class="print-label">Pharmacie à contacter – Fax</div>
+              <div class="print-box" id="pvContactFax"></div>
+            </div>
+            <div class="print-col">
+              <div class="print-label">Consentement obtenu / Initiales ATP</div>
+              <div class="print-box" id="pvConsent"></div>
+            </div>
+          </div>
+
+          <div class="print-row">
+            <div class="print-col">
+              <div class="print-label">À transférer (option sélectionnée)</div>
+              <div class="print-box" id="pvTransfer"></div>
+            </div>
+          </div>
+
+          <div class="print-row">
+            <div class="print-col">
+              <div class="print-label">Médicaments / détails</div>
+              <div class="print-box" id="pvMeds"></div>
+            </div>
+          </div>
+
+          <div class="print-row">
+            <div class="print-col">
+              <div class="print-label">Information des assurances</div>
+              <div class="print-box" id="pvAssurances"></div>
+            </div>
+            <div class="print-col">
+              <div class="print-label">Notes</div>
+              <div class="print-box" id="pvNotes"></div>
+            </div>
+          </div>
+
+          <div class="print-row">
+            <div class="print-col">
+              <div class="print-label">Réservé à la pharmacie receveuse</div>
+              <div class="print-box" style="min-height:36px;"></div>
+            </div>
+          </div>
+
+          <div class="print-row">
+            <div class="print-col">
+              <div class="print-label">Pharmacien en service</div>
+              <div class="print-box" id="pvPharmacien"></div>
+            </div>
+            <div class="print-col">
+              <div class="print-label">Signature / # Licence</div>
+              <div class="print-box" id="pvSignature"></div>
+            </div>
           </div>
         </div>
 
@@ -333,6 +424,48 @@
       applyPharmacienSelection();
     }
 
+    function selectedTransferOption(){
+      if($("dossierCompletDefinitivement").checked) return "Dossier complet définitivement";
+      if($("dossierCompletUneFois").checked){
+        const j = $("dossierCompletJours").value || "___";
+        return `Dossier complet pour ${j} jours`;
+      }
+      if($("seulementMedsDefinitivement").checked) return "Seulement médicaments définitivement";
+      if($("seulementMeds").checked){
+        const j = $("seulementMedsJours").value || "___";
+        return `Seulement médicaments pour ${j} jours`;
+      }
+      return "";
+    }
+
+    function buildPrintView(){
+      $("pvPharmacie").textContent = $("pharmacieRequerante").value.trim();
+      const tel = $("telRequerant").value.trim();
+      const fax = $("faxRequerant").value.trim();
+      $("pvTelFax").textContent = [tel && `Tél.: ${tel}`, fax && `Fax: ${fax}`].filter(Boolean).join(" | ");
+
+      $("pvPatient").textContent = $("patient").value.trim();
+      $("pvDdn").textContent = $("ddn").value.trim();
+      $("pvDate").textContent = $("dateForm").value.trim();
+
+      $("pvContactTel").textContent = $("pharmacieContactTel").value.trim();
+      $("pvContactFax").textContent = $("pharmacieContactFax").value.trim();
+      const consent = $("consentement").checked ? "Oui" : "Non";
+      const atp = $("initialesAtp").value.trim();
+      $("pvConsent").textContent = `Consentement: ${consent}` + (atp ? ` | Initiales ATP: ${atp}` : "");
+
+      $("pvTransfer").textContent = selectedTransferOption();
+      $("pvMeds").textContent = $("medsDetails").value.trim();
+      $("pvAssurances").textContent = $("infoAssurances").checked ? "Oui" : "Non";
+      $("pvNotes").textContent = $("infoNotes").value.trim();
+
+      const pharm = $("pharmacienNom").value.trim();
+      $("pvPharmacien").textContent = pharm;
+      const sig = $("signaturePharmacien").value.trim();
+      const lic = $("licence").value.trim();
+      $("pvSignature").textContent = [sig, lic && `#${lic}`].filter(Boolean).join(" | ");
+    }
+
     $("pharmacieRequerante").value = DEFAULT_PHARM_TEXT;
     $("telRequerant").value = "514-727-8967";
     $("faxRequerant").value = "514-727-8965";
@@ -340,7 +473,7 @@
     applyPharmacienSelection();
 
     $("pharmacienSelect").addEventListener("change", applyPharmacienSelection);
-    $("btnPrint").addEventListener("click", () => window.print());
+    $("btnPrint").addEventListener("click", () => { buildPrintView(); window.print(); });
     $("btnReset").addEventListener("click", hardReset);
   </script>
 </body>
