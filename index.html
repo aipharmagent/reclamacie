@@ -3,7 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="Réclamacie — outils et gabarits pour les actes professionnels en pharmacie." />
   <title>Réclamacie</title>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
   <style>
@@ -15,19 +18,48 @@
       --text: #1e293b;
       --success: #10b981;
       --warning: #f59e0b;
+      --danger: #ef4444;
     }
 
+    * { box-sizing: border-box; }
+
     body {
-      background: linear-gradient(135deg, #f0f4f8 0%, #d9e2ec 100%);
+      background: linear-gradient(135deg, #f0f4f8 0%, #e8eef5 100%);
       color: var(--text);
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       min-height: 100vh;
       margin: 0;
-      padding: 1rem 0;
+      padding: 2rem 0;
     }
 
     .container {
-      max-width: 900px;
+      max-width: 980px;
+    }
+
+    .hero {
+      background: white;
+      border-radius: 18px;
+      padding: 1.75rem 2rem;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+      margin-bottom: 1.5rem;
+    }
+
+    .hero h1 {
+      font-size: 2.2rem;
+      font-weight: 700;
+      margin: 0 0 0.4rem 0;
+    }
+
+    .hero p {
+      margin: 0;
+      color: #475569;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 0.75rem;
+      margin-top: 1rem;
+      flex-wrap: wrap;
     }
 
     .card {
@@ -36,49 +68,32 @@
       box-shadow: 0 10px 25px rgba(0,0,0,0.08);
       overflow: hidden;
       margin-bottom: 1.5rem;
-      transition: transform 0.2s ease;
-    }
-
-    .card:hover {
-      transform: translateY(-4px);
     }
 
     .card-header {
       background: var(--primary);
       color: white;
-      padding: 1.5rem;
-      text-align: center;
+      padding: 1.25rem 1.5rem;
       font-weight: 600;
-      font-size: 1.5rem;
+      font-size: 1.25rem;
       border-bottom: none;
-      cursor: pointer;
-    }
-
-    .card-header h1 {
-      margin: 0;
-      font-size: 2.2rem;
-      font-weight: 700;
-    }
-
-    .card-header:hover {
-      background: var(--primary-light);
     }
 
     .card-body {
-      padding: 2rem;
+      padding: 1.75rem;
     }
 
     h3 {
       color: var(--primary);
       font-weight: 600;
-      margin: 1.5rem 0 1rem;
+      margin: 1rem 0 1rem;
       display: flex;
       align-items: center;
       gap: 0.5rem;
     }
 
     h3 i {
-      font-size: 1.3rem;
+      font-size: 1.2rem;
     }
 
     select, input, textarea {
@@ -113,10 +128,10 @@
       padding: 0.75rem 2rem;
       border-radius: 12px;
       font-weight: 600;
-      font-size: 1.1rem;
+      font-size: 1.05rem;
       transition: all 0.2s;
       display: none;
-      margin: 1.5rem auto;
+      margin: 1.25rem auto 0;
     }
 
     #copy-form-button:hover {
@@ -124,38 +139,22 @@
       transform: translateY(-2px);
     }
 
-    #copy-form-button:active {
-      transform: translateY(0);
-    }
-
     .btn-refresh {
       background: var(--primary);
       color: white;
       border: none;
-      padding: 0.75rem 1.5rem;
+      padding: 0.7rem 1.3rem;
       border-radius: 10px;
       font-weight: 600;
-      width: 100%;
-      max-width: 280px;
-      margin: 2rem auto 1rem;
-      display: block;
     }
 
     .btn-refresh:hover {
       background: var(--primary-light);
     }
 
-    .resources {
-      background: white;
-      border-radius: 16px;
-      padding: 1.5rem;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-      margin-bottom: 1.5rem;
-    }
-
     .resources a {
       display: block;
-      padding: 0.75rem 0;
+      padding: 0.65rem 0;
       color: var(--primary);
       text-decoration: none;
       font-weight: 500;
@@ -171,10 +170,10 @@
       background: #e0e7ff;
       color: var(--primary);
       border: 1px solid #c7d2fe;
-      padding: 1rem 1.5rem;
+      padding: 0.9rem 1.3rem;
       border-radius: 12px;
       font-weight: 500;
-      margin: 0.75rem;
+      margin: 0.5rem;
       display: inline-flex;
       align-items: center;
       text-decoration: none;
@@ -218,7 +217,7 @@
 
     .link-group a {
       display: inline-block;
-      margin: 0.5rem 0.5rem 0 0;
+      margin: 0.4rem 0.4rem 0 0;
       padding: 0.5rem 1rem;
       background: #e0e7ff;
       color: var(--primary);
@@ -233,48 +232,66 @@
     }
 
     .disclaimer {
-      background: #fef3c7;
-      border: 1px solid #fcd34d;
-      color: #92400e;
-      padding: 1rem 1.5rem;
+      background: #fff7ed;
+      border: 1px solid #fed7aa;
+      color: #9a3412;
+      padding: 1rem 1.25rem;
       border-radius: 12px;
       font-size: 0.9rem;
       text-align: center;
-      margin: 2rem auto 1rem;
-      max-width: 800px;
+      margin: 1.5rem auto 0;
       box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     }
 
+    .toast-msg {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #0f172a;
+      color: #fff;
+      padding: 0.75rem 1rem;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: all 0.2s ease;
+      z-index: 1000;
+    }
+
+    .toast-msg.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
     @media (max-width: 768px) {
-      .card-body {
-        padding: 1.5rem;
-      }
-      h1 {
-        font-size: 1.8rem;
-      }
-      #copy-form-button, .btn-refresh {
-        width: 100%;
-      }
-      .gabarits .btn-gabarit {
-        width: 100%;
-        margin: 0.5rem 0;
-      }
-      h3 {
-        font-size: 1.1rem;
-      }
+      .card-body { padding: 1.25rem; }
+      .hero { padding: 1.25rem; }
+      .hero h1 { font-size: 1.8rem; }
+      #copy-form-button { width: 100%; }
+      .gabarits .btn-gabarit { width: 100%; margin: 0.4rem 0; }
+      h3 { font-size: 1.1rem; }
     }
   </style>
 </head>
 <body>
   <div class="container">
+    <!-- Hero -->
+    <div class="hero">
+      <h1><i class="fas fa-prescription-bottle-alt me-2"></i> Réclamacie</h1>
+      <p>Outils rapides pour la facturation, les gabarits et les références en pratique pharmaceutique.</p>
+      <div class="toolbar">
+        <button onclick="location.reload()" class="btn btn-refresh">
+          <i class="fas fa-sync-alt me-2"></i> Actualiser
+        </button>
+      </div>
+    </div>
+
     <!-- Main Card -->
     <div class="card">
-      <div class="card-header" onclick="location.reload()">
-        <h1><i class="fas fa-prescription-bottle-alt me-2"></i> Réclamacie</h1>
-      </div>
+      <div class="card-header">Sélection d'activité</div>
       <div class="card-body">
-        <h3><i class="fas fa-tasks"></i> Sélectionnez une activité:</h3>
-        <select class="form-select form-select-lg" onchange="activityChanged(this.value)">
+        <h3><i class="fas fa-tasks"></i> Sélectionnez une activité :</h3>
+        <select class="form-select form-select-lg" aria-label="Sélection d'activité" onchange="activityChanged(this.value)">
           <option value="">-- Activité professionnelle --</option>
           <option value="prescription">Prescrire un Rx</option>
           <option value="mvl">Prescrire un MVL</option>
@@ -294,31 +311,24 @@
     </div>
 
     <!-- GABARITS -->
-<div class="card gabarits">
-  <div class="card-body text-center">
-    <h3><i class="fas fa-file-alt"></i> Gabarits</h3>
-    <div class="d-flex flex-wrap justify-content-center">
-      <a href="dispill.html" class="btn-gabarit">
-        <i class="fas fa-pills"></i> Dispill
-      </a>
-      <a href="feuilledetemps.html" class="btn-gabarit">
-        <i class="fas fa-clock"></i> Feuille de temps (Labo)
-      </a>
-      <a href="feuilledetempsplancher.html" class="btn-gabarit">
-        <i class="fas fa-store"></i> Feuille de temps (Plancher)
-      </a>
-      <a href="narcount.html" class="btn-gabarit">
-        <i class="fas fa-boxes"></i> Inventaire pharmacie
-      </a>
+    <div class="card gabarits">
+      <div class="card-body text-center">
+        <h3><i class="fas fa-file-alt"></i> Gabarits</h3>
+        <div class="d-flex flex-wrap justify-content-center">
+          <a href="dispill.html" class="btn-gabarit"><i class="fas fa-pills"></i> Dispill</a>
+          <a href="feuilledetemps.html" class="btn-gabarit"><i class="fas fa-clock"></i> Feuille de temps (Labo)</a>
+          <a href="feuilledetempsplancher.html" class="btn-gabarit"><i class="fas fa-store"></i> Feuille de temps (Plancher)</a>
+          <a href="narcount.html" class="btn-gabarit"><i class="fas fa-boxes"></i> Inventaire pharmacie</a>
+        </div>
+      </div>
     </div>
-  </div>
-</div>
+
     <!-- RESSOURCES IMPORTANTES -->
     <div class="card resources">
       <div class="card-body">
-        <h3><i class="fas fa-link"></i> Ressources importantes:</h3>
+        <h3><i class="fas fa-link"></i> Ressources importantes</h3>
         <div>
-          <a href="https://pharmd.ca/" target="_blank">PharmD.ca</a>
+          <a href="https://pharmd.ca/" target="_blank" rel="noopener">PharmD.ca</a>
           <a href="Entente-2022-2025.pdf" target="_blank">Entente AQPP MSSS 2022-2025</a>
           <a href="infolettre_entente_2022_2025_ramq.pdf" target="_blank">Infolettre entente AQPP RAMQ 2022-2025</a>
           <a href="manuel-pharmaciens_2025-08-26.pdf" target="_blank">Manuel Pharmacien Mars 2025</a>
@@ -326,19 +336,12 @@
           <a href="Guide_exercice_OPQ.pdf" target="_blank">Guide d'exercice OPQ Fév 2022</a>
           <a href="fr-sacs-tableau-resume-des-actes-professionnels-du-pharmacien-v1.pdf" target="_blank">Tableau résumé actes professionnels (FR-SACS)</a>
           <a href="Loi-41-et-31-version-coloree-vAutomne-2023.pdf" target="_blank">Loi 41 et 31 (version colorée Automne 2023)</a>
-          <a href="https://abcpq.ca/algorithmes/" target="_blank">ABCPQ algorithmes d'aide à la décision</a>
-          <a href="https://appsq.org/outils-pl31/" target="_blank">APPSQ outils: projet de loi 31</a>
-          <a href="https://www.msss.gouv.qc.ca/professionnels/vaccination/protocole-d-immunisation-du-quebec-piq/" target="_blank">PIQ: Vaccination</a>
+          <a href="https://abcpq.ca/algorithmes/" target="_blank" rel="noopener">ABCPQ algorithmes d'aide à la décision</a>
+          <a href="https://appsq.org/outils-pl31/" target="_blank" rel="noopener">APPSQ outils: projet de loi 31</a>
+          <a href="https://www.msss.gouv.qc.ca/professionnels/vaccination/protocole-d-immunisation-du-quebec-piq/" target="_blank" rel="noopener">PIQ: Vaccination</a>
           <a href="Formulaire-de-transfert.pdf" target="_blank">Formulaire de transfert de pharmacie</a>
         </div>
       </div>
-    </div>
-
-    <!-- BOUTON ACTUALISER -->
-    <div class="text-center">
-      <button onclick="location.reload()" class="btn btn-refresh">
-        <i class="fas fa-sync-alt me-2"></i> Actualiser
-      </button>
     </div>
 
     <!-- DISCLAIMER -->
@@ -347,8 +350,10 @@
     </div>
   </div>
 
+  <div id="toast" class="toast-msg">Copié dans le presse-papiers</div>
+
   <!-- Scripts -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" defer></script>
   <script>
     function activityChanged(value) {
       var container = document.getElementById("container");
@@ -637,6 +642,13 @@
       }
     }
 
+    function showToast(text) {
+      var toast = document.getElementById("toast");
+      toast.textContent = text;
+      toast.classList.add("show");
+      setTimeout(function() { toast.classList.remove("show"); }, 1600);
+    }
+
     function copyForm() {
       var form = document.querySelector("form");
       if (form) {
@@ -646,14 +658,26 @@
           if (pair[1]) formValues.push(pair[0] + ": " + pair[1]);
         }
         var formText = formValues.length > 0 ? formValues.join("\n") : "Aucune donnée";
-        var textarea = document.createElement("textarea");
-        textarea.value = formText;
-        document.body.appendChild(textarea);
-        textarea.select();
-        document.execCommand("copy");
-        document.body.removeChild(textarea);
-        alert("Formulaire copié dans le presse-papiers !");
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(formText).then(function() {
+            showToast("Formulaire copié");
+          }).catch(function() {
+            fallbackCopy(formText);
+          });
+        } else {
+          fallbackCopy(formText);
+        }
       }
+    }
+
+    function fallbackCopy(text) {
+      var textarea = document.createElement("textarea");
+      textarea.value = text;
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand("copy");
+      document.body.removeChild(textarea);
+      showToast("Formulaire copié");
     }
   </script>
 </body>
