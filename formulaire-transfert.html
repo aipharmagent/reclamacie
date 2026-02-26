@@ -15,7 +15,6 @@
       --text:#0f172a;
       --muted:#475569;
       --line:#111;
-      --soft:#e2e8f0;
     }
     *{ box-sizing:border-box; }
     body{
@@ -28,7 +27,7 @@
     .container{ max-width: 980px; }
     .hero{
       background:#fff;
-      border-radius:14px;
+      border-radius:12px;
       padding:1rem 1.25rem;
       box-shadow:0 10px 25px rgba(0,0,0,.08);
       margin-bottom:.9rem;
@@ -37,7 +36,7 @@
     .hero .muted{ color:var(--muted); }
     .card{
       background:#fff;
-      border-radius:12px;
+      border-radius:10px;
       box-shadow:0 10px 25px rgba(0,0,0,.08);
       overflow:hidden;
     }
@@ -58,16 +57,16 @@
     label{ font-weight:600; }
     input[type="text"], input[type="date"], input[type="tel"], textarea, select{
       border:1px solid var(--line);
-      border-radius:6px;
-      padding:.4rem .5rem;
+      border-radius:2px;
+      padding:.4rem .45rem;
       background:#fff;
       font: inherit;
       width:100%;
     }
-    textarea{ resize:vertical; min-height:58px; }
+    textarea{ resize:vertical; min-height:56px; }
 
     .section-title{ font-weight:700; margin:7px 0 4px; text-transform:uppercase; font-size:.78rem; letter-spacing:.4px; }
-    .box{ border:1px solid var(--line); border-radius:6px; padding:6px; }
+    .box{ border:1px solid var(--line); border-radius:2px; padding:6px; }
 
     .checks{ display:flex; flex-direction:column; gap:4px; margin:4px 0; }
     .checkline{ display:flex; gap:8px; align-items:flex-start; flex-wrap:wrap; }
@@ -76,9 +75,9 @@
 
     .receiver{
       border:1px dashed #333;
-      border-radius:6px;
+      border-radius:2px;
       padding:6px;
-      min-height:42px;
+      min-height:36px;
       font-size:.78rem;
       color:#334155;
     }
@@ -108,7 +107,7 @@
       .hero{ display:none !important; }
       .card{ box-shadow:none; border-radius:0; }
       .actions{ display:none !important; }
-      input, textarea, select{ border:1px solid #000; }
+      input, textarea, select{ border:1px solid #000; border-radius:0; }
       .section-title{ font-size:.75rem; }
       textarea{ min-height:52px; }
     }
@@ -230,15 +229,6 @@
             <input type="checkbox" id="joindreDossierMaitre" />
             <span>SVP joindre le dossier maître.</span>
           </label>
-
-          <label class="inline">
-            <input type="checkbox" id="particulariteContinuite" />
-            <span>Particularité pour assurer la continuité des soins :</span>
-          </label>
-
-          <div class="box">
-            <textarea id="continuiteDetails" placeholder="Particularités / instructions..."></textarea>
-          </div>
         </div>
 
         <div class="section-title">Réservé à la pharmacie receveuse</div>
