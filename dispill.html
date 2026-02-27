@@ -79,7 +79,7 @@
         var result = "<div style=\"text-align:left;font-weight:700;margin-bottom:4px;\">" + patient + "</div>";
         result += "<table>";
         result += "<tr><td>Début</td><td>Fin</td><td>Préparé par</td><td>Vérification</td><td>Changement</td></tr>";
-        var rowsToPrint = Math.max(0, StartdateArray.length - 7);
+        var rowsToPrint = Math.max(0, StartdateArray.length - 4);
         for (var i = 0; i < rowsToPrint; i++) {
             result += "<tr>";
             result += "<td style='width:70px'>" + StartdateArray[i] + "</td>";
