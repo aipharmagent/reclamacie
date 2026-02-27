@@ -4,6 +4,8 @@ const rowsEl = $('#rows');
 const tpl = $('#rowTemplate');
 const form = $('#entryForm');
 
+function setDefaultFormDate(){ if(form?.date) form.date.value = todayISO(); }
+
 let data = load().map(normalizeEntry);
 let notifiedToday = false;
 
@@ -32,7 +34,7 @@ function normalizeEntry(i){
     date,
     rxNumber: String(i.rxNumber || '').trim(),
     rxRef: String(i.rxRef || '').trim(),
-    acte: String(i.acte || 'Autre').trim(),
+    acte: String(i.acte || 'autre').trim(),
     intervalDays,
     plannedCount,
     status: String(i.status || 'À faire'),
@@ -132,7 +134,8 @@ function markDone(id){
   const f=item.followups.find(x=>!x.done); if(!f) return;
   f.done=true; f.doneAt=todayISO();
   if(item.followups.every(x=>x.done)) item.status='Complété'; else if(item.status==='À faire') item.status='En cours';
-  persistAndRender();
+  setDefaultFormDate();
+persistAndRender();
 }
 function reschedule(id,days){ const item=data.find(x=>x.id===id); const f=item?.followups.find(x=>!x.done); if(!f) return; f.dueDate=addDays(f.dueDate,days); if(item.status==='Complété') item.status='En cours'; persistAndRender(); }
 function cycleStatus(id){
@@ -170,12 +173,13 @@ form.addEventListener('submit', (e)=>{
 
   data.push(entry);
   form.reset();
+  setDefaultFormDate();
   form.intervalDays.value = 7; form.plannedCount.value = 2; form.status.value='À faire';
   persistAndRender();
 });
 
 $('#btnSample').onclick = ()=>{
-  const sample = normalizeEntry({ id:uid(), createdAt:new Date().toISOString(), date:todayISO(), rxNumber:'RX-12345', rxRef:'REF-7', acte:'Renouvellement', intervalDays:7, plannedCount:3, status:'À faire', initials:'AM', notes:'TA à revalider' });
+  const sample = normalizeEntry({ id:uid(), createdAt:new Date().toISOString(), date:todayISO(), rxNumber:'RX-12345', rxRef:'REF-7', acte:'ajustement', intervalDays:7, plannedCount:3, status:'À faire', initials:'AM', notes:'TA à revalider' });
   data.push(sample);
   persistAndRender();
 };
@@ -200,6 +204,16 @@ $('#btnDeduplicate').onclick = ()=>{
   });
   persistAndRender();
   alert(removed ? `${removed} doublon(s) retiré(s).` : 'Aucun doublon détecté.');
+};
+
+
+$('#btnResetAll').onclick = ()=>{
+  const ok = confirm('Attention: cette action effacera toutes les données locales de suivis sur cet appareil. Continuer ?');
+  if(!ok) return;
+  data = [];
+  localStorage.removeItem(STORE_KEY);
+  setDefaultFormDate();
+  persistAndRender();
 };
 
 ['#search','#statusFilter','#dueFilter','#initialsFilter'].forEach(s=>$(s).addEventListener('input', renderRows));
@@ -254,4 +268,5 @@ $('#importFile').addEventListener('change', async (e)=>{
   e.target.value='';
 });
 
+setDefaultFormDate();
 persistAndRender();

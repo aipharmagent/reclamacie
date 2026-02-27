@@ -9,7 +9,6 @@
 <body>
   <header class='topbar'>
     <h1>Registre de suivis cliniques</h1>
-    <p class='subtitle'>Standalone · Québec · PL31/PL41/PL67-ready · sauvegarde locale</p>
   </header>
 
   <main class='container'>
@@ -22,11 +21,12 @@
         <label>Acte
           <select name='acte' required>
             <option value=''>Choisir…</option>
-            <option>Renouvellement</option>
-            <option>Ajustement</option>
-            <option>Condition mineure</option>
-            <option>Suivi de thérapie</option>
-            <option>Autre</option>
+            <option>ajustement</option>
+            <option>cesser</option>
+            <option>suivi clinique</option>
+            <option>deprescription</option>
+            <option>opinion</option>
+            <option>autre</option>
           </select>
         </label>
         <label>Intervalle (jours)<input type='number' min='1' name='intervalDays' value='7' required /></label>
@@ -74,16 +74,16 @@
         <input id='initialsFilter' placeholder='Initiales' />
       </div>
       <div class='actions'>
-        <button id='btnExportJson'>Export JSON</button>
-        <button id='btnExportCsv' class='secondary'>Export CSV</button>
-        <label class='fileLike'>Import (JSON/CSV)
+        <button id='btnExportJson'>Exporter JSON</button>
+        <button id='btnExportCsv' class='secondary'>Exporter CSV</button>
+        <label class='fileLike'>Importer (JSON/CSV)
           <input type='file' id='importFile' accept='.json,.csv,text/csv,application/json' />
         </label>
         <button id='btnResolveOverdue' class='secondary'>Rattrapage en retard (+1j)</button>
         <button id='btnDeduplicate' class='secondary'>Nettoyer doublons</button>
         <button id='btnPrint' class='secondary'>Imprimer la vue</button>
+        <button id='btnResetAll' class='secondary'>Réinitialiser les données</button>
       </div>
-      <small>Conseil: export JSON quotidien pour backup complet; CSV pour analyse/partage.</small>
     </section>
 
     <section class='panel'>
