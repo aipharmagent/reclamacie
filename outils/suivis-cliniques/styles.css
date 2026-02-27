@@ -8,19 +8,20 @@ button{padding:8px 12px;border:none;border-radius:8px;background:#23406f;color:#
 .actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.actions label{display:flex;align-items:center;gap:6px;color:var(--muted)}.fileLike{border:1px dashed var(--border);padding:7px 10px;border-radius:8px;cursor:pointer}.fileLike input{display:none}
 .kpis{display:grid;grid-template-columns:repeat(4,minmax(130px,1fr));gap:10px}.kpi{border:1px solid var(--border);border-radius:8px;padding:10px}.kpi b{display:block;font-size:22px}.kpi small{color:var(--muted)}
 .filters{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:8px;margin-bottom:8px}
-.tableWrap{overflow:auto} table{width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed} th,td{padding:8px;border-bottom:1px solid var(--border);vertical-align:top;text-align:center}
+.tableWrap{overflow:auto} table{width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed} th,td{padding:8px;vertical-align:top;text-align:center} thead tr{border-bottom:1px solid var(--border)} tbody tr{border-bottom:1px solid var(--border)}
 .badge{display:inline-block;padding:3px 8px;border-radius:12px;background:#eef3ff;font-size:12px}.badge.en-retard{background:#ffe5e5;color:var(--bad)}.badge.aujourdhui{background:#fff1d8;color:var(--warn)}.badge.complete{background:#e4f6eb;color:var(--ok)}
-.rowActions{display:flex;gap:6px;flex-wrap:wrap}.rowActions button{padding:5px 8px;font-size:12px}
+.rowActions{display:flex;gap:6px;flex-wrap:wrap;align-items:flex-start}.rowActions button{padding:5px 8px;font-size:12px}
 .alert{margin-top:10px;padding:10px;border-radius:8px;background:#fff6e8;border:1px solid #ffddb0}.hidden{display:none}
 @media (max-width:1000px){.grid{grid-template-columns:repeat(2,1fr)}.filters{grid-template-columns:1fr 1fr}.kpis{grid-template-columns:repeat(2,1fr)}}
 @media print {
   .topbar,
   .container > .panel:not(:last-child),
-  .container > .panel:last-child h2,
+  .container > .panel:last-child h2:not(.print-title),
   .rowActions,
   table th:last-child,
   table td:last-child { display:none!important; }
   .container, .panel, .tableWrap { padding:0!important; margin:0!important; border:none!important; box-shadow:none!important; }
+  .print-title{display:block!important;margin:0 0 8px 0;text-align:left}
   table{table-layout:auto!important;width:100%!important}
   .suivis-cols .c-actions{width:0!important}
   .suivis-cols .c-notes{width:38%!important}
@@ -51,3 +52,5 @@ td[data-k='notes'][contenteditable='true']:focus{outline:1px dashed #9ec2ff;back
 .suivis-cols .c-init{width:55px}
 .suivis-cols .c-notes{width:auto}
 .suivis-cols .c-actions{width:175px}
+
+.print-title{display:none}
