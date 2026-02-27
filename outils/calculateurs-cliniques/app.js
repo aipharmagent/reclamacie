@@ -37,9 +37,9 @@ const defs = {
       const compDose=Math.round((dose/125)*4)/4, compTotal=Math.round((dose*2/125)*4)/4;
       const mlDose=dose/50, mlTotal=mlDose*2;
       return out([
-        ['Posologie comprimé', `${compDose.toFixed(2)} comprimé(s) de 125 mg`],
+        ['Posologie comprimé', `${compDose.toFixed(1)} comprimé(s) de 125 mg`],
         ['Posologie liquide', `${round1(mlDose).toFixed(1)} mL (250 mg/5mL)`],
-        ['Total traitement (J0 + J14) comprimés', `${compTotal.toFixed(2)} comprimé(s)`],
+        ['Total traitement (J0 + J14) comprimés', `${compTotal.toFixed(1)} comprimé(s)`],
         ['Total traitement (J0 + J14) liquide', `${round1(mlTotal).toFixed(1)} mL`]
       ]);
     }
@@ -177,8 +177,8 @@ Object.entries(defs).forEach(([k,v])=>{const o=document.createElement('option');
 
 function num1(n){ return Number(n).toFixed(1).replace('.',','); }
 function todayYmd(){ return new Date().toISOString().slice(0,10); }
-function classifyWarfarin(inr,t23){ if(t23){if(inr<2)return 'sous-thérapeutique';if(inr<=3)return 'thérapeutique';return 'surthérapeutique';} if(inr<2.5)return 'sous-thérapeutique';if(inr<=3.5)return 'thérapeutique';return 'surthérapeutique'; }
-function applyPctRange(wk,p){ const m=p.match(/-?\d+[\.,]?\d*/g); if(!m||!m.length) return 'continuer idem'; const nums=m.map(x=>parseFloat(x.replace(',','.'))/100); if(nums.length===1){return `${(wk*(1+nums[0])).toFixed(2)} mg/sem`; } const a=wk*(1+nums[0]),b=wk*(1+nums[1]); return `${Math.min(a,b).toFixed(2)} – ${Math.max(a,b).toFixed(2)} mg/sem`; }
+function classifyWarfarin(inr,t23){ if(t23){if(inr<2)return 'sous-thérapeutique';if(inr<=3)return 'thérapeutique';return 'suprathérapeutique';} if(inr<2.5)return 'sous-thérapeutique';if(inr<=3.5)return 'thérapeutique';return 'suprathérapeutique'; }
+function applyPctRange(wk,p){ const m=p.match(/-?\d+[\.,]?\d*/g); if(!m||!m.length) return 'continuer idem'; const nums=m.map(x=>parseFloat(x.replace(',','.'))/100); if(nums.length===1){return `${(wk*(1+nums[0])).toFixed(1)} mg/sem`; } const a=wk*(1+nums[0]),b=wk*(1+nums[1]); return `${Math.min(a,b).toFixed(1)} – ${Math.max(a,b).toFixed(1)} mg/sem`; }
 function extractFollowup(s){ const t=s.toLowerCase(); const m=t.match(/(\d+)\s*(?:–|-)?\s*(\d+)?\s*(semaine|semaines|jour|jours)/); if(!m) return {n:28,unit:'days',label:'4 semaines'}; const n2=m[2]?Number(m[2]):Number(m[1]); const u=(m[3].startsWith('jour'))?'days':'weeks'; const base=(u==='weeks'?(n2>1?'semaines':'semaine'):(n2>1?'jours':'jour'));
   return {n:n2,unit:u,label:`${m[1]}${m[2]?`–${m[2]}`:''} ${base}`}; }
 function addFromToday(n,unit){ const d=new Date(); d.setDate(d.getDate() + (unit==='weeks'?n*7:n)); return d.toISOString().slice(0,10); }
