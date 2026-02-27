@@ -11,8 +11,7 @@ const defs = {
       {id:'poids',label:'Poids',type:'number',value:''},
       {id:'unit',label:'Unité poids',type:'select',value:'kg',options:[['kg','kg'],['lb','lbs']]},
       {id:'dose',label:'Dose (mg/kg/dose)',type:'number',value:''},
-      {id:'concMode',label:'Concentration',type:'select',value:'mg5ml',options:[['mgml','mg/mL'],['mg5ml','mg/5mL']]},
-      {id:'conc',label:'Valeur concentration (mg)',type:'number',value:''}
+      {id:'concPair',label:'Concentration',type:'concPair',value:'',mode:'mg5ml',options:[['mgml','mg/mL'],['mg5ml','mg/5mL']]}
     ],
     run:v=>{
       const kg=toKg(v.poids,v.unit);
@@ -211,13 +210,28 @@ function renderForm(){
       inp=document.createElement('select');
       (m.options||[]).forEach(([v,l])=>{const o=document.createElement('option');o.value=v;o.textContent=l;inp.appendChild(o);});
       inp.value=m.value;
+      inp.id=m.id;
+      wrap.appendChild(inp);
+    }else if(m.type==='concPair'){
+      const row=document.createElement('div');
+      row.style.display='grid';
+      row.style.gridTemplateColumns='1fr auto';
+      row.style.gap='8px';
+      const val=document.createElement('input');
+      val.type='number'; val.id='conc'; val.value=m.value||'';
+      const mode=document.createElement('select');
+      mode.id='concMode';
+      (m.options||[]).forEach(([v,l])=>{const o=document.createElement('option');o.value=v;o.textContent=l;mode.appendChild(o);});
+      mode.value=m.mode||'mg5ml';
+      row.appendChild(val); row.appendChild(mode);
+      wrap.appendChild(row);
     }else{
       inp=document.createElement('input');
       inp.type=m.type;
       inp.value=m.value;
+      inp.id=m.id;
+      wrap.appendChild(inp);
     }
-    inp.id=m.id;
-    wrap.appendChild(inp);
     calcForm.appendChild(wrap);
   });
   if(refCard) refCard.style.display = calcType.value==='pedi' ? 'block' : 'none';
@@ -227,6 +241,11 @@ function renderForm(){
 function getVals(){
   const vals={};
   defs[calcType.value].fields.forEach((m)=>{
+    if(m.type==='concPair'){
+      vals.conc = Number((document.getElementById('conc')||{}).value||0);
+      vals.concMode = (document.getElementById('concMode')||{}).value || 'mg5ml';
+      return;
+    }
     const raw=document.getElementById(m.id).value;
     vals[m.id]=m.type==='number' ? Number(raw||0) : raw;
   });
