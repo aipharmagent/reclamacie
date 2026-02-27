@@ -130,6 +130,7 @@
       padding:2px 0;
       font-size:12px;
     }
+    .print-plain{ padding:2px 0; font-size:12px; }
     .print-block{ margin-bottom:8px; }
     .print-box{
       border:1px solid #cbd5e1;
@@ -139,7 +140,7 @@
       background:#fff;
       font-size:12px;
     }
-    .print-note{ border:1px solid #cbd5e1; padding:8px; border-radius:6px; min-height:40px; }
+    .print-note{ border:1px solid #cbd5e1; padding:8px; border-radius:6px; min-height:56px; }
     .print-sign-line{ border-bottom:1px solid #0f172a; height:18px; }
 
     @media (max-width:768px){
@@ -162,7 +163,7 @@
   <div class="container">
     <div class="hero">
       <h1><i class="fas fa-file-signature me-2"></i> Formulaire de transfert</h1>
-      <div class="muted">Remplir les champs puis imprimer pour produire la version 1‑page.</div>
+      <div class="muted">Remplir les champs puis imprimez la demande de transfert.</div>
     </div>
 
     <div class="card">
@@ -204,7 +205,7 @@
             </div>
             <div class="field small">
               <label>DDN</label>
-              <input type="date" id="ddn" />
+              <input type="text" id="ddn" inputmode="numeric" placeholder="YYYYMMDD" />
             </div>
           </div>
 
@@ -278,7 +279,7 @@
           </div>
 
           <div class="section-title">Particularité pour assurer la continuité des soins</div>
-          <div class="box" style="min-height:50px;"></div>
+          <div class="box" style="min-height:70px;"></div>
 
           <div class="row">
             <div class="field">
@@ -320,9 +321,9 @@
 
             <div class="print-block">
               <div class="print-label">Pharmacie requérante</div>
-              <div class="print-field" id="pvPharmacieNom"></div>
-              <div class="print-field" id="pvPharmacieAdresse"></div>
-              <div class="print-field" id="pvTelFax" style="margin-top:2px;"></div>
+              <div class="print-plain" id="pvPharmacieNom"></div>
+              <div class="print-plain" id="pvPharmacieAdresse"></div>
+              <div class="print-plain" id="pvTelFax" style="margin-top:2px;"></div>
             </div>
 
             <div class="print-block">
@@ -358,7 +359,7 @@
 
             <div class="print-block">
               <div class="print-label">Particularité pour assurer la continuité des soins</div>
-              <div class="print-note" style="min-height:40px;"></div>
+              <div class="print-note" style="min-height:56px;"></div>
             </div>
 
             <div class="print-block">
