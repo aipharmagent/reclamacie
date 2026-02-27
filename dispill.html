@@ -79,7 +79,7 @@
         var result = "<div style=\"text-align:left;font-weight:700;margin-bottom:4px;\">" + patient + "</div>";
         result += "<table>";
         result += "<tr><td>Début</td><td>Fin</td><td>Préparé par</td><td>Vérification</td><td>Changement</td></tr>";
-        var rowsToPrint = StartdateArray.length + 8;
+        var rowsToPrint = StartdateArray.length;
         for (var i = 0; i < rowsToPrint; i++) {
             var d1 = StartdateArray[i] || "";
             var d2 = EnddateArray[i] || "";
@@ -117,7 +117,7 @@
 </form>
 
 <div id="printableArea">
-    <a id="printout"></a><br>
+    <a id="printout"></a>
 </div>
 
 
