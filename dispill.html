@@ -50,15 +50,15 @@
 
         if (document.getElementById("q7j").checked){
             var weekly = 7;
-            var endDate = startDate.addDays(244);
+            var endDate = startDate.addDays(244 + (weekly*6));
         }
         if (document.getElementById("q14j").checked){
             var weekly = 14;
-            var endDate = startDate.addDays(488);
+            var endDate = startDate.addDays(488 + (weekly*6));
         }
         if (document.getElementById("q28j").checked){
             var weekly = 28;
-            var endDate = startDate.addDays(976);
+            var endDate = startDate.addDays(976 + (weekly*6));
         }
 
         var StartdateArray = new Array();
