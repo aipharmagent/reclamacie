@@ -20,6 +20,53 @@
             width: auto;
             text-align: center;
         }
+
+
+        @media screen {
+            body{
+                position:static;
+                margin:0;
+                min-height:100vh;
+                background:linear-gradient(135deg,#eef4ff,#f7faff);
+                font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+                display:flex;
+                flex-direction:column;
+                align-items:center;
+                padding:22px 14px;
+                gap:14px;
+            }
+            .ui-panel{
+                width:min(860px,95vw);
+                background:#fff;
+                border:1px solid #d7e1f2;
+                border-radius:16px;
+                box-shadow:0 12px 28px rgba(15,23,42,.12);
+                overflow:hidden;
+            }
+            .ui-head{
+                background:linear-gradient(135deg,#123b87,#1f5fd3);
+                color:#fff;
+                padding:16px 18px;
+            }
+            .ui-head h1{margin:0;font-size:24px;font-weight:800}
+            .ui-head p{margin:4px 0 0 0;font-size:13px;opacity:.92}
+            .ui-body{padding:14px 18px}
+            #optionsTable{border:0;table-layout:auto;width:100%;max-width:620px}
+            #optionsTable td{border:0;text-align:left;padding:6px 8px;vertical-align:middle}
+            #optionsTable td:first-child{font-weight:700;color:#1f2a44;width:120px;min-width:120px}
+            #optionsTable input[type="text"],
+            #optionsTable input[type="date"]{
+                width:280px;max-width:100%;height:32px;padding:4px 8px;
+                border:1px solid #b8c5db;border-radius:8px;font:inherit;background:#fff;
+            }
+            .freq-wrap{display:flex;gap:14px;flex-wrap:wrap}
+            .freq-wrap label{display:inline-flex;align-items:center;gap:6px;font-weight:600}
+            .actions{margin-top:10px;display:flex;gap:10px;flex-wrap:wrap}
+            .btn{height:36px;min-width:190px;border-radius:10px;border:1px solid #214fb8;background:#2b63e5;color:#fff;font-weight:800;cursor:pointer}
+            .btn.secondary{background:#fff;color:#214fb8}
+            #printableArea{display:block;clear:both;width:min(900px,95vw);margin:0 auto}
+        }
+
     </style>
 </head>
 <body>
@@ -76,7 +123,7 @@
 
 // Output
         var patient = document.getElementById("patientName").value || "";
-        var result = "<div style=\"text-align:left;font-weight:700;font-size:22px;line-height:1.1;margin-bottom:4px;\">" + patient + "</div>";
+        var result = "<div style=\"text-align:left;font-weight:500;font-size:18px;line-height:1.1;margin-bottom:4px;\">" + patient + "</div>";
         result += "<table>";
         result += "<tr><td>Début</td><td>Fin</td><td>Préparé par</td><td>Vérification</td><td>Changement</td></tr>";
         var rowsToPrint = StartdateArray.length;
@@ -92,8 +139,14 @@
 
     }
 </script>
+<div class="ui-panel">
+  <div class="ui-head">
+    <h1>Calendrier Pilulier</h1>
+    <p>Complétez les champs, puis cliquez Soumettre et Impression.</p>
+  </div>
+  <div class="ui-body">
 <form>
-<table>
+<table id="optionsTable">
     <tbody><tr>
         <td>Patient:</td>
         <td><input type="text" id="patientName"></td>
@@ -104,17 +157,23 @@
     </tr>
     <tr>
         <td>Fréquence:</td>
-        <td style="text-align: left;">
-            <input type="radio" name="freq" id="q7j" checked="">Hebdomadaire<br>
-            <input type="radio" name="freq" id="q14j">Aux 2 semaines<br>
-            <input type="radio" name="freq" id="q28j">Aux 4 semaines<br>
+        <td style="text-align:left;">
+            <div class="freq-wrap">
+              <label><input type="radio" name="freq" id="q7j" checked=""> Hebdomadaire</label>
+              <label><input type="radio" name="freq" id="q14j"> Aux 2 semaines</label>
+              <label><input type="radio" name="freq" id="q28j"> Aux 4 semaines</label>
+            </div>
         </td>
     </tr>
 
 </tbody></table>
-<input style="height:30px;width:200px" onclick="calculate()" type="button" value="Soumettre"><br>
-<input style="height:30px;width:200px" type="button" onclick="printDiv('printableArea')" value="Impression">
+<div class="actions">
+<input class="btn" onclick="calculate()" type="button" value="Soumettre">
+<input class="btn secondary" type="button" onclick="printDiv('printableArea')" value="Impression">
+</div>
 </form>
+  </div>
+</div>
 
 <div id="printableArea">
     <a id="printout"></a>
