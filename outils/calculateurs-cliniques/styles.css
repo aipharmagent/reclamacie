@@ -27,3 +27,11 @@ h3{margin:0 0 10px;color:#1a315f}
 .n{margin-top:8px;padding:6px 8px;border-radius:6px}
 .n.warn{background:#fff1dd;color:#9a5500;font-weight:700}
 .n.ok{background:#e8f7ee;color:#1a7a46}
+.grid.pedi{grid-template-columns:repeat(3,minmax(150px,1fr))}
+.grid.pedi label[data-id='poids'],
+.grid.pedi label[data-id='unit'],
+.grid.pedi label[data-id='dose'],
+.grid.pedi label[data-id='concMode'],
+.grid.pedi label[data-id='conc']{grid-column:auto}
+@media(max-width:900px){.grid.pedi{grid-template-columns:repeat(2,minmax(150px,1fr))}}
+@media(max-width:700px){.grid.pedi{grid-template-columns:1fr}}
