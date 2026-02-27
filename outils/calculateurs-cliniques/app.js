@@ -144,7 +144,7 @@ const defs = {
       {id:'doseMode',label:'Type dose',type:'select',value:'day',options:[['day','mg/kg/jr'],['dose','mg/kg/dose']]},
       {id:'prises',label:'Prises / jour',type:'number',value:'2'},
       {id:'duree',label:'Durée traitement (jours)',type:'number',value:'7'},
-      {id:'concMg',label:'Concentration',type:'number',value:''},
+      {id:'concMg',label:'Concentration (mg)',type:'number',value:''},
       {id:'concMl',label:'Unité (mL)',type:'number',value:''}
     ],
     run:v=>{
@@ -179,7 +179,8 @@ function num1(n){ return Number(n).toFixed(1).replace('.',','); }
 function todayYmd(){ return new Date().toISOString().slice(0,10); }
 function classifyWarfarin(inr,t23){ if(t23){if(inr<2)return 'sous-thérapeutique';if(inr<=3)return 'thérapeutique';return 'surthérapeutique';} if(inr<2.5)return 'sous-thérapeutique';if(inr<=3.5)return 'thérapeutique';return 'surthérapeutique'; }
 function applyPctRange(wk,p){ const m=p.match(/-?\d+[\.,]?\d*/g); if(!m||!m.length) return 'continuer idem'; const nums=m.map(x=>parseFloat(x.replace(',','.'))/100); if(nums.length===1){return `${(wk*(1+nums[0])).toFixed(2)} mg/sem`; } const a=wk*(1+nums[0]),b=wk*(1+nums[1]); return `${Math.min(a,b).toFixed(2)} – ${Math.max(a,b).toFixed(2)} mg/sem`; }
-function extractFollowup(s){ const t=s.toLowerCase(); const m=t.match(/(\d+)\s*(?:–|-)?\s*(\d+)?\s*(semaine|semaines|jour|jours)/); if(!m) return {n:28,unit:'days',label:'4 semaines'}; const n2=m[2]?Number(m[2]):Number(m[1]); const u=(m[3].startsWith('jour'))?'days':'weeks'; return {n:n2,unit:u,label:`${m[1]}${m[2]?`–${m[2]}`:''} ${m[3]}`}; }
+function extractFollowup(s){ const t=s.toLowerCase(); const m=t.match(/(\d+)\s*(?:–|-)?\s*(\d+)?\s*(semaine|semaines|jour|jours)/); if(!m) return {n:28,unit:'days',label:'4 semaines'}; const n2=m[2]?Number(m[2]):Number(m[1]); const u=(m[3].startsWith('jour'))?'days':'weeks'; const base=(u==='weeks'?(n2>1?'semaines':'semaine'):(n2>1?'jours':'jour'));
+  return {n:n2,unit:u,label:`${m[1]}${m[2]?`–${m[2]}`:''} ${base}`}; }
 function addFromToday(n,unit){ const d=new Date(); d.setDate(d.getDate() + (unit==='weeks'?n*7:n)); return d.toISOString().slice(0,10); }
 function updateCopyPreview(t){ if(!copyPreview) return; copyPreview.textContent=t||''; copyPreview.style.display=t?'block':'none'; }
 
