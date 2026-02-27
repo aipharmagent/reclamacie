@@ -61,9 +61,15 @@ function statusClass(status){
   if(status==='Reporté') return 'status-postponed';
   return 'status-todo';
 }
-function getShiftDays(){
-  const v = Number($('#shiftDays')?.value || 1);
-  return Number.isFinite(v) && v > 0 ? Math.floor(v) : 1;
+function askDays(defaultDays = 1){
+  const raw = prompt('Combien de jours voulez-vous reporter ?', String(defaultDays));
+  if(raw === null) return null;
+  const days = Math.floor(Number(raw));
+  if(!Number.isFinite(days) || days < 1){
+    alert('Veuillez entrer un nombre entier >= 1.');
+    return null;
+  }
+  return days;
 }
 function dupKey(i){ return `${i.rxNumber}|${i.rxRef}|${i.acte}|${i.date}`.toLowerCase(); }
 function findDuplicate(i){
@@ -136,7 +142,7 @@ function renderRows(){
 
     const actionTd = tr.querySelector('.rowActions');
     const b1 = btn('Suivi fait', ()=>markDone(item.id));
-    const b2 = btn(`Reporter +${getShiftDays()}j`, ()=>reschedule(item.id,getShiftDays()));
+    const b2 = btn('Reporter', ()=>{ const d=askDays(1); if(d!==null) reschedule(item.id,d); });
     const b3 = btn('Statut', ()=>cycleStatus(item.id));
     const b4 = btn('Supprimer', ()=>remove(item.id));
     b4.classList.add('secondary');
@@ -206,7 +212,8 @@ $('#btnSample').onclick = ()=>{
 };
 
 $('#btnResolveOverdue').onclick = ()=>{
-  const days = getShiftDays();
+  const days = askDays(1);
+  if(days===null) return;
   const overdue = data.filter(i => urgency(i)==='overdue' && i.status!=='Complété');
   if(!overdue.length){ alert('Aucun suivi en retard à rattraper.'); return; }
   const ok = confirm(`Reporter de +${days} jour(s) le prochain suivi de ${overdue.length} dossier(s) en retard ?`);
