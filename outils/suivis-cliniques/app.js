@@ -61,6 +61,10 @@ function statusClass(status){
   if(status==='Reporté') return 'status-postponed';
   return 'status-todo';
 }
+function getShiftDays(){
+  const v = Number($('#shiftDays')?.value || 1);
+  return Number.isFinite(v) && v > 0 ? Math.floor(v) : 1;
+}
 function dupKey(i){ return `${i.rxNumber}|${i.rxRef}|${i.acte}|${i.date}`.toLowerCase(); }
 function findDuplicate(i){
   const key = dupKey(i);
@@ -132,12 +136,11 @@ function renderRows(){
 
     const actionTd = tr.querySelector('.rowActions');
     const b1 = btn('Suivi fait', ()=>markDone(item.id));
-    const b2 = btn('Reporter +1j', ()=>reschedule(item.id,1));
+    const b2 = btn(`Reporter +${getShiftDays()}j`, ()=>reschedule(item.id,getShiftDays()));
     const b3 = btn('Statut', ()=>cycleStatus(item.id));
-    const b4 = btn('Note', ()=>editNotesPrompt(item.id));
-    const b5 = btn('Supprimer', ()=>remove(item.id));
-    b5.classList.add('secondary');
-    actionTd.append(b1,b2,b3,b4,b5);
+    const b4 = btn('Supprimer', ()=>remove(item.id));
+    b4.classList.add('secondary');
+    actionTd.append(b1,b2,b3,b4);
     rowsEl.appendChild(tr);
   }
 }
@@ -164,14 +167,6 @@ function updateNotes(id, value){
   item.notes = String(value||'').trim()==='-' ? '' : String(value||'').trim();
   save();
 }
-function editNotesPrompt(id){
-  const item=data.find(x=>x.id===id); if(!item) return;
-  const v = prompt('Modifier la note:', item.notes || '');
-  if(v===null) return;
-  item.notes = String(v).trim();
-  persistAndRender();
-}
-
 function persistAndRender(){ save(); renderKPIs(); renderRows(); }
 
 form.addEventListener('submit', (e)=>{
@@ -211,11 +206,12 @@ $('#btnSample').onclick = ()=>{
 };
 
 $('#btnResolveOverdue').onclick = ()=>{
+  const days = getShiftDays();
   const overdue = data.filter(i => urgency(i)==='overdue' && i.status!=='Complété');
   if(!overdue.length){ alert('Aucun suivi en retard à rattraper.'); return; }
-  const ok = confirm(`Reporter de +1 jour le prochain suivi de ${overdue.length} dossier(s) en retard ?`);
+  const ok = confirm(`Reporter de +${days} jour(s) le prochain suivi de ${overdue.length} dossier(s) en retard ?`);
   if(!ok) return;
-  overdue.forEach(i => { const f=i.followups.find(x=>!x.done); if(f) f.dueDate=addDays(f.dueDate,1); if(i.status==='Complété') i.status='En cours'; });
+  overdue.forEach(i => { const f=i.followups.find(x=>!x.done); if(f) f.dueDate=addDays(f.dueDate,days); if(i.status==='Complété') i.status='En cours'; });
   persistAndRender();
 };
 
