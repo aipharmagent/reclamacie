@@ -1153,6 +1153,10 @@ td.name-cell{font-weight:500;max-width:200px;white-space:nowrap;overflow:hidden;
         <input class="inp" id="am-mfr" type="text" placeholder="" data-i18n-ph="ph_mfr">
       </div>
       <div class="form-group">
+        <div class="form-label"><span data-i18n="col_strength">Strength</span></div>
+        <input class="inp" id="am-strength" type="text" placeholder="e.g. 5 mg, 10mg/mL">
+      </div>
+      <div class="form-group">
         <div class="form-label"><span data-i18n="lbl_type">Type</span></div>
         <select class="inp" id="am-type">
           <option value="Rx">Rx</option>
@@ -1766,6 +1770,7 @@ function openAddModal(prefillDin,prefillName){
   document.getElementById('am-din').value=prefillDin||'';
   document.getElementById('am-name').value=prefillName||'';
   document.getElementById('am-mfr').value='';
+  document.getElementById('am-strength').value='';
   document.getElementById('am-type').value='Rx';
   document.getElementById('am-qty').value='0';
   document.getElementById('am-threshold').value='10';
@@ -1791,6 +1796,7 @@ function submitAddModal(){
   const qty=parseFloat(document.getElementById('am-qty').value)||0;
   const product={id:Date.now()+'_'+Math.random(),din,barcode:din,name,
     manufacturer:document.getElementById('am-mfr').value.trim(),
+    strength:document.getElementById('am-strength').value.trim(),
     type:document.getElementById('am-type').value,qty,
     threshold:parseInt(document.getElementById('am-threshold').value)||10,
     expiry:'',notes:document.getElementById('am-notes').value.trim()};
