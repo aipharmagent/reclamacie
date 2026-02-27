@@ -28,7 +28,7 @@ button{padding:8px 12px;border:none;border-radius:8px;background:#23406f;color:#
 .badge.status-progress{background:#fff4df;color:#8a4b00;font-weight:700}
 .badge.status-postponed{background:#f3e8ff;color:#6f2da8;font-weight:700}
 .badge.status-complete{background:#e3f7ea;color:#0f6b3d;font-weight:700}
-td[data-k='notes']{max-width:260px;min-width:0;white-space:normal;overflow-wrap:anywhere;word-break:break-word;vertical-align:top;line-height:1.25;}
+td[data-k='notes']{max-width:none;min-width:0;white-space:normal;overflow-wrap:anywhere;word-break:break-word;vertical-align:top;line-height:1.25;text-align:left;padding-left:10px;padding-right:10px}
 td[data-k='notes'][contenteditable='true']{background:#fbfdff;outline:1px solid transparent;outline-offset:-1px;}
 td[data-k='notes'][contenteditable='true']:focus{outline:1px dashed #9ec2ff;background:#fff}
 @media (min-width:1280px){
@@ -37,3 +37,14 @@ td[data-k='notes'][contenteditable='true']:focus{outline:1px dashed #9ec2ff;back
   .container > .panel:not(:last-child) .filters{grid-template-columns:1fr 1fr;}
   .container > .panel:last-child{grid-column:2;grid-row:1 / span 3;position:sticky;top:16px}
 }
+
+.suivis-cols .c-date{width:90px}
+.suivis-cols .c-rx{width:110px}
+.suivis-cols .c-ref{width:80px}
+.suivis-cols .c-acte{width:110px}
+.suivis-cols .c-due{width:125px}
+.suivis-cols .c-prog{width:75px}
+.suivis-cols .c-status{width:95px}
+.suivis-cols .c-init{width:55px}
+.suivis-cols .c-notes{width:auto}
+.suivis-cols .c-actions{width:175px}

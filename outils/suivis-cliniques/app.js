@@ -143,10 +143,9 @@ function renderRows(){
     const actionTd = tr.querySelector('.rowActions');
     const b1 = btn('Suivi fait', ()=>markDone(item.id));
     const b2 = btn('Reporter', ()=>{ const d=askDays(1); if(d!==null) reschedule(item.id,d); });
-    const b3 = btn('Statut', ()=>cycleStatus(item.id));
-    const b4 = btn('Supprimer', ()=>remove(item.id));
-    b4.classList.add('secondary');
-    actionTd.append(b1,b2,b3,b4);
+    const b3 = btn('Supprimer', ()=>remove(item.id));
+    b3.classList.add('secondary');
+    actionTd.append(b1,b2,b3);
     rowsEl.appendChild(tr);
   }
 }
@@ -161,12 +160,6 @@ function markDone(id){
   persistAndRender();
 }
 function reschedule(id,days){ const item=data.find(x=>x.id===id); const f=item?.followups.find(x=>!x.done); if(!f) return; f.dueDate=addDays(f.dueDate,days); if(item.status==='Complété') item.status='En cours'; persistAndRender(); }
-function cycleStatus(id){
-  const order=['À faire','En cours','Reporté','Complété'];
-  const item=data.find(x=>x.id===id); if(!item) return;
-  item.status = order[(order.indexOf(item.status)+1)%order.length];
-  persistAndRender();
-}
 function remove(id){ if(!confirm('Supprimer ce suivi?')) return; data = data.filter(x=>x.id!==id); persistAndRender(); }
 function updateNotes(id, value){
   const item=data.find(x=>x.id===id); if(!item) return;
