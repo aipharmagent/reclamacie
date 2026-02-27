@@ -3,22 +3,31 @@
     <meta charset="UTF-8">
     <title>Calendrier Pilulier</title>
     <style>
-        body
-        {
+        body{
             font-family:courier,sans-serif;
-            font-size: 15px;
-            position: absolute;
+            font-size:15px;
+            margin:0;
+            background:#f4f7fb;
+            padding:20px;
         }
 
+        .ui-wrap{max-width:780px;margin:0 auto;}
+        .ui-card{background:#fff;border:1px solid #d9e2ef;border-radius:12px;padding:16px 18px;box-shadow:0 6px 18px rgba(15,23,42,.08);}
+        .ui-title{margin:0 0 10px 0;font-size:22px;}
+        .actions{margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;}
+        .btn{height:34px;min-width:200px;border:1px solid #1d4ed8;border-radius:8px;background:#2563eb;color:#fff;cursor:pointer;font-weight:700;}
+        .btn.secondary{background:#fff;color:#1d4ed8;}
+
+        input[type="text"], input[type="date"]{height:30px;width:100%;border:1px solid #b8c5d8;border-radius:6px;padding:4px 8px;}
+
         table{
-            border: 1px solid black;
-            table-layout: fixed;
+            border:1px solid black;
+            table-layout:fixed;
         }
-        td
-        {
-            border: 1px solid black;
-            width: auto;
-            text-align: center;
+        td{
+            border:1px solid black;
+            width:auto;
+            text-align:center;
         }
     </style>
 </head>
@@ -78,7 +87,9 @@
         var result = document.getElementById("patientName").value;
         result += "<table>";
         result += "<tr><td>Début</td><td>Fin</td><td>Préparé par</td><td>Vérification</td><td>Changement</td></tr>";
-        for (var i = 0; i < StartdateArray.length; i++) {
+
+        var rowsToPrint = Math.max(0, StartdateArray.length - 7);
+        for (var i = 0; i < rowsToPrint; i++) {
             result += "<tr>";
             result += "<td style='width:70px'>" + StartdateArray[i] + "</td>";
             result += "<td style='width:70px'>" + EnddateArray[i] + "</td><td style='width:150px'></td><td style='width:150px'></td><td style='width:150px'></td>";
@@ -87,30 +98,46 @@
         document.getElementById("printout").innerHTML = result;
 
     }
-</script>
-<form>
-<table>
-    <tbody><tr>
-        <td>Patient:</td>
-        <td><input type="text" id="patientName"></td>
-    </tr>
-    <tr>
-        <td>Date de début:</td>
-        <td><input type="date" id="startDate" value="yyyy-mm-dd"></td>
-    </tr>
-    <tr>
-        <td>Fréquence:</td>
-        <td style="text-align: left;">
-            <input type="radio" name="freq" id="q7j" checked="">Hebdomadaire<br>
-            <input type="radio" name="freq" id="q14j">Aux 2 semaines<br>
-            <input type="radio" name="freq" id="q28j">Aux 4 semaines<br>
-        </td>
-    </tr>
 
-</tbody></table>
-<input style="height:30px;width:200px" onclick="calculate()" type="button" value="Soumettre"><br>
-<input style="height:30px;width:200px" type="button" onclick="printDiv('printableArea')" value="Impression">
-</form>
+    (function(){
+      var d = new Date();
+      document.addEventListener('DOMContentLoaded', function(){
+        var el = document.getElementById('startDate');
+        if(el) el.value = d.toISOString().slice(0,10);
+      });
+    })();
+</script>
+
+<div class="ui-wrap">
+  <div class="ui-card">
+    <h1 class="ui-title">Calendrier Pilulier</h1>
+    <form>
+    <table>
+        <tbody><tr>
+            <td>Patient:</td>
+            <td><input type="text" id="patientName"></td>
+        </tr>
+        <tr>
+            <td>Date de début:</td>
+            <td><input type="date" id="startDate" value="yyyy-mm-dd"></td>
+        </tr>
+        <tr>
+            <td>Fréquence:</td>
+            <td style="text-align: left;">
+                <input type="radio" name="freq" id="q7j" checked="">Hebdomadaire<br>
+                <input type="radio" name="freq" id="q14j">Aux 2 semaines<br>
+                <input type="radio" name="freq" id="q28j">Aux 4 semaines<br>
+            </td>
+        </tr>
+
+    </tbody></table>
+    <div class="actions">
+      <input class="btn" onclick="calculate()" type="button" value="Soumettre">
+      <input class="btn secondary" type="button" onclick="printDiv('printableArea')" value="Impression">
+    </div>
+    </form>
+  </div>
+</div>
 
 <div id="printableArea">
     <a id="printout"></a><br>
