@@ -23,3 +23,15 @@ button{padding:8px 12px;border:none;border-radius:8px;background:#23406f;color:#
   .container, .panel, .tableWrap { padding:0!important; margin:0!important; border:none!important; box-shadow:none!important; }
   body { background:#fff; }
 }
+
+.badge.status-todo{background:#e7edff;color:#1d3f7a;font-weight:700}
+.badge.status-progress{background:#fff4df;color:#8a4b00;font-weight:700}
+.badge.status-postponed{background:#f3e8ff;color:#6f2da8;font-weight:700}
+.badge.status-complete{background:#e3f7ea;color:#0f6b3d;font-weight:700}
+td[data-k='notes']{min-width:220px;border-radius:6px}
+td[data-k='notes'][contenteditable='true']{background:#fbfdff;border:1px dashed transparent}
+td[data-k='notes'][contenteditable='true']:focus{outline:none;border-color:#9ec2ff;background:#fff}
+@media (min-width:1280px){
+  .container{grid-template-columns:minmax(430px,1fr) minmax(600px,1.35fr);align-items:start}
+  .container > .panel:last-child{grid-column:2;grid-row:1 / span 3;position:sticky;top:16px}
+}

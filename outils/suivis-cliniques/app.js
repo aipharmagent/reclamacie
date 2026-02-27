@@ -54,6 +54,13 @@ function urgency(item){
   if(d <= 7) return 'soon';
   return 'later';
 }
+
+function statusClass(status){
+  if(status==='Complété') return 'status-complete';
+  if(status==='En cours') return 'status-progress';
+  if(status==='Reporté') return 'status-postponed';
+  return 'status-todo';
+}
 function dupKey(i){ return `${i.rxNumber}|${i.rxRef}|${i.acte}|${i.date}`.toLowerCase(); }
 function findDuplicate(i){
   const key = dupKey(i);
@@ -113,17 +120,24 @@ function renderRows(){
     if(u==='overdue') dueCell.innerHTML += ` <span class='badge en-retard'>En retard</span>`;
     if(u==='today') dueCell.innerHTML += ` <span class='badge aujourdhui'>Aujourd'hui</span>`;
     tr.querySelector('[data-k="progress"]').textContent = progress(item);
-    tr.querySelector('[data-k="status"]').textContent = item.status;
+    const statusEl = tr.querySelector('[data-k="status"]');
+    statusEl.textContent = item.status;
+    statusEl.className = `badge ${statusClass(item.status)}`;
     tr.querySelector('[data-k="initials"]').textContent = item.initials || '-';
-    tr.querySelector('[data-k="notes"]').textContent = item.notes || '-';
+    const notesEl = tr.querySelector('[data-k="notes"]');
+    notesEl.textContent = item.notes || '-';
+    notesEl.contentEditable = 'true';
+    notesEl.title = 'Cliquer pour modifier';
+    notesEl.addEventListener('blur', () => updateNotes(item.id, notesEl.textContent));
 
     const actionTd = tr.querySelector('.rowActions');
     const b1 = btn('Suivi fait', ()=>markDone(item.id));
     const b2 = btn('Reporter +1j', ()=>reschedule(item.id,1));
     const b3 = btn('Statut', ()=>cycleStatus(item.id));
-    const b4 = btn('Supprimer', ()=>remove(item.id));
-    b4.classList.add('secondary');
-    actionTd.append(b1,b2,b3,b4);
+    const b4 = btn('Note', ()=>editNotesPrompt(item.id));
+    const b5 = btn('Supprimer', ()=>remove(item.id));
+    b5.classList.add('secondary');
+    actionTd.append(b1,b2,b3,b4,b5);
     rowsEl.appendChild(tr);
   }
 }
@@ -133,9 +147,9 @@ function markDone(id){
   const item=data.find(x=>x.id===id); if(!item) return;
   const f=item.followups.find(x=>!x.done); if(!f) return;
   f.done=true; f.doneAt=todayISO();
-  if(item.followups.every(x=>x.done)) item.status='Complété'; else if(item.status==='À faire') item.status='En cours';
-  setDefaultFormDate();
-persistAndRender();
+  if(item.followups.every(x=>x.done)) item.status='Complété';
+  else item.status='En cours';
+  persistAndRender();
 }
 function reschedule(id,days){ const item=data.find(x=>x.id===id); const f=item?.followups.find(x=>!x.done); if(!f) return; f.dueDate=addDays(f.dueDate,days); if(item.status==='Complété') item.status='En cours'; persistAndRender(); }
 function cycleStatus(id){
@@ -145,6 +159,18 @@ function cycleStatus(id){
   persistAndRender();
 }
 function remove(id){ if(!confirm('Supprimer ce suivi?')) return; data = data.filter(x=>x.id!==id); persistAndRender(); }
+function updateNotes(id, value){
+  const item=data.find(x=>x.id===id); if(!item) return;
+  item.notes = String(value||'').trim()==='-' ? '' : String(value||'').trim();
+  save();
+}
+function editNotesPrompt(id){
+  const item=data.find(x=>x.id===id); if(!item) return;
+  const v = prompt('Modifier la note:', item.notes || '');
+  if(v===null) return;
+  item.notes = String(v).trim();
+  persistAndRender();
+}
 
 function persistAndRender(){ save(); renderKPIs(); renderRows(); }
 
