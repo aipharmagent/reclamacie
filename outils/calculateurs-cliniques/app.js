@@ -1,129 +1,148 @@
+const KG_PER_LB = 0.45359237;
+
 const defs = {
-  pedi_generic: {
-    label: 'Pédiatrique mg/kg/jour (générique)',
+  pedi: {
+    label: 'Pédiatrique',
     fields: [
-      ['poidsKg','Poids (kg)','number',''],
-      ['doseMgKgJour','Dose (mg/kg/jour)','number',''],
-      ['prisesJour','Prises/jour','number','2'],
-      ['concentration','Concentration suspension (mg/mL)','number','']
+      {id:'poids',label:'Poids',type:'number',value:''},
+      {id:'unit',label:'Unité poids',type:'select',value:'kg',options:[['kg','kg'],['lb','lb']]},
+      {id:'dose',label:'Dose',type:'number',value:''},
+      {id:'doseMode',label:'Type dose',type:'select',value:'day',options:[['day','mg/kg/jr'],['dose','mg/kg/dose']]},
+      {id:'prises',label:'Prises / jour',type:'number',value:'4'},
+      {id:'concMg',label:'Concentration: mg',type:'number',value:''},
+      {id:'concMl',label:'Concentration: mL',type:'number',value:''}
     ],
-    run: v => {
-      const total = v.poidsKg*v.doseMgKgJour;
-      const dose = total/Math.max(1,v.prisesJour);
-      const ml = v.concentration? dose/v.concentration : null;
-      return out([
-        ['Dose totale/jour', `${total.toFixed(1)} mg`],
-        ['Dose par prise', `${dose.toFixed(1)} mg`],
-        ...(ml ? [['Volume par prise', `${ml.toFixed(2)} mL`]] : [])
-      ]);
-    }
+    run:v => runWeightDose(v)
   },
+
   pyrantel: {
-    label: 'Pyrantel (11 mg base/kg)',
+    label: 'Pyrantel',
     fields: [
-      ['poidsKg','Poids (kg)','number',''],
-      ['mgBaseKg','Dose mg base/kg','number','11'],
-      ['concentration','Concentration (mg/mL)','number','50']
+      {id:'poids',label:'Poids',type:'number',value:''},
+      {id:'unit',label:'Unité poids',type:'select',value:'kg',options:[['kg','kg'],['lb','lb']]},
+      {id:'mgBaseKg',label:'Dose mg base/kg',type:'number',value:'11'},
+      {id:'tabletMg',label:'Comprimé (mg)',type:'number',value:'125'},
+      {id:'concMg',label:'Liquide: mg',type:'number',value:'50'},
+      {id:'concMl',label:'Liquide: mL',type:'number',value:'1'}
     ],
-    run: v => {
-      const mg = v.poidsKg*v.mgBaseKg;
+    run:v => {
+      const kg = toKg(v.poids, v.unit);
+      const totalMg = kg * v.mgBaseKg;
+      const tablets = totalMg / Math.max(0.001, v.tabletMg);
+      const roundedQuarter = Math.round(tablets * 4) / 4;
+      const mgPerMl = v.concMg / Math.max(0.001, v.concMl);
+      const ml = totalMg / mgPerMl;
       return out([
-        ['Dose totale', `${mg.toFixed(1)} mg base`],
-        ['Volume', `${(mg/Math.max(0.0001,v.concentration)).toFixed(2)} mL`]
+        ['Poids (kg)', kg.toFixed(2)],
+        ['Dose totale', `${totalMg.toFixed(1)} mg base`],
+        ['Suggestion comprimés', `${roundedQuarter.toFixed(2)} comprimé(s) de ${v.tabletMg} mg (arrondi au 1/4)`],
+        ['Option liquide', `${ml.toFixed(2)} mL`],
       ]);
     }
   },
+
   abx_ped: {
-    label: 'Antibiotique pédiatrique (preset)',
+    label: 'Antibiotique pédiatrique',
     fields: [
-      {id:'molecule',label:'Molécule',type:'select',value:'amox',options:[
-        ['amox','Amoxicilline'],['cephalexin','Céphalexine'],['azithro','Azithromycine']
-      ]},
-      ['poidsKg','Poids (kg)','number',''],
-      ['prisesJour','Prises/jour','number','2'],
-      ['concentration','Suspension (mg/mL)','number','50']
+      {id:'poids',label:'Poids',type:'number',value:''},
+      {id:'unit',label:'Unité poids',type:'select',value:'kg',options:[['kg','kg'],['lb','lb']]},
+      {id:'dose',label:'Dose',type:'number',value:'50'},
+      {id:'doseMode',label:'Type dose',type:'select',value:'day',options:[['day','mg/kg/jr'],['dose','mg/kg/dose']]},
+      {id:'prises',label:'Prises / jour',type:'number',value:'2'},
+      {id:'concMg5',label:'Suspension: mg / 5 mL',type:'number',value:'250'},
+      {id:'maxJour',label:'Max journalier (mg) (optionnel)',type:'number',value:''}
     ],
-    run: v => {
-      const presets={
-        amox:{mgkg:50,max:4000},
-        cephalexin:{mgkg:50,max:4000},
-        azithro:{mgkg:10,max:500}
-      };
-      const p=presets[v.molecule]||presets.amox;
-      let total=v.poidsKg*p.mgkg;
-      let warn='';
-      if(total>p.max){total=p.max;warn='⚠ Dose plafonnée au maximum usuel.'}
-      const prises = Math.max(1, v.prisesJour || (v.molecule==='azithro'?1:2));
-      const dose=total/prises;
-      const ml=dose/Math.max(0.0001,v.concentration);
+    run:v => {
+      const kg = toKg(v.poids, v.unit);
+      const prises = Math.max(1, v.prises || 1);
+      let dosePer = v.doseMode === 'day' ? (kg * v.dose) / prises : kg * v.dose;
+      let totalDay = dosePer * prises;
+      let notes=[];
+      if (v.maxJour && totalDay > v.maxJour) {
+        totalDay = v.maxJour;
+        dosePer = totalDay / prises;
+        notes.push('⚠ Dose plafonnée au maximum journalier indiqué.');
+      }
+      const mlPerDose = (dosePer * 5) / Math.max(0.001, v.concMg5);
       return out([
-        ['Molécule', labelFor('abx_ped','molecule',v.molecule)],
-        ['Dose cible', `${p.mgkg} mg/kg/jour`],
-        ['Dose/jour', `${total.toFixed(0)} mg`],
-        ['Dose/prise', `${dose.toFixed(0)} mg`],
-        ['Volume/prise', `${ml.toFixed(2)} mL`],
-      ], warn ? [warn] : []);
+        ['Poids (kg)', kg.toFixed(2)],
+        ['Dose/jour', `${totalDay.toFixed(1)} mg`],
+        ['Dose/prise', `${dosePer.toFixed(1)} mg`],
+        ['Volume/prise', `${mlPerDose.toFixed(2)} mL`],
+      ], notes, notes.length?'warn':'ok');
     }
   },
+
   warfarin: {
-    label: 'Warfarine (aide structurée)',
+    label: 'Warfarine (ajustement)',
     fields: [
-      ['inrActuel','INR actuel','number',''],
-      ['inrCibleBas','INR cible bas','number','2.0'],
-      ['inrCibleHaut','INR cible haut','number','3.0'],
-      ['doseHebdo','Dose hebdo actuelle (mg)','number','']
+      {id:'inr',label:'INR actuel',type:'number',value:''},
+      {id:'targetLow',label:'INR cible bas',type:'number',value:'2.0'},
+      {id:'targetHigh',label:'INR cible haut',type:'number',value:'3.0'},
+      {id:'weeklyDose',label:'Dose hebdo actuelle (mg)',type:'number',value:''}
     ],
-    run: v => {
-      if(v.inrActuel<v.inrCibleBas) return out([],['INR sous-cible: considérer hausse prudente (+5 à 10% dose hebdo) et recontrôle rapproché.'],'warn');
-      if(v.inrActuel>v.inrCibleHaut) return out([],['INR sur-cible: considérer baisse prudente / omission selon protocole local et contexte clinique.'],'warn');
-      return out([],['INR en cible: maintenir dose actuelle et poursuivre surveillance.'],'ok');
+    run:v => {
+      const inr = v.inr;
+      const weekly = v.weeklyDose;
+      if (!weekly) return out([], ['Entrer une dose hebdomadaire pour calculer l’ajustement.'],'warn');
+      let pct = 0, msg='';
+      if (inr < 1.5) { pct = +15; msg='INR très sous-cible'; }
+      else if (inr < v.targetLow) { pct = +10; msg='INR sous-cible'; }
+      else if (inr <= v.targetHigh) { pct = 0; msg='INR en cible'; }
+      else if (inr <= 3.5) { pct = -10; msg='INR légèrement élevé'; }
+      else if (inr < 5) { pct = -15; msg='INR élevé (considérer omission ponctuelle selon protocole)'; }
+      else { return out([], ['⚠ INR ≥ 5: évaluation clinique urgente / protocole local requis.'],'warn'); }
+
+      const newWeekly = weekly * (1 + pct/100);
+      return out([
+        ['Évaluation', msg],
+        ['Ajustement proposé', `${pct>0?'+':''}${pct}% dose hebdo`],
+        ['Nouvelle dose hebdo estimée', `${newWeekly.toFixed(2)} mg`],
+      ], ['Validation clinique + contexte patient obligatoires.'], pct===0?'ok':'warn');
     }
   },
-  methadone: {
-    label: 'Méthadone (aide conversion basique)',
-    fields: [
-      ['doseOpioide','Dose opioïde équivalente (MME/jour)','number',''],
-      ['ratio','Ratio conversion choisi','number','10']
-    ],
-    run: v => out([
-      ['Dose estimée méthadone', `${(v.doseOpioide/Math.max(1,v.ratio)).toFixed(1)} mg/jour`]
-    ],['⚠ Conversion méthadone non linéaire: validation clinique stricte requise.'],'warn')
-  },
+
   custom: {
-    label: 'Autre médicament (mg/kg)',
+    label: 'Autre médicament',
     fields: [
-      ['nom','Nom','text',''],
-      ['poidsKg','Poids (kg)','number',''],
-      ['doseMgKg','Dose mg/kg','number',''],
-      ['concentration','Concentration mg/mL (optionnel)','number','']
+      {id:'poids',label:'Poids',type:'number',value:''},
+      {id:'unit',label:'Unité poids',type:'select',value:'kg',options:[['kg','kg'],['lb','lb']]},
+      {id:'dose',label:'Dose',type:'number',value:''},
+      {id:'doseMode',label:'Type dose',type:'select',value:'day',options:[['day','mg/kg/jr'],['dose','mg/kg/dose']]},
+      {id:'prises',label:'Prises / jour',type:'number',value:'2'},
+      {id:'concMg',label:'Concentration: mg (optionnel)',type:'number',value:''},
+      {id:'concMl',label:'Concentration: mL (optionnel)',type:'number',value:''}
     ],
-    run: v => {
-      const mg=v.poidsKg*v.doseMgKg;
-      const rows=[[v.nom||'Médicament',`${mg.toFixed(1)} mg`]];
-      if(v.concentration) rows.push(['Volume',`${(mg/v.concentration).toFixed(2)} mL`]);
-      return out(rows);
-    }
+    run:v => runWeightDose(v)
   }
 };
 
 const calcType=document.getElementById('calcType');
 const calcForm=document.getElementById('calcForm');
 const result=document.getElementById('result');
-let lastHtml='';
 
 Object.entries(defs).forEach(([k,v])=>{const o=document.createElement('option');o.value=k;o.textContent=v.label;calcType.appendChild(o);});
 
-function labelFor(calc,id,value){
-  const f=defs[calc].fields.find(x=> (Array.isArray(x)?x[0]:x.id)===id);
-  if(!f || Array.isArray(f)) return value;
-  const m=(f.options||[]).find(o=>o[0]===value);
-  return m?m[1]:value;
+function toKg(w, unit){ return unit==='lb' ? w*KG_PER_LB : w; }
+
+function runWeightDose(v){
+  const kg = toKg(v.poids, v.unit);
+  const prises = Math.max(1, v.prises || 1);
+  const dosePer = v.doseMode === 'day' ? (kg*v.dose)/prises : kg*v.dose;
+  const total = dosePer*prises;
+  const rows = [
+    ['Poids (kg)', kg.toFixed(2)],
+    ['Dose/jour', `${total.toFixed(2)} mg`],
+    ['Dose/prise', `${dosePer.toFixed(2)} mg`]
+  ];
+  if(v.concMg && v.concMl){
+    const mgPerMl = v.concMg/Math.max(0.001,v.concMl);
+    rows.push(['Volume/prise', `${(dosePer/mgPerMl).toFixed(2)} mL`]);
+  }
+  return out(rows);
 }
 
-function fieldMeta(f){
-  if(Array.isArray(f)) return {id:f[0],label:f[1],type:f[2],value:f[3]};
-  return f;
-}
+function fieldMeta(f){ return f; }
 
 function renderForm(){
   calcForm.innerHTML='';
@@ -149,8 +168,7 @@ function renderForm(){
 
 function getVals(){
   const vals={};
-  defs[calcType.value].fields.forEach((f)=>{
-    const m=fieldMeta(f);
+  defs[calcType.value].fields.forEach((m)=>{
     const raw=document.getElementById(m.id).value;
     vals[m.id]=m.type==='number' ? Number(raw||0) : raw;
   });
@@ -160,9 +178,7 @@ function getVals(){
 function out(rows=[],notes=[],level='ok'){
   const body = rows.map(([k,v])=>`<div><b>${k}:</b> ${v}</div>`).join('');
   const nts = (notes||[]).map(n=>`<div class="n ${level}">${n}</div>`).join('');
-  const html = `<div class="cardR">${body}${nts}</div>`;
-  lastHtml = html;
-  return html;
+  return `<div class="cardR">${body}${nts}</div>`;
 }
 
 document.getElementById('btnCalc').onclick=(e)=>{
@@ -171,11 +187,5 @@ document.getElementById('btnCalc').onclick=(e)=>{
   catch{result.textContent='Paramètres invalides.';}
 };
 document.getElementById('btnReset').onclick=()=>{renderForm();result.textContent='';};
-document.getElementById('btnPrint').onclick=()=>{
-  if(!lastHtml){result.textContent='Calculez d’abord.';return;}
-  const w=window.open('','_blank');
-  w.document.write(`<html><head><title>Résumé calcul</title><style>body{font-family:Inter,Arial;padding:20px}.cardR{border:1px solid #d7deea;border-radius:8px;padding:10px}.n.warn{color:#b14a00;font-weight:700}</style></head><body>${lastHtml}<p style="font-size:12px;color:#666">Validation clinique finale requise.</p></body></html>`);
-  w.document.close(); w.print();
-};
 calcType.onchange=()=>{renderForm();result.textContent='';};
 renderForm();

@@ -18,3 +18,12 @@ button.secondary{background:#e7eefb;color:#143467}
 .n{margin-top:8px;padding:6px 8px;border-radius:6px}
 .n.warn{background:#fff1dd;color:#9a5500;font-weight:700}
 .n.ok{background:#e8f7ee;color:#1a7a46}
+h3{margin:0 0 10px;color:#1a315f}
+.ref-wrap{overflow:auto}
+.ref-table{width:100%;border-collapse:collapse;font-size:12px}
+.ref-table th,.ref-table td{border:1px solid #d8e1f1;padding:7px 8px;text-align:left;vertical-align:top}
+.ref-table th{background:#eef4ff}
+.cardR{display:grid;gap:6px}
+.n{margin-top:8px;padding:6px 8px;border-radius:6px}
+.n.warn{background:#fff1dd;color:#9a5500;font-weight:700}
+.n.ok{background:#e8f7ee;color:#1a7a46}
