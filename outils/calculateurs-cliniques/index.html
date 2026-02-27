@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="fr-CA">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calculateur clinique adaptatif</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <main class="wrap">
+    <header>
+      <h1>Calculateur clinique adaptatif</h1>
+      <p>Choisissez un médicament/groupe, puis calculez rapidement.</p>
+    </header>
+
+    <section class="card">
+      <label>Type de calculateur
+        <select id="calcType"></select>
+      </label>
+      <form id="calcForm" class="grid"></form>
+      <div class="actions">
+        <button id="btnCalc">Calculer</button>
+        <button id="btnReset" type="button" class="secondary">Réinitialiser</button>
+      </div>
+      <div id="result" class="result"></div>
+      <small class="note">Outil d’aide: validation clinique finale requise.</small>
+    </section>
+  </main>
+  <script src="./app.js"></script>
+</body>
+</html>
