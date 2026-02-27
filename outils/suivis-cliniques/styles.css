@@ -1,0 +1,16 @@
+:root { --bg:#f5f7fb; --card:#fff; --ink:#162033; --muted:#5f6b80; --ok:#177245; --warn:#a15c00; --bad:#a11212; --border:#d8deea; }
+*{box-sizing:border-box} body{margin:0;font-family:Inter,system-ui,Arial,sans-serif;background:var(--bg);color:var(--ink)}
+.topbar{padding:18px 22px;background:#13233d;color:#fff}.topbar h1{margin:0 0 4px}.subtitle{margin:0;opacity:.85}
+.container{padding:16px;display:grid;gap:14px}.panel{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px}
+.grid{display:grid;grid-template-columns:repeat(4,minmax(140px,1fr));gap:10px}.grid label{display:flex;flex-direction:column;font-size:12px;color:var(--muted);gap:4px}.full{grid-column:1/-1}
+input,select,textarea,button{font:inherit} input,select,textarea{padding:8px;border:1px solid var(--border);border-radius:8px;background:#fff}
+button{padding:8px 12px;border:none;border-radius:8px;background:#23406f;color:#fff;cursor:pointer}.secondary{background:#e7edf8;color:#17325a}
+.actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.fileLike{border:1px dashed var(--border);padding:7px 10px;border-radius:8px;cursor:pointer}.fileLike input{display:none}
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(130px,1fr));gap:10px}.kpi{border:1px solid var(--border);border-radius:8px;padding:10px}.kpi b{display:block;font-size:22px}.kpi small{color:var(--muted)}
+.filters{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:8px;margin-bottom:8px}
+.tableWrap{overflow:auto} table{width:100%;border-collapse:collapse;font-size:13px} th,td{padding:8px;border-bottom:1px solid var(--border);vertical-align:top}
+.badge{display:inline-block;padding:3px 8px;border-radius:12px;background:#eef3ff;font-size:12px}.badge.en-retard{background:#ffe5e5;color:var(--bad)}.badge.aujourdhui{background:#fff1d8;color:var(--warn)}.badge.complete{background:#e4f6eb;color:var(--ok)}
+.rowActions{display:flex;gap:6px;flex-wrap:wrap}.rowActions button{padding:5px 8px;font-size:12px}
+.alert{margin-top:10px;padding:10px;border-radius:8px;background:#fff6e8;border:1px solid #ffddb0}.hidden{display:none}
+@media (max-width:1000px){.grid{grid-template-columns:repeat(2,1fr)}.filters{grid-template-columns:1fr 1fr}.kpis{grid-template-columns:repeat(2,1fr)}}
+@media print {.topbar,.panel:nth-child(-n+3) .actions,.filters{display:none!important}.panel{border:none;padding:0} body{background:#fff}}

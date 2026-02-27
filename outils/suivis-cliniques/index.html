@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang='fr-CA'>
+<head>
+  <meta charset='UTF-8' />
+  <meta name='viewport' content='width=device-width, initial-scale=1.0' />
+  <title>Reclamacie — Suivis cliniques</title>
+  <link rel='stylesheet' href='./styles.css' />
+</head>
+<body>
+  <header class='topbar'>
+    <h1>Registre de suivis cliniques</h1>
+    <p class='subtitle'>Standalone · Québec · PL31/PL41/PL67-ready · sauvegarde locale</p>
+  </header>
+
+  <main class='container'>
+    <section class='panel'>
+      <h2>Nouveau suivi</h2>
+      <form id='entryForm' class='grid'>
+        <label>Date<input type='date' name='date' required /></label>
+        <label>Rx #<input type='text' name='rxNumber' required /></label>
+        <label>Rx Ref #<input type='text' name='rxRef' /></label>
+        <label>Acte
+          <select name='acte' required>
+            <option value=''>Choisir…</option>
+            <option>Renouvellement</option>
+            <option>Ajustement</option>
+            <option>Condition mineure</option>
+            <option>Suivi de thérapie</option>
+            <option>Autre</option>
+          </select>
+        </label>
+        <label>Intervalle (jours)<input type='number' min='1' name='intervalDays' value='7' required /></label>
+        <label>Nb de suivis planifiés<input type='number' min='1' max='12' name='plannedCount' value='2' required /></label>
+        <label>Statut initial
+          <select name='status'>
+            <option>À faire</option>
+            <option>En cours</option>
+            <option>Complété</option>
+            <option>Reporté</option>
+          </select>
+        </label>
+        <label>Initiales<input type='text' name='initials' maxlength='6' /></label>
+        <label class='full'>Note<textarea name='notes' rows='2'></textarea></label>
+        <div class='full actions'>
+          <button type='submit'>Ajouter le suivi</button>
+          <button type='button' id='btnSample' class='secondary'>Ajouter exemple</button>
+        </div>
+      </form>
+    </section>
+
+    <section class='panel'>
+      <h2>Priorités</h2>
+      <div class='kpis' id='kpis'></div>
+      <div id='alertBox' class='alert hidden'></div>
+    </section>
+
+    <section class='panel'>
+      <h2>Filtres & outils</h2>
+      <div class='filters'>
+        <input id='search' placeholder='Recherche Rx / note / acte' />
+        <select id='statusFilter'>
+          <option value=''>Tous statuts</option>
+          <option>À faire</option>
+          <option>En cours</option>
+          <option>Complété</option>
+          <option>Reporté</option>
+        </select>
+        <select id='dueFilter'>
+          <option value=''>Toutes échéances</option>
+          <option value='overdue'>En retard</option>
+          <option value='today'>Aujourd\'hui</option>
+          <option value='7days'>7 prochains jours</option>
+        </select>
+        <input id='initialsFilter' placeholder='Initiales' />
+      </div>
+      <div class='actions'>
+        <button id='btnExportJson'>Export JSON</button>
+        <button id='btnExportCsv' class='secondary'>Export CSV</button>
+        <label class='fileLike'>Import (JSON/CSV)
+          <input type='file' id='importFile' accept='.json,.csv,text/csv,application/json' />
+        </label>
+        <button id='btnPrint' class='secondary'>Imprimer la vue</button>
+      </div>
+      <small>Conseil: faites un export JSON quotidien pour backup complet et CSV pour analyse.</small>
+    </section>
+
+    <section class='panel'>
+      <h2>Suivis</h2>
+      <div class='tableWrap'>
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th><th>Rx</th><th>Ref</th><th>Acte</th><th>Prochain suivi</th><th>Progression</th><th>Statut</th><th>Initiales</th><th>Note</th><th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id='rows'></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <template id='rowTemplate'>
+    <tr>
+      <td data-k='date'></td>
+      <td data-k='rx'></td>
+      <td data-k='ref'></td>
+      <td data-k='acte'></td>
+      <td data-k='due'></td>
+      <td data-k='progress'></td>
+      <td><span data-k='status' class='badge'></span></td>
+      <td data-k='initials'></td>
+      <td data-k='notes'></td>
+      <td class='rowActions'></td>
+    </tr>
+  </template>
+
+  <script src='./app.js'></script>
+</body>
+</html>
