@@ -21,6 +21,9 @@ button{padding:8px 12px;border:none;border-radius:8px;background:#23406f;color:#
   table th:last-child,
   table td:last-child { display:none!important; }
   .container, .panel, .tableWrap { padding:0!important; margin:0!important; border:none!important; box-shadow:none!important; }
+  table{table-layout:auto!important;width:100%!important}
+  .suivis-cols .c-actions{width:0!important}
+  .suivis-cols .c-notes{width:38%!important}
   body { background:#fff; }
 }
 
