@@ -129,7 +129,7 @@ const defs = {
       const cls=classifyWarfarin(i,t23), cibleTxt=t23?'2-3':'2,5-3,5';
       const freq=extractFollowup(suggestion);
       const nextDate=addFromToday(freq.n,freq.unit);
-      lastCopyText = `${todayYmd()}: INR = ${num1(i)} (${cls}). Cible: ${cibleTxt}. Dose: ${doseTxt || 'continuer idem'}. Prochain INR dans ${freq.label} le ${nextDate}.`;
+      lastCopyText = `${todayYmd()}: INR = ${num1(i)} (${cls}). Cible: ${cibleTxt}. Dose: ${doseTxt || 'continuer idem'}. Facteur de variation: ${v.variation}. Prochain INR dans ${freq.label} le ${nextDate}.`;
       updateCopyPreview(lastCopyText);
 
       return out(rows,[suggestion],'warn');
