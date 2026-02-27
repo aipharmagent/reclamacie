@@ -123,7 +123,6 @@
     .span-8{ grid-column: span 8; }
     .span-6{ grid-column: span 6; }
     .span-4{ grid-column: span 4; }
-    .span-3{ grid-column: span 3; }
 
     .print-field{
       border-bottom:1px solid #94a3b8;
@@ -140,7 +139,7 @@
       background:#fff;
       font-size:12px;
     }
-    .print-note{ border:1px solid #cbd5e1; padding:6px; border-radius:6px; min-height:28px; }
+    .print-note{ border:1px solid #cbd5e1; padding:8px; border-radius:6px; min-height:40px; }
     .print-sign-line{ border-bottom:1px solid #0f172a; height:18px; }
 
     @media (max-width:768px){
@@ -152,7 +151,7 @@
 
     @media print{
       body{ background:#fff; padding:0; }
-      .hero, .actions, #formView{ display:none !important; }
+      .hero, .actions, #formView, .card-header{ display:none !important; }
       .card{ box-shadow:none; border-radius:0; }
       #printView{ display:block; }
       .print-page{ border:none; padding:8mm; }
@@ -173,11 +172,16 @@
         <div id="formView">
           <div class="row" style="margin-top:0;">
             <div class="field">
-              <label>Pharmacie requérante (nom + adresse)</label>
-              <textarea id="pharmacieRequerante" aria-label="Pharmacie requérante"></textarea>
+              <label>Pharmacie requérante – Nom</label>
+              <input type="text" id="pharmacieNom" />
             </div>
           </div>
-
+          <div class="row">
+            <div class="field">
+              <label>Adresse</label>
+              <input type="text" id="pharmacieAdresse" />
+            </div>
+          </div>
           <div class="row">
             <div class="field small">
               <label>Téléphone</label>
@@ -229,36 +233,30 @@
 
           <div class="section-title">À transférer</div>
           <div class="checks">
-            <div class="checkline">
-              <input type="checkbox" id="dossierCompletUneFois" />
-              <label for="dossierCompletUneFois" class="inline">
-                <span>Dossier complet pour</span>
-                <input type="text" id="dossierCompletJours" inputmode="numeric" placeholder="___" />
-                <span>jours</span>
-              </label>
-              <label class="inline" style="margin-left:auto;">
-                <input type="checkbox" id="dossierCompletDefinitivement" />
-                <span>Définitivement</span>
-              </label>
-            </div>
-
-            <div class="checkline">
-              <input type="checkbox" id="seulementMeds" />
-              <label for="seulementMeds" class="inline">
-                <span>Seulement les médicaments suivants pour</span>
-                <input type="text" id="seulementMedsJours" inputmode="numeric" placeholder="___" />
-                <span>jours</span>
-              </label>
-              <label class="inline" style="margin-left:auto;">
-                <input type="checkbox" id="seulementMedsDefinitivement" />
-                <span>Définitivement</span>
-              </label>
-            </div>
-
+            <label class="inline">
+              <input type="radio" name="transferType" value="partiel" id="transferPartiel" />
+              <span>Transfert partiel pour</span>
+              <input type="text" id="transferPartielJours" inputmode="numeric" placeholder="___" />
+              <span>jours</span>
+            </label>
             <div class="box">
-              <label style="margin-bottom:4px;">Médicaments / détails</label>
-              <textarea id="medsDetails" placeholder="Liste des médicaments ou informations pertinentes..."></textarea>
+              <label style="margin-bottom:4px;">Médicaments (partiel)</label>
+              <textarea id="transferPartielMeds" placeholder="Médicaments concernés pour le transfert partiel..."></textarea>
             </div>
+
+            <label class="inline">
+              <input type="radio" name="transferType" value="complet" id="transferComplet" />
+              <span>Transfert complet pour certains médicaments</span>
+            </label>
+            <div class="box">
+              <label style="margin-bottom:4px;">Médicaments (complet)</label>
+              <textarea id="transferCompletMeds" placeholder="Médicaments à transférer complètement..."></textarea>
+            </div>
+
+            <label class="inline">
+              <input type="radio" name="transferType" value="definitif" id="transferDefinitif" />
+              <span>Transfert de dossier définitif (complet)</span>
+            </label>
           </div>
 
           <div class="section-title">Information complémentaire</div>
@@ -280,7 +278,7 @@
           </div>
 
           <div class="section-title">Particularité pour assurer la continuité des soins</div>
-          <div class="box" style="min-height:40px;"></div>
+          <div class="box" style="min-height:50px;"></div>
 
           <div class="row">
             <div class="field">
@@ -322,18 +320,19 @@
 
             <div class="print-block">
               <div class="print-label">Pharmacie requérante</div>
-              <div class="print-box" id="pvPharmacie"></div>
-              <div class="print-box" id="pvTelFax" style="margin-top:4px;"></div>
+              <div class="print-field" id="pvPharmacieNom"></div>
+              <div class="print-field" id="pvPharmacieAdresse"></div>
+              <div class="print-field" id="pvTelFax" style="margin-top:2px;"></div>
             </div>
 
             <div class="print-block">
-              <div class="print-label">Patient</div>
+              <div class="print-label">Date</div>
+              <div class="print-field span-4" id="pvDate"></div>
+              <div class="print-label" style="margin-top:4px;">Patient</div>
               <div class="print-grid">
                 <div class="print-field span-8" id="pvPatient"></div>
                 <div class="print-field span-4" id="pvDdn"></div>
               </div>
-              <div class="print-label" style="margin-top:4px;">Date</div>
-              <div class="print-field span-4" id="pvDate"></div>
             </div>
 
             <div class="print-block">
@@ -347,7 +346,7 @@
               <div class="print-label">À transférer</div>
               <div class="print-field" id="pvTransfer"></div>
               <div class="print-label" style="margin-top:4px;">Médicaments / détails</div>
-              <div class="print-note" id="pvMeds"></div>
+              <div class="print-note" id="pvTransferDetails"></div>
             </div>
 
             <div class="print-block">
@@ -359,7 +358,7 @@
 
             <div class="print-block">
               <div class="print-label">Particularité pour assurer la continuité des soins</div>
-              <div class="print-note" style="min-height:28px;"></div>
+              <div class="print-note" style="min-height:40px;"></div>
             </div>
 
             <div class="print-block">
@@ -382,10 +381,6 @@
   </div>
 
   <script>
-    const DEFAULT_PHARM_TEXT =
-`Pharmacie Luu Thi Thanh Thao
-2500, Jean-Talon Est, Montréal, QC H2A 1T7`;
-
     const $ = (id) => document.getElementById(id);
 
     function setTodayIfEmpty(){
@@ -420,44 +415,52 @@
       licence.readOnly = false;
     }
 
+    function formatPhone(value){
+      const digits = value.replace(/\D/g, "").slice(0,10);
+      const parts = [];
+      if (digits.length >= 3) parts.push(digits.slice(0,3));
+      if (digits.length >= 6) parts.push(digits.slice(3,6));
+      if (digits.length > 6) parts.push(digits.slice(6,10));
+      return parts.join("-");
+    }
+
+    function bindPhone(id){
+      const el = $(id);
+      el.addEventListener("input", () => {
+        el.value = formatPhone(el.value);
+      });
+    }
+
     function hardReset(){
       document.querySelectorAll("input, textarea, select").forEach(el => {
         if(el.tagName === "SELECT") return;
-        if(el.type === "checkbox") el.checked = false;
+        if(el.type === "checkbox" || el.type === "radio") el.checked = false;
         else el.value = "";
       });
-
-      $("pharmacienSelect").value = "Danny Ho|213605";
-      $("pharmacieRequerante").value = DEFAULT_PHARM_TEXT;
-      $("telRequerant").value = "514-727-8967";
-      $("faxRequerant").value = "514-727-8965";
       setTodayIfEmpty();
       applyPharmacienSelection();
     }
 
-    function selectedTransferOption(){
-      if($("dossierCompletDefinitivement").checked) return "Dossier complet définitivement";
-      if($("dossierCompletUneFois").checked){
-        const j = $("dossierCompletJours").value || "___";
-        return `Dossier complet pour ${j} jours`;
+    function selectedTransfer(){
+      if($("transferDefinitif").checked) return { label: "Transfert de dossier définitif (complet)", details: "" };
+      if($("transferComplet").checked) return { label: "Transfert complet pour certains médicaments", details: $("transferCompletMeds").value.trim() };
+      if($("transferPartiel").checked){
+        const j = $("transferPartielJours").value || "___";
+        return { label: `Transfert partiel pour ${j} jours`, details: $("transferPartielMeds").value.trim() };
       }
-      if($("seulementMedsDefinitivement").checked) return "Seulement médicaments définitivement";
-      if($("seulementMeds").checked){
-        const j = $("seulementMedsJours").value || "___";
-        return `Seulement médicaments pour ${j} jours`;
-      }
-      return "";
+      return { label: "", details: "" };
     }
 
     function buildPrintView(){
-      $("pvPharmacie").textContent = $("pharmacieRequerante").value.trim();
+      $("pvPharmacieNom").textContent = $("pharmacieNom").value.trim();
+      $("pvPharmacieAdresse").textContent = $("pharmacieAdresse").value.trim();
       const tel = $("telRequerant").value.trim();
       const fax = $("faxRequerant").value.trim();
       $("pvTelFax").textContent = [tel && `Tél.: ${tel}`, fax && `Fax: ${fax}`].filter(Boolean).join(" | ");
 
-      $("pvPatient").textContent = $("patient").value.trim();
-      $("pvDdn").textContent = $("ddn").value.trim();
       $("pvDate").textContent = $("dateForm").value.trim();
+      $("pvPatient").textContent = $("patient").value.trim();
+      $("pvDdn").textContent = $("ddn").value.trim() ? `DDN: ${$("ddn").value.trim()}` : "";
 
       const ctel = $("pharmacieContactTel").value.trim();
       const cfax = $("pharmacieContactFax").value.trim();
@@ -467,8 +470,10 @@
       const atp = $("initialesAtp").value.trim();
       $("pvConsent").textContent = consent + (atp ? ` | Initiales ATP: ${atp}` : "");
 
-      $("pvTransfer").textContent = selectedTransferOption();
-      $("pvMeds").textContent = $("medsDetails").value.trim();
+      const t = selectedTransfer();
+      $("pvTransfer").textContent = t.label;
+      $("pvTransferDetails").textContent = t.details;
+
       $("pvAssurances").textContent = $("infoAssurances").checked ? "Assurances: Oui" : "Assurances: Non";
       $("pvNotes").textContent = $("infoNotes").value.trim();
 
@@ -476,11 +481,14 @@
       $("pvLicence").textContent = $("licence").value.trim() ? `Licence : ${$("licence").value.trim()}` : "";
     }
 
-    $("pharmacieRequerante").value = DEFAULT_PHARM_TEXT;
-    $("telRequerant").value = "514-727-8967";
-    $("faxRequerant").value = "514-727-8965";
+    // init defaults
     setTodayIfEmpty();
     applyPharmacienSelection();
+
+    bindPhone("telRequerant");
+    bindPhone("faxRequerant");
+    bindPhone("pharmacieContactTel");
+    bindPhone("pharmacieContactFax");
 
     $("pharmacienSelect").addEventListener("change", applyPharmacienSelection);
     $("btnPrint").addEventListener("click", () => { buildPrintView(); window.print(); });
