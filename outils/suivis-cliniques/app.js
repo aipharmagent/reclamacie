@@ -121,7 +121,7 @@ function renderRows(){
     const tr = tpl.content.firstElementChild.cloneNode(true);
     tr.querySelector('[data-k="date"]').textContent = item.date;
     tr.querySelector('[data-k="rx"]').textContent = item.rxNumber;
-    tr.querySelector('[data-k="ref"]').textContent = item.rxRef || '-';
+    tr.querySelector('[data-k="ref"]').textContent = item.rxRef || '';
     tr.querySelector('[data-k="acte"]').textContent = item.acte;
     const due = nextDue(item);
     const dueCell = tr.querySelector('[data-k="due"]');
@@ -133,9 +133,9 @@ function renderRows(){
     const statusEl = tr.querySelector('[data-k="status"]');
     statusEl.textContent = item.status;
     statusEl.className = `badge ${statusClass(item.status)}`;
-    tr.querySelector('[data-k="initials"]').textContent = item.initials || '-';
+    tr.querySelector('[data-k="initials"]').textContent = item.initials || '';
     const notesEl = tr.querySelector('[data-k="notes"]');
-    notesEl.textContent = item.notes || '-';
+    notesEl.textContent = item.notes || '';
     notesEl.contentEditable = 'true';
     notesEl.title = 'Cliquer pour modifier';
     notesEl.addEventListener('blur', () => updateNotes(item.id, notesEl.textContent));
@@ -170,7 +170,7 @@ function cycleStatus(id){
 function remove(id){ if(!confirm('Supprimer ce suivi?')) return; data = data.filter(x=>x.id!==id); persistAndRender(); }
 function updateNotes(id, value){
   const item=data.find(x=>x.id===id); if(!item) return;
-  item.notes = String(value||'').trim()==='-' ? '' : String(value||'').trim();
+  item.notes = String(value||'').trim();
   save();
 }
 function persistAndRender(){ save(); renderKPIs(); renderRows(); }
