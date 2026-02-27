@@ -1,7 +1,8 @@
 const KG_PER_LB = 0.45359237;
 const round1 = n => Math.round(n*10)/10;
 const toKg = (w,u) => u==='lb' ? w*KG_PER_LB : w;
-const mgPerMl = (conc, mode) => mode==='mg5ml' ? conc/5 : conc;
+
+let lastCopyText = '';
 
 const defs = {
   pedi: {
@@ -11,17 +12,17 @@ const defs = {
       {id:'unit',label:'Unité poids',type:'select',value:'kg',options:[['kg','kg'],['lb','lbs']]},
       {id:'dose',label:'Dose (mg/kg/dose)',type:'number',value:''},
       {id:'concMode',label:'Concentration',type:'select',value:'mg5ml',options:[['mgml','mg/mL'],['mg5ml','mg/5mL']]},
-      {id:'conc',label:'Concentration (valeur mg)',type:'number',value:''}
+      {id:'conc',label:'Valeur concentration (mg)',type:'number',value:''}
     ],
     run:v=>{
       const kg=toKg(v.poids,v.unit);
-      const dosePer=kg*v.dose;
-      const doseDay=dosePer*4; // q6h standard
-      const mlDose=dosePer/Math.max(0.0001,mgPerMl(v.conc,v.concMode));
+      const doseMg = kg * v.dose;
+      const doseDay = doseMg * 4; // q6h standard
+      const mgPerMl = v.concMode==='mg5ml' ? v.conc/5 : v.conc;
+      const mlDose = doseMg / Math.max(0.0001, mgPerMl);
       return out([
-        ['Dose par jour', `${Math.round(doseDay)} mg`],
-        ['Dose par prise', `${Math.round(dosePer)} mg`],
-        ['Volume par prise', `${round1(mlDose).toFixed(1)} mL`]
+        ['Dose quotidienne', `${Math.round(doseDay)} mg`],
+        ['Dose par prise', `${round1(mlDose).toFixed(1)} mL (${Math.round(doseMg)} mg)`]
       ]);
     }
   },
@@ -38,7 +39,7 @@ const defs = {
       const dose=kg*v.mgBaseKg;
       const compDose=Math.round((dose/125)*4)/4;
       const compTotal=Math.round((dose*2/125)*4)/4;
-      const mlDose=dose/50; // 250mg/5mL => 50mg/mL
+      const mlDose=dose/50; // 250mg/5mL
       const mlTotal=mlDose*2;
       return out([
         ['Posologie comprimé', `${compDose.toFixed(2)} comprimé(s) de 125 mg`],
@@ -80,58 +81,68 @@ const defs = {
       {id:'target',label:'Cible INR',type:'select',value:'23',options:[['23','2.0–3.0'],['2535','2.5–3.5']]},
       {id:'inr',label:'INR actuel',type:'number',value:''},
       {id:'weekly',label:'Dose hebdo actuelle (mg)',type:'number',value:''},
-      {id:'variation',label:'Facteur de variation identifié ?',type:'select',value:'non',options:[['oui','Oui'],['non','Non']]}
+      {id:'variation',label:'Facteur de variation identifié ?',type:'select',value:'non',options:[['oui','Oui'],['non','Non']]},
+      {id:'nextInr',label:'Prochain INR (YYYY-MM-DD)',type:'text',value:''}
     ],
     run:v=>{
       const i=v.inr, t23=v.target==='23', varId=v.variation==='oui', wk=v.weekly;
-      let suggestion='', pct='';
+      let suggestion='', pct='', doseTxt='idem';
       if(varId){
         if(t23){
-          if(i<=1.5)suggestion='Dose de charge × 3 jours puis INR dans 1 semaine\nAviser MD\nConsidérer HFPM — INR dans 3 jours';
-          else if(i<=1.79)suggestion='Dose de charge × 2 jours puis INR dans 1–2 semaines\nAviser MD\nConsidérer HFPM — INR dans 3 jours';
+          if(i<=1.5)suggestion='Dose de charge × 3 jours puis INR dans 1 semaine; Aviser MD; Considérer HFPM — INR dans 3 jours';
+          else if(i<=1.79)suggestion='Dose de charge × 2 jours puis INR dans 1–2 semaines; Aviser MD; Considérer HFPM — INR dans 3 jours';
           else if(i<=1.99)suggestion='Dose de charge × 1 jour puis INR dans 4 semaines';
-          else if(i<=3.09)suggestion='INR thérapeutique — continuer même dose\nINR dans 4 semaines';
-          else if(i<=3.39)suggestion='INR supra-thérapeutique — continuer même dose\nINR dans 2–4 semaines';
-          else if(i<=3.79)suggestion='Omettre une dose ou continuer à monitorer\nINR dans 1–2 semaines';
-          else if(i<=4.59)suggestion='Omettre une dose\nINR dans 1 semaine';
-          else suggestion='Omettre 2 doses\nINR dans 1 semaine';
+          else if(i<=3.09)suggestion='INR thérapeutique — continuer même dose; INR dans 4 semaines';
+          else if(i<=3.39)suggestion='INR supra-thérapeutique — continuer même dose; INR dans 2–4 semaines';
+          else if(i<=3.79)suggestion='Omettre une dose ou continuer à monitorer; INR dans 1–2 semaines';
+          else if(i<=4.59)suggestion='Omettre une dose; INR dans 1 semaine';
+          else suggestion='Omettre 2 doses; INR dans 1 semaine';
         } else {
-          if(i<=1.5)suggestion='Dose de charge × 3 jours puis INR dans 1 semaine\nAviser MD\nConsidérer HFPM — INR dans 3 jours';
-          else if(i<=1.99)suggestion='Dose de charge × 2 jours puis INR dans 1 semaine\nAviser MD\nConsidérer HFPM — INR dans 3 jours';
-          else if(i<=2.29)suggestion='Dose de charge × 1 jour\nINR dans 1–2 semaines';
-          else if(i<=2.49)suggestion='Dose de charge × 1 jour\nINR dans 2–4 semaines';
-          else if(i<=3.59)suggestion='INR thérapeutique — continuer même dose\nINR dans 4 semaines';
-          else if(i<=3.99)suggestion='INR supra-thérapeutique — continuer même dose\nINR dans 2–4 semaines';
-          else if(i<=4.49)suggestion='Omettre une dose ou continuer à monitorer\nINR dans 1 semaine';
-          else if(i<=5.39)suggestion='Omettre une dose\nINR dans 1 semaine\nAviser MD';
-          else suggestion='Omettre 2 doses\nDiriger vers MD — INR dans 2 jours';
+          if(i<=1.5)suggestion='Dose de charge × 3 jours puis INR dans 1 semaine; Aviser MD; Considérer HFPM — INR dans 3 jours';
+          else if(i<=1.99)suggestion='Dose de charge × 2 jours puis INR dans 1 semaine; Aviser MD; Considérer HFPM — INR dans 3 jours';
+          else if(i<=2.29)suggestion='Dose de charge × 1 jour; INR dans 1–2 semaines';
+          else if(i<=2.49)suggestion='Dose de charge × 1 jour; INR dans 2–4 semaines';
+          else if(i<=3.59)suggestion='INR thérapeutique — continuer même dose; INR dans 4 semaines';
+          else if(i<=3.99)suggestion='INR supra-thérapeutique — continuer même dose; INR dans 2–4 semaines';
+          else if(i<=4.49)suggestion='Omettre une dose ou continuer à monitorer; INR dans 1 semaine';
+          else if(i<=5.39)suggestion='Omettre une dose; INR dans 1 semaine; Aviser MD';
+          else suggestion='Omettre 2 doses; Diriger vers MD — INR dans 2 jours';
         }
       } else {
         if(t23){
-          if(i<=1.5){suggestion='Dose de charge × 2–3 jours puis INR dans 1 semaine\nAviser MD — Considérer HFPM (INR dans 3–4 jours)\nAugmenter dose de 15–20%'; pct='15–20%';}
-          else if(i<=1.79){suggestion='Dose de charge × 2 jours puis INR dans 1–2 semaines\nAviser MD — Considérer HFPM\nAugmenter dose de 10–12,5%'; pct='10–12,5%';}
-          else if(i<=1.99){suggestion='Dose de charge × 1 jour puis INR dans 2–4 semaines\nAugmenter dose de 5–7,5%'; pct='5–7,5%';}
-          else if(i<=3.09){suggestion='INR thérapeutique — continuer même dose\nINR dans 4 semaines';}
-          else if(i<=3.39){suggestion='INR supra-thérapeutique — continuer même dose\nINR dans 2–4 semaines';}
-          else if(i<=3.79){suggestion='INR supra-thérapeutique\nDiminuer dose de 5%'; pct='-5%';}
-          else if(i<=4.59){suggestion='Omettre 1 dose et INR dans 1 semaine\nDiminuer dose de 5–7,5%'; pct='-5 à -7,5%';}
-          else {suggestion='Omettre 2 doses et INR dans 2 jours\nDiminuer dose de 10–15%'; pct='-10 à -15%';}
+          if(i<=1.5){suggestion='Dose de charge × 2–3 jours puis INR dans 1 semaine; Aviser MD — Considérer HFPM (INR dans 3–4 jours); Augmenter dose de 15–20%'; pct='15–20%';}
+          else if(i<=1.79){suggestion='Dose de charge × 2 jours puis INR dans 1–2 semaines; Aviser MD — Considérer HFPM; Augmenter dose de 10–12,5%'; pct='10–12,5%';}
+          else if(i<=1.99){suggestion='Dose de charge × 1 jour puis INR dans 2–4 semaines; Augmenter dose de 5–7,5%'; pct='5–7,5%';}
+          else if(i<=3.09){suggestion='INR thérapeutique — continuer même dose; INR dans 4 semaines';}
+          else if(i<=3.39){suggestion='INR supra-thérapeutique — continuer même dose; INR dans 2–4 semaines';}
+          else if(i<=3.79){suggestion='INR supra-thérapeutique; Diminuer dose de 5%'; pct='-5%';}
+          else if(i<=4.59){suggestion='Omettre 1 dose et INR dans 1 semaine; Diminuer dose de 5–7,5%'; pct='-5 à -7,5%';}
+          else {suggestion='Omettre 2 doses et INR dans 2 jours; Diminuer dose de 10–15%'; pct='-10 à -15%';}
         } else {
-          if(i<=1.5){suggestion='Dose de charge × 3 jours puis INR dans 1 semaine\nAviser MD — HFPM (INR dans 3–4 jours)\nAugmenter dose de 15–20%'; pct='15–20%';}
-          else if(i<=1.89){suggestion='Dose de charge × 2 jours puis INR dans 1 semaine\nAviser MD — HFPM\nAugmenter dose de 10–12,5%'; pct='10–12,5%';}
-          else if(i<=2.29){suggestion='Dose de charge × 1 jour puis INR dans 2 semaines\nAugmenter dose de 7,5–10%'; pct='7,5–10%';}
-          else if(i<=2.49){suggestion='INR sub-thérapeutique\nINR dans 2–4 semaines\nAugmenter dose de 3–5%'; pct='3–5%';}
-          else if(i<=3.59){suggestion='INR thérapeutique — continuer même dose\nINR dans 4 semaines';}
-          else if(i<=3.99){suggestion='INR supra-thérapeutique — continuer même dose\nINR dans 2–4 semaines';}
-          else if(i<=4.49){suggestion='Omettre 1 dose et INR dans 1 semaine\nDiminuer dose de 2,5–5%'; pct='-2,5 à -5%';}
-          else if(i<=5.39){suggestion='Omettre 1 dose et INR dans 1 semaine\nAviser MD\nDiminuer dose de 5–7,5%'; pct='-5 à -7,5%';}
-          else {suggestion='Omettre 2 doses et INR dans 2 jours\nDiriger vers MD\nDiminuer dose de 10–15%'; pct='-10 à -15%';}
+          if(i<=1.5){suggestion='Dose de charge × 3 jours puis INR dans 1 semaine; Aviser MD — HFPM (INR dans 3–4 jours); Augmenter dose de 15–20%'; pct='15–20%';}
+          else if(i<=1.89){suggestion='Dose de charge × 2 jours puis INR dans 1 semaine; Aviser MD — HFPM; Augmenter dose de 10–12,5%'; pct='10–12,5%';}
+          else if(i<=2.29){suggestion='Dose de charge × 1 jour puis INR dans 2 semaines; Augmenter dose de 7,5–10%'; pct='7,5–10%';}
+          else if(i<=2.49){suggestion='INR sub-thérapeutique; INR dans 2–4 semaines; Augmenter dose de 3–5%'; pct='3–5%';}
+          else if(i<=3.59){suggestion='INR thérapeutique — continuer même dose; INR dans 4 semaines';}
+          else if(i<=3.99){suggestion='INR supra-thérapeutique — continuer même dose; INR dans 2–4 semaines';}
+          else if(i<=4.49){suggestion='Omettre 1 dose et INR dans 1 semaine; Diminuer dose de 2,5–5%'; pct='-2,5 à -5%';}
+          else if(i<=5.39){suggestion='Omettre 1 dose et INR dans 1 semaine; Aviser MD; Diminuer dose de 5–7,5%'; pct='-5 à -7,5%';}
+          else {suggestion='Omettre 2 doses et INR dans 2 jours; Diriger vers MD; Diminuer dose de 10–15%'; pct='-10 à -15%';}
         }
       }
+
       const rows=[];
       if(pct) rows.push(['Ajustement dose', pct]);
-      if(wk && pct){ rows.push(['Dose hebdo cible (approx.)', applyPctRange(wk,pct)]); }
-      return out(rows, suggestion.split('\n'), 'warn');
+      if(wk && pct){ doseTxt = applyPctRange(wk,pct); rows.push(['Dose hebdo cible (approx.)', doseTxt]); }
+
+      const cls = classifyWarfarin(i,t23);
+      const cibleTxt = t23 ? '2-3' : '2,5-3,5';
+      const date = todayYmd();
+      const nextInr = v.nextInr || 'YYYY-MM-DD';
+      const oneLine = suggestion.replace(/\s*;\s*/g, ' ').replace(/\s+/g,' ').trim();
+      lastCopyText = `${date}: INR = ${num1(i)} (${cls}). Cible: (${cibleTxt}). ${oneLine}. Dose: ${doseTxt || 'idem'}. Prochain INR le ${nextInr}.`;
+
+      return out(rows, suggestion.split(';').map(s=>s.trim()).filter(Boolean), 'warn');
     }
   },
 
@@ -144,16 +155,17 @@ const defs = {
       {id:'doseMode',label:'Type dose',type:'select',value:'day',options:[['day','mg/kg/jr'],['dose','mg/kg/dose']]},
       {id:'prises',label:'Prises / jour',type:'number',value:'2'},
       {id:'duree',label:'Durée traitement (jours)',type:'number',value:'7'},
-      {id:'concMode',label:'Concentration',type:'select',value:'mgml',options:[['mgml','mg/mL'],['mg5ml','mg/5mL']]},
-      {id:'conc',label:'Concentration (valeur mg)',type:'number',value:''}
+      {id:'concMg',label:'Concentration',type:'number',value:''},
+      {id:'concMl',label:'Unité concentration (mL)',type:'number',value:''}
     ],
     run:v=>{
       const kg=toKg(v.poids,v.unit), prises=Math.max(1,v.prises||1);
       const dosePer=v.doseMode==='day' ? (kg*v.dose)/prises : kg*v.dose;
       const day=dosePer*prises;
       const rows=[['Dose par jour',`${Math.round(day)} mg`],['Dose par prise',`${Math.round(dosePer)} mg`]];
-      if(v.conc){
-        const mlDose=dosePer/Math.max(0.0001,mgPerMl(v.conc,v.concMode));
+      if(v.concMg && v.concMl){
+        const mgml=v.concMg/Math.max(0.0001,v.concMl);
+        const mlDose=dosePer/mgml;
         const totalMl=mlDose*prises*Math.max(1,v.duree||1);
         rows.push(['Volume par prise',`${round1(mlDose).toFixed(1)} mL`]);
         rows.push(['Total mL traitement',`${round1(totalMl).toFixed(1)} mL`]);
@@ -167,12 +179,21 @@ const calcType=document.getElementById('calcType');
 const calcForm=document.getElementById('calcForm');
 const result=document.getElementById('result');
 const refCard=document.getElementById('refCard');
+const btnCopy=document.getElementById('btnCopy');
 
 Object.entries(defs).forEach(([k,v])=>{const o=document.createElement('option');o.value=k;o.textContent=v.label;calcType.appendChild(o);});
 
+function num1(n){ return Number(n).toFixed(1).replace('.',','); }
+function todayYmd(){ return new Date().toISOString().slice(0,10); }
+
+function classifyWarfarin(inr,t23){
+  if(t23){ if(inr<2) return 'sous-thérapeutique'; if(inr<=3) return 'thérapeutique'; return 'surthérapeutique'; }
+  if(inr<2.5) return 'sous-thérapeutique'; if(inr<=3.5) return 'thérapeutique'; return 'surthérapeutique';
+}
+
 function applyPctRange(wk,p){
   const m=p.match(/-?\d+[\.,]?\d*/g);
-  if(!m||!m.length) return '—';
+  if(!m||!m.length) return 'idem';
   const nums=m.map(x=>parseFloat(x.replace(',','.'))/100);
   if(nums.length===1){const r=wk*(1+nums[0]);return `${r.toFixed(2)} mg/sem`;}
   const a=wk*(1+nums[0]), b=wk*(1+nums[1]);
@@ -199,8 +220,8 @@ function renderForm(){
     wrap.appendChild(inp);
     calcForm.appendChild(wrap);
   });
-  calcForm.classList.toggle('pedi', calcType.value==='pedi');
   if(refCard) refCard.style.display = calcType.value==='pedi' ? 'block' : 'none';
+  if(btnCopy) btnCopy.style.display = calcType.value==='warfarin' ? 'inline-block' : 'none';
 }
 
 function getVals(){
@@ -223,6 +244,12 @@ document.getElementById('btnCalc').onclick=(e)=>{
   try{result.innerHTML=defs[calcType.value].run(getVals());}
   catch{result.textContent='Paramètres invalides.';}
 };
-document.getElementById('btnReset').onclick=()=>{renderForm();result.textContent='';};
-calcType.onchange=()=>{renderForm();result.textContent='';};
+document.getElementById('btnReset').onclick=()=>{renderForm();result.textContent='';lastCopyText='';};
+if(btnCopy){
+  btnCopy.onclick=async()=>{
+    if(!lastCopyText){result.textContent='Calculez d’abord.';return;}
+    try{ await navigator.clipboard.writeText(lastCopyText); btnCopy.textContent='Copié ✓'; setTimeout(()=>btnCopy.textContent='Copier',1200);}catch{ result.textContent='Copie impossible.'; }
+  };
+}
+calcType.onchange=()=>{renderForm();result.textContent='';lastCopyText='';};
 renderForm();
