@@ -13,4 +13,13 @@ button{padding:8px 12px;border:none;border-radius:8px;background:#23406f;color:#
 .rowActions{display:flex;gap:6px;flex-wrap:wrap}.rowActions button{padding:5px 8px;font-size:12px}
 .alert{margin-top:10px;padding:10px;border-radius:8px;background:#fff6e8;border:1px solid #ffddb0}.hidden{display:none}
 @media (max-width:1000px){.grid{grid-template-columns:repeat(2,1fr)}.filters{grid-template-columns:1fr 1fr}.kpis{grid-template-columns:repeat(2,1fr)}}
-@media print {.topbar,.panel:nth-child(-n+3) .actions,.filters{display:none!important}.panel{border:none;padding:0} body{background:#fff}}
+@media print {
+  .topbar,
+  .container > .panel:not(:last-child),
+  .container > .panel:last-child h2,
+  .rowActions,
+  table th:last-child,
+  table td:last-child { display:none!important; }
+  .container, .panel, .tableWrap { padding:0!important; margin:0!important; border:none!important; box-shadow:none!important; }
+  body { background:#fff; }
+}
