@@ -35,3 +35,4 @@ h3{margin:0 0 10px;color:#1a315f}
 .grid.pedi label[data-id='conc']{grid-column:auto}
 @media(max-width:900px){.grid.pedi{grid-template-columns:repeat(2,minmax(150px,1fr))}}
 @media(max-width:700px){.grid.pedi{grid-template-columns:1fr}}
+.copy-preview{margin-top:10px;padding:10px;border:1px dashed #c8d8f4;background:#f5f9ff;border-radius:8px;font-size:12px;color:#274472}
