@@ -1,320 +1,122 @@
 <!DOCTYPE html>
-<html lang="fr">
-<head>
-<meta charset="UTF-8">
-<title>Calendrier Pilulier</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<html lang="en"><head>
+    <meta charset="UTF-8">
+    <title>Calendrier Pilulier</title>
+    <style>
+        body
+        {
+            font-family:courier,sans-serif;
+            font-size: 15px;
+            position: absolute;
+        }
 
-<style>
-*{box-sizing:border-box;}
-
-:root{
-  --bg1:#f4f7fb;
-  --bg2:#eef2f8;
-  --card:#ffffff;
-  --ink:#0f172a;
-  --muted:#475569;
-  --soft:#e2e8f0;
-  --primary:#2563eb;
-  --primary2:#3b82f6;
-  --shadow:0 10px 25px rgba(0,0,0,0.08);
-  --radius:16px;
-}
-
-body{
-  margin:0;
-  padding:24px 16px 40px;
-  font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
-  color:var(--ink);
-  background:linear-gradient(135deg,var(--bg1),var(--bg2));
-}
-
-.wrap{
-  max-width:900px;
-  margin:0 auto;
-}
-
-.header{
-  background:var(--card);
-  border-radius:var(--radius);
-  box-shadow:var(--shadow);
-  padding:18px 20px;
-  margin-bottom:14px;
-}
-
-.header h1{
-  margin:0 0 6px 0;
-  font-size:22px;
-  font-weight:800;
-}
-
-.header p{
-  margin:0;
-  color:var(--muted);
-  font-size:14px;
-}
-
-.panel{
-  background:var(--card);
-  border-radius:var(--radius);
-  box-shadow:var(--shadow);
-  padding:18px 20px 16px;
-  margin-bottom:16px;
-}
-
-/* ==== GRID FIX (prevents overlap) ==== */
-.grid{
-  display:grid;
-  grid-template-columns:minmax(0,1fr) minmax(0,1fr);
-  gap:16px 20px;
-  align-items:end;
-}
-
-.field{
-  min-width:0;
-}
-
-.field label{
-  display:block;
-  font-weight:800;
-  font-size:13px;
-  margin:0 0 8px 0;
-  color:#1f2937;
-}
-
-input[type="text"],
-input[type="date"]{
-  width:100%;
-  max-width:100%;
-  min-width:0;
-  min-inline-size:0;
-  display:block;
-  border:1.5px solid var(--soft);
-  border-radius:12px;
-  padding:10px 12px;
-  font-size:15px;
-  outline:none;
-  transition:120ms ease;
-  background:#fff;
-}
-
-input[type="text"]:focus,
-input[type="date"]:focus{
-  border-color:rgba(37,99,235,0.7);
-  box-shadow:0 0 0 4px rgba(37,99,235,0.14);
-}
-
-/* stack earlier so never collides */
-@media (max-width:900px){
-  .grid{grid-template-columns:1fr;}
-}
-
-.freq{grid-column:1/-1;}
-
-.seg{
-  display:flex;
-  gap:8px;
-  flex-wrap:wrap;
-  align-items:center;
-}
-
-.seg input{
-  position:absolute;
-  opacity:0;
-  pointer-events:none;
-}
-
-.seg label{
-  cursor:pointer;
-  border:1.5px solid var(--soft);
-  border-radius:999px;
-  padding:9px 12px;
-  font-size:14px;
-  font-weight:900;
-  background:#fff;
-  transition:120ms ease;
-}
-
-.seg input:checked + label{
-  border-color:rgba(37,99,235,0.9);
-  background:linear-gradient(135deg,var(--primary),var(--primary2));
-  color:#fff;
-  box-shadow:0 8px 18px rgba(37,99,235,0.25);
-}
-
-.actions{
-  margin-top:14px;
-  display:flex;
-  gap:10px;
-  flex-wrap:wrap;
-}
-
-.btn{
-  border:0;
-  border-radius:12px;
-  padding:10px 14px;
-  font-weight:900;
-  font-size:14px;
-  cursor:pointer;
-}
-
-.btn-primary{
-  background:linear-gradient(135deg,var(--primary),var(--primary2));
-  color:#fff;
-  box-shadow:0 10px 22px rgba(37,99,235,0.22);
-}
-
-.btn-ghost{
-  background:#f1f5f9;
-  border:1.5px solid var(--soft);
-}
-
-.hint{
-  margin-top:10px;
-  color:var(--muted);
-  font-size:13px;
-}
-
-/* ===== PRINT OUTPUT (UNCHANGED LOOK) ===== */
-table{
-  border:1px solid black;
-  table-layout:fixed;
-}
-
-td{
-  border:1px solid black;
-  text-align:center;
-  font-family:courier,sans-serif;
-  font-size:15px;
-}
-
-/* print only dispill */
-@media print{
-  @page{size:A4 portrait; margin:6mm;}
-  html,body{width:100%;height:100%;}
-  body{background:#fff !important;margin:0 !important;padding:0 !important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
-  .wrap{display:none !important;}
-  #printableArea{display:block !important;max-width:none !important;margin:0 !important;padding:0 !important;}
-  #printout{display:block;width:100%;}
-  #printout table{width:100% !important;border-collapse:collapse;table-layout:fixed;font-size:10px;}
-  #printout td{font-size:10px;line-height:1.05;padding:1px 2px;}
-  #printout tr{page-break-inside:avoid;break-inside:avoid;}
-}
-</style>
+        table{
+            border: 1px solid black;
+            table-layout: fixed;
+        }
+        td
+        {
+            border: 1px solid black;
+            width: auto;
+            text-align: center;
+        }
+    </style>
 </head>
-
 <body>
 
-<div class="wrap">
-  <div class="header">
-    <h1>Calendrier Pilulier</h1>
-    <p>Remplir → Soumettre → Impression</p>
-  </div>
+<script type="text/javascript">
 
-  <div class="panel">
-    <div class="grid">
-      <div class="field">
-        <label for="patientName">Patient</label>
-        <input type="text" id="patientName" placeholder="Nom du patient">
-      </div>
+    //New function to add days to a given date.
+    Date.prototype.addDays = function(days) {
+        var dat = new Date(this.valueOf())
+        dat.setUTCDate(dat.getUTCDate() + days);
+        return dat;
+    }
 
-      <div class="field">
-        <label for="startDate">Date de début</label>
-        <input type="date" id="startDate">
-      </div>
+    function printDiv(divName) {
+        var printContents = document.getElementById(divName).innerHTML;
+        var originalContents = document.body.innerHTML;
 
-      <div class="field freq">
-        <label>Fréquence</label>
-        <div class="seg">
-          <input type="radio" name="freq" id="q7j" checked>
-          <label for="q7j">Hebdomadaire</label>
+        document.body.innerHTML = printContents;
 
-          <input type="radio" name="freq" id="q14j">
-          <label for="q14j">Aux 2 semaines</label>
+        window.print();
 
-          <input type="radio" name="freq" id="q28j">
-          <label for="q28j">Aux 4 semaines</label>
-        </div>
-      </div>
-    </div>
+        document.body.innerHTML = originalContents;
+    }
+    //GetCurrent
+    function calculate() {
 
-    <div class="actions">
-      <button class="btn btn-primary" onclick="calculate()">Soumettre</button>
-      <button class="btn btn-ghost" onclick="printDiv()">Impression</button>
-    </div>
+        var startDate = new Date(document.getElementById("startDate").value.replace(/-/g, '\/').replace(/T.+/, ''));
 
-    <div class="hint">Toujours cliquer Soumettre avant impression</div>
-  </div>
-</div>
+        if (document.getElementById("q7j").checked){
+            var weekly = 7;
+            var endDate = startDate.addDays(244);
+        }
+        if (document.getElementById("q14j").checked){
+            var weekly = 14;
+            var endDate = startDate.addDays(488);
+        }
+        if (document.getElementById("q28j").checked){
+            var weekly = 28;
+            var endDate = startDate.addDays(976);
+        }
 
-<script>
-// addDays
-Date.prototype.addDays = function(days){
-  var dat = new Date(this.valueOf())
-  dat.setUTCDate(dat.getUTCDate()+days);
-  return dat;
-}
+        var StartdateArray = new Array();
+        var EnddateArray = new Array();
+        var beginningDays = new Date(startDate);
+        var endingDays = startDate.addDays(weekly-1);
+        while (beginningDays <= endDate) {
+                var beginningDaysmonth = new Date(beginningDays).getMonth() + 1;
+                var endingDaysmonth = new Date(endingDays).getMonth()+1;
+                StartdateArray.push(new Date(beginningDays).getUTCDate() + "/" + beginningDaysmonth);
+                EnddateArray.push(new Date(endingDays).getUTCDate() + "/" + endingDaysmonth);
+                beginningDays.setUTCDate(beginningDays.getUTCDate() + weekly);
+                endingDays.setUTCDate(endingDays.getUTCDate() + weekly);
+        }
 
-function printDiv(){
-  window.print();
-}
+// Output
+        var patient = document.getElementById("patientName").value || "";
+        var result = "<div style=\"text-align:left;font-weight:700;margin-bottom:4px;\">" + patient + "</div>";
+        result += "<table>";
+        result += "<tr><td>Début</td><td>Fin</td><td>Préparé par</td><td>Vérification</td><td>Changement</td></tr>";
+        var rowsToPrint = Math.max(0, StartdateArray.length - 7);
+        for (var i = 0; i < rowsToPrint; i++) {
+            result += "<tr>";
+            result += "<td style='width:70px'>" + StartdateArray[i] + "</td>";
+            result += "<td style='width:70px'>" + EnddateArray[i] + "</td><td style='width:150px'></td><td style='width:150px'></td><td style='width:150px'></td>";
+            result += "</tr>";
+        }
+        document.getElementById("printout").innerHTML = result;
 
-function calculate(){
-  var startDate = new Date(document.getElementById("startDate").value.replace(/-/g,'\/').replace(/T.+/,''));
-
-  if(document.getElementById("q7j").checked){
-    var weekly=7;
-    var endDate=startDate.addDays(244);
-  }
-  if(document.getElementById("q14j").checked){
-    var weekly=14;
-    var endDate=startDate.addDays(488);
-  }
-  if(document.getElementById("q28j").checked){
-    var weekly=28;
-    var endDate=startDate.addDays(976);
-  }
-
-  var StartdateArray=[];
-  var EnddateArray=[];
-  var beginningDays=new Date(startDate);
-  var endingDays=startDate.addDays(weekly-1);
-
-  while(beginningDays<=endDate){
-    var bm=new Date(beginningDays).getMonth()+1;
-    var em=new Date(endingDays).getMonth()+1;
-    StartdateArray.push(new Date(beginningDays).getUTCDate()+"/"+bm);
-    EnddateArray.push(new Date(endingDays).getUTCDate()+"/"+em);
-    beginningDays.setUTCDate(beginningDays.getUTCDate()+weekly);
-    endingDays.setUTCDate(endingDays.getUTCDate()+weekly);
-  }
-
-  var patient=document.getElementById("patientName").value || "";
-  var result="<table>";
-  result+="<tr><td colspan=\"5\" style=\"text-align:left;font-weight:700\">Patient: "+patient+"</td></tr>";
-  result+="<tr><td>Début</td><td>Fin</td><td>Préparé par</td><td>Vérification</td><td>Changement</td></tr>";
-
-  var maxRows=22;
-  for(var i=0;i<Math.min(StartdateArray.length,maxRows);i++){
-    result+="<tr>";
-    result+="<td style='width:70px'>"+StartdateArray[i]+"</td>";
-    result+="<td style='width:70px'>"+EnddateArray[i]+"</td><td style='width:150px'></td><td style='width:150px'></td><td style='width:150px'></td>";
-    result+="</tr>";
-  }
-
-  document.getElementById("printout").innerHTML=result;
-}
-
-// default today
-(function(){
-  var d=new Date();
-  document.getElementById("startDate").value=d.toISOString().slice(0,10);
-})();
+    }
 </script>
+<form>
+<table>
+    <tbody><tr>
+        <td>Patient:</td>
+        <td><input type="text" id="patientName"></td>
+    </tr>
+    <tr>
+        <td>Date de début:</td>
+        <td><input type="date" id="startDate" value="yyyy-mm-dd"></td>
+    </tr>
+    <tr>
+        <td>Fréquence:</td>
+        <td style="text-align: left;">
+            <input type="radio" name="freq" id="q7j" checked="">Hebdomadaire<br>
+            <input type="radio" name="freq" id="q14j">Aux 2 semaines<br>
+            <input type="radio" name="freq" id="q28j">Aux 4 semaines<br>
+        </td>
+    </tr>
 
-<div id="printableArea" style="max-width:900px;margin:0 auto;">
-<a id="printout"></a>
+</tbody></table>
+<input style="height:30px;width:200px" onclick="calculate()" type="button" value="Soumettre"><br>
+<input style="height:30px;width:200px" type="button" onclick="printDiv('printableArea')" value="Impression">
+</form>
+
+<div id="printableArea">
+    <a id="printout"></a><br>
 </div>
 
-</body>
-</html>
+
+</body></html>
