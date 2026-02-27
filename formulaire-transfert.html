@@ -381,6 +381,13 @@
   </div>
 
   <script>
+    const DEFAULTS = {
+      pharmacieNom: "Pharmacie Luu Thi Thanh Thao",
+      pharmacieAdresse: "2500, Jean-Talon Est, Montréal, QC H2A 1T7",
+      telRequerant: "514-727-8967",
+      faxRequerant: "514-727-8965"
+    };
+
     const $ = (id) => document.getElementById(id);
 
     function setTodayIfEmpty(){
@@ -392,6 +399,13 @@
         const dd = String(now.getDate()).padStart(2,"0");
         d.value = `${yyyy}-${mm}-${dd}`;
       }
+    }
+
+    function applyDefaults(){
+      $("pharmacieNom").value = DEFAULTS.pharmacieNom;
+      $("pharmacieAdresse").value = DEFAULTS.pharmacieAdresse;
+      $("telRequerant").value = DEFAULTS.telRequerant;
+      $("faxRequerant").value = DEFAULTS.faxRequerant;
     }
 
     function applyPharmacienSelection(){
@@ -426,7 +440,7 @@
 
     function bindPhone(id){
       const el = $(id);
-      el.addEventListener("input", () => {
+      el.addEventListener("blur", () => {
         el.value = formatPhone(el.value);
       });
     }
@@ -437,6 +451,7 @@
         if(el.type === "checkbox" || el.type === "radio") el.checked = false;
         else el.value = "";
       });
+      applyDefaults();
       setTodayIfEmpty();
       applyPharmacienSelection();
     }
@@ -482,6 +497,7 @@
     }
 
     // init defaults
+    applyDefaults();
     setTodayIfEmpty();
     applyPharmacienSelection();
 
