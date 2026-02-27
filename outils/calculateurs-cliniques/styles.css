@@ -14,3 +14,7 @@ button.secondary{background:#e7eefb;color:#143467}
 .note{display:block;margin-top:8px;color:#61718f}
 .warn{color:#b14a00;font-weight:600}
 @media(max-width:700px){.grid{grid-template-columns:1fr}}
+.cardR{display:grid;gap:6px}
+.n{margin-top:8px;padding:6px 8px;border-radius:6px}
+.n.warn{background:#fff1dd;color:#9a5500;font-weight:700}
+.n.ok{background:#e8f7ee;color:#1a7a46}
