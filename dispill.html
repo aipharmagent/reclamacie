@@ -190,7 +190,7 @@ td{
 
 /* print only dispill */
 @media print{
-  @page{size:A4 landscape; margin:6mm;}
+  @page{size:A4 portrait; margin:6mm;}
   html,body{width:100%;height:100%;}
   body{background:#fff !important;margin:0 !important;padding:0 !important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
   .wrap{display:none !important;}
@@ -240,7 +240,7 @@ td{
 
     <div class="actions">
       <button class="btn btn-primary" onclick="calculate()">Soumettre</button>
-      <button class="btn btn-ghost" onclick="printDiv('printableArea')">Impression</button>
+      <button class="btn btn-ghost" onclick="printDiv()">Impression</button>
     </div>
 
     <div class="hint">Toujours cliquer Soumettre avant impression</div>
@@ -255,12 +255,8 @@ Date.prototype.addDays = function(days){
   return dat;
 }
 
-function printDiv(divName){
-  var printContents = document.getElementById(divName).innerHTML;
-  var originalContents = document.body.innerHTML;
-  document.body.innerHTML = printContents;
+function printDiv(){
   window.print();
-  document.body.innerHTML = originalContents;
 }
 
 function calculate(){
@@ -293,10 +289,13 @@ function calculate(){
     endingDays.setUTCDate(endingDays.getUTCDate()+weekly);
   }
 
+  var patient=document.getElementById("patientName").value || "";
   var result="<table>";
+  result+="<tr><td colspan=\"5\" style=\"text-align:left;font-weight:700\">Patient: "+patient+"</td></tr>";
   result+="<tr><td>Début</td><td>Fin</td><td>Préparé par</td><td>Vérification</td><td>Changement</td></tr>";
 
-  for(var i=0;i<StartdateArray.length;i++){
+  var maxRows=22;
+  for(var i=0;i<Math.min(StartdateArray.length,maxRows);i++){
     result+="<tr>";
     result+="<td style='width:70px'>"+StartdateArray[i]+"</td>";
     result+="<td style='width:70px'>"+EnddateArray[i]+"</td><td style='width:150px'></td><td style='width:150px'></td><td style='width:150px'></td>";
