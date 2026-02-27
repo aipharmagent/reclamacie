@@ -68,7 +68,7 @@
         <select id='dueFilter'>
           <option value=''>Toutes échéances</option>
           <option value='overdue'>En retard</option>
-          <option value='today'>Aujourd\'hui</option>
+          <option value='today'>Aujourd'hui</option>
           <option value='7days'>7 prochains jours</option>
         </select>
         <input id='initialsFilter' placeholder='Initiales' />
@@ -79,9 +79,11 @@
         <label class='fileLike'>Import (JSON/CSV)
           <input type='file' id='importFile' accept='.json,.csv,text/csv,application/json' />
         </label>
+        <button id='btnResolveOverdue' class='secondary'>Rattrapage en retard (+1j)</button>
+        <button id='btnDeduplicate' class='secondary'>Nettoyer doublons</button>
         <button id='btnPrint' class='secondary'>Imprimer la vue</button>
       </div>
-      <small>Conseil: faites un export JSON quotidien pour backup complet et CSV pour analyse.</small>
+      <small>Conseil: export JSON quotidien pour backup complet; CSV pour analyse/partage.</small>
     </section>
 
     <section class='panel'>

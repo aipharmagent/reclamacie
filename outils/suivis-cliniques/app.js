@@ -4,7 +4,7 @@ const rowsEl = $('#rows');
 const tpl = $('#rowTemplate');
 const form = $('#entryForm');
 
-let data = load();
+let data = load().map(normalizeEntry);
 let notifiedToday = false;
 
 function load() {
@@ -22,6 +22,25 @@ function buildFollowups(startDate, intervalDays, count){
   for(let i=1;i<=count;i++) arr.push({ idx:i, dueDate:addDays(startDate, intervalDays*i), done:false, doneAt:'' });
   return arr;
 }
+function normalizeEntry(i){
+  const date = i.date || todayISO();
+  const intervalDays = Math.max(1, Number(i.intervalDays || 7));
+  const plannedCount = Math.max(1, Number(i.plannedCount || 2));
+  return {
+    id: i.id || uid(),
+    createdAt: i.createdAt || new Date().toISOString(),
+    date,
+    rxNumber: String(i.rxNumber || '').trim(),
+    rxRef: String(i.rxRef || '').trim(),
+    acte: String(i.acte || 'Autre').trim(),
+    intervalDays,
+    plannedCount,
+    status: String(i.status || 'À faire'),
+    initials: String(i.initials || '').toUpperCase().trim(),
+    notes: String(i.notes || '').trim(),
+    followups: Array.isArray(i.followups) && i.followups.length ? i.followups : buildFollowups(date, intervalDays, plannedCount)
+  };
+}
 function progress(item){ const done=item.followups.filter(f=>f.done).length; return `${done}/${item.followups.length}`; }
 function nextDue(item){ return item.followups.find(f=>!f.done)?.dueDate || ''; }
 function urgency(item){
@@ -32,6 +51,11 @@ function urgency(item){
   if(d === 0) return 'today';
   if(d <= 7) return 'soon';
   return 'later';
+}
+function dupKey(i){ return `${i.rxNumber}|${i.rxRef}|${i.acte}|${i.date}`.toLowerCase(); }
+function findDuplicate(i){
+  const key = dupKey(i);
+  return data.find(d => dupKey(d) === key && d.status !== 'Complété');
 }
 
 function matchesFilter(item){
@@ -124,30 +148,58 @@ function persistAndRender(){ save(); renderKPIs(); renderRows(); }
 form.addEventListener('submit', (e)=>{
   e.preventDefault();
   const f = new FormData(form);
-  const date=f.get('date');
-  const intervalDays=Number(f.get('intervalDays'));
-  const plannedCount=Number(f.get('plannedCount'));
-  data.push({
+  const entry = normalizeEntry({
     id: uid(),
     createdAt: new Date().toISOString(),
-    date,
-    rxNumber:String(f.get('rxNumber')).trim(),
-    rxRef:String(f.get('rxRef')||'').trim(),
-    acte:String(f.get('acte')).trim(),
-    intervalDays, plannedCount,
-    status:String(f.get('status')),
-    initials:String(f.get('initials')||'').toUpperCase().trim(),
-    notes:String(f.get('notes')||'').trim(),
-    followups: buildFollowups(date, intervalDays, plannedCount)
+    date: f.get('date'),
+    rxNumber: String(f.get('rxNumber')).trim(),
+    rxRef: String(f.get('rxRef')||'').trim(),
+    acte: String(f.get('acte')).trim(),
+    intervalDays: Number(f.get('intervalDays')),
+    plannedCount: Number(f.get('plannedCount')),
+    status: String(f.get('status')),
+    initials: String(f.get('initials')||'').toUpperCase().trim(),
+    notes: String(f.get('notes')||'').trim()
   });
+
+  const dup = findDuplicate(entry);
+  if (dup) {
+    const ok = confirm(`Doublon probable détecté (Rx ${dup.rxNumber}, acte ${dup.acte}, date ${dup.date}).\nOK = Ajouter quand même\nAnnuler = Ne pas ajouter`);
+    if (!ok) return;
+  }
+
+  data.push(entry);
   form.reset();
   form.intervalDays.value = 7; form.plannedCount.value = 2; form.status.value='À faire';
   persistAndRender();
 });
 
 $('#btnSample').onclick = ()=>{
-  data.push({ id:uid(), createdAt:new Date().toISOString(), date:todayISO(), rxNumber:'RX-12345', rxRef:'REF-7', acte:'Renouvellement', intervalDays:7, plannedCount:3, status:'À faire', initials:'AM', notes:'TA à revalider', followups:buildFollowups(todayISO(),7,3) });
+  const sample = normalizeEntry({ id:uid(), createdAt:new Date().toISOString(), date:todayISO(), rxNumber:'RX-12345', rxRef:'REF-7', acte:'Renouvellement', intervalDays:7, plannedCount:3, status:'À faire', initials:'AM', notes:'TA à revalider' });
+  data.push(sample);
   persistAndRender();
+};
+
+$('#btnResolveOverdue').onclick = ()=>{
+  const overdue = data.filter(i => urgency(i)==='overdue' && i.status!=='Complété');
+  if(!overdue.length){ alert('Aucun suivi en retard à rattraper.'); return; }
+  const ok = confirm(`Reporter de +1 jour le prochain suivi de ${overdue.length} dossier(s) en retard ?`);
+  if(!ok) return;
+  overdue.forEach(i => { const f=i.followups.find(x=>!x.done); if(f) f.dueDate=addDays(f.dueDate,1); if(i.status==='Complété') i.status='En cours'; });
+  persistAndRender();
+};
+
+$('#btnDeduplicate').onclick = ()=>{
+  const seen = new Map();
+  let removed = 0;
+  data = data.filter(item => {
+    const key = dupKey(item);
+    if(!seen.has(key)){ seen.set(key, item.id); return true; }
+    removed++;
+    return false;
+  });
+  persistAndRender();
+  alert(removed ? `${removed} doublon(s) retiré(s).` : 'Aucun doublon détecté.');
 };
 
 ['#search','#statusFilter','#dueFilter','#initialsFilter'].forEach(s=>$(s).addEventListener('input', renderRows));
@@ -174,29 +226,31 @@ $('#importFile').addEventListener('change', async (e)=>{
   let incoming=[];
   try {
     if(file.name.toLowerCase().endsWith('.json')){
-      incoming = JSON.parse(txt);
+      incoming = JSON.parse(txt).map(normalizeEntry);
     } else {
       const lines = txt.split(/\r?\n/).filter(Boolean);
       const cols = lines[0].split(',').map(x=>x.replace(/^"|"$/g,''));
       incoming = lines.slice(1).map(line=>{
         const parts = line.match(/("(?:[^"]|"")*"|[^,]+)/g)?.map(p=>p.replace(/^"|"$/g,'').replaceAll('""','"')) || [];
         const obj = Object.fromEntries(cols.map((c,idx)=>[c,parts[idx]||'']));
-        const date = obj.date || todayISO();
-        const intervalDays = Number(obj.intervalDays||7), plannedCount=Number(obj.plannedCount||2);
-        return {
-          id: obj.id || uid(),
-          createdAt: new Date().toISOString(),
-          date, rxNumber: obj.rxNumber || '', rxRef: obj.rxRef || '', acte: obj.acte || 'Autre',
-          intervalDays, plannedCount, status: obj.status || 'À faire', initials: obj.initials || '', notes: obj.notes || '',
-          followups: buildFollowups(date, intervalDays, plannedCount)
-        };
+        return normalizeEntry(obj);
       });
     }
   } catch { alert('Import invalide. Vérifiez le format JSON/CSV.'); return; }
   if(!Array.isArray(incoming) || !incoming.length){ alert('Aucune donnée importable.'); return; }
+
   const mode = confirm('OK = Fusionner avec les suivis actuels\nAnnuler = Remplacer complètement');
-  data = mode ? [...data, ...incoming] : incoming;
+  let merged = mode ? [...data, ...incoming] : incoming;
+
+  const before = merged.length;
+  const map = new Map();
+  merged.forEach(item => { if(!map.has(dupKey(item))) map.set(dupKey(item), item); });
+  merged = Array.from(map.values());
+  const deduped = before - merged.length;
+
+  data = merged;
   persistAndRender();
+  if(deduped > 0) alert(`Import terminé: ${incoming.length} entrée(s), ${deduped} doublon(s) ignoré(s).`);
   e.target.value='';
 });
 
