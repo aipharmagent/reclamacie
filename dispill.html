@@ -79,14 +79,15 @@
         var result = "<div style=\"text-align:left;font-weight:700;margin-bottom:4px;\">" + patient + "</div>";
         result += "<table>";
         result += "<tr><td>Début</td><td>Fin</td><td>Préparé par</td><td>Vérification</td><td>Changement</td></tr>";
-        var rowsToPrint = Math.max(0, StartdateArray.length - 4);
+        var rowsToPrint = StartdateArray.length + 8;
         for (var i = 0; i < rowsToPrint; i++) {
+            var d1 = StartdateArray[i] || "";
+            var d2 = EnddateArray[i] || "";
             result += "<tr>";
-            result += "<td style='width:70px'>" + StartdateArray[i] + "</td>";
-            result += "<td style='width:70px'>" + EnddateArray[i] + "</td><td style='width:150px'></td><td style='width:150px'></td><td style='width:150px'></td>";
+            result += "<td style='width:70px'>" + d1 + "</td>";
+            result += "<td style='width:70px'>" + d2 + "</td><td style='width:150px'></td><td style='width:150px'></td><td style='width:150px'></td>";
             result += "</tr>";
         }
-        document.getElementById("printout").innerHTML = result;
 
     }
 </script>
