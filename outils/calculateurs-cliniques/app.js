@@ -37,10 +37,10 @@ const defs = {
       const mlDose=dose/50, mlTotal=mlDose*2;
       const notes=capped?[`⚠ Dose plafonnée: maximum 8 comprimés (1000 mg) par dose.`]:[];
       return out([
-        ['Posologie comprimé', `${compDose.toFixed(2)} comprimé(s) de 125 mg`],
-        ['Posologie liquide', `${round1(mlDose).toFixed(1)} mL (250 mg/5mL)`],
-        ['Total traitement (J0 + J14) comprimés', `${compTotal.toFixed(2)} comprimé(s)`],
-        ['Total traitement (J0 + J14) liquide', `${round1(mlTotal).toFixed(1)} mL`]
+        ['Posologie comprimé', `${fmtSmart(compDose,2)} comprimé(s) de 125 mg`],
+        ['Posologie liquide', `${fmtSmart(round1(mlDose),1)} mL (250 mg/5mL)`],
+        ['Total traitement (J0 + J14) comprimés', `${fmtSmart(compTotal,2)} comprimé(s)`],
+        ['Total traitement (J0 + J14) liquide', `${fmtSmart(round1(mlTotal),1)} mL`]
       ], notes, capped?'warn':'ok');
     }
   },
