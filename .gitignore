@@ -1,17 +1,17 @@
-cat > .gitignore << 'EOF'
 # OS / editor
 .DS_Store
 Thumbs.db
 *.swp
 *.swo
 
-# Logs
+# Logs / temp
 *.log
-
-# Temp / backups
 *.tmp
-*.bak
 *~
+
+# Backup artifacts
+*.bak
+*.bak*
 
 # Node (if ever used)
 node_modules/
@@ -23,6 +23,3 @@ node_modules/
 # SSL / certs (if any are stored here by mistake)
 *.pem
 *.key
-EOF
-*.bak*
-*.bak

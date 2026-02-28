@@ -1,14 +1,16 @@
 # Réclamacie
 
-Ressources, gabarits et outils pour la pratique pharmaceutique.
+Ressources, gabarits et outils pour la pratique pharmaceutique à but non lucratif.
 
-## Contenu
-- Page d’accueil interactive (index.html)
-- Gabarits (dispill, feuilles de temps, inventaire)
-- Ressources et documents PDF
+## Structure (aperçu)
+- `index.html` — page d’accueil (navigation des outils)
+- `outils/` — outils métier (suivis cliniques, calculateurs, etc.)
+- `formulaires/` — formulaires et ressources associées
+- `docs/proposals/` — propositions avant implémentation
+- `docs/reports/` — rapports après déploiement
+- `docs/references/` — documents de référence
 
-## Déploiement
-Site statique servi depuis /var/www/html/reclamacie.
-
-## Contribution
-Les modifications se font directement dans le dépôt Git associé puis sont déployées sur le serveur.
+## Règle de maintenance
+- Préserver les outils existants
+- Ajouter les nouveaux outils en sections séparées
+- Garder les changements traçables et réversibles via Git
