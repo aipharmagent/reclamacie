@@ -29,15 +29,19 @@ const defs = {
       {id:'mgBaseKg',label:'Dose mg base/kg',type:'number',value:'11'}
     ],
     run:v=>{
-      const kg=getWeightKg(v), dose=kg*v.mgBaseKg;
+      const kg=getWeightKg(v), rawDose=kg*v.mgBaseKg;
+      const maxDoseMg=8*125; // 8 tablets max per dose
+      const dose=Math.min(rawDose,maxDoseMg);
+      const capped=rawDose>maxDoseMg;
       const compDose=Math.round((dose/125)*4)/4, compTotal=Math.round((dose*2/125)*4)/4;
       const mlDose=dose/50, mlTotal=mlDose*2;
+      const notes=capped?[`⚠ Dose plafonnée: maximum 8 comprimés (1000 mg) par dose.`]:[];
       return out([
         ['Posologie comprimé', `${compDose.toFixed(2)} comprimé(s) de 125 mg`],
         ['Posologie liquide', `${round1(mlDose).toFixed(1)} mL (250 mg/5mL)`],
         ['Total traitement (J0 + J14) comprimés', `${compTotal.toFixed(2)} comprimé(s)`],
         ['Total traitement (J0 + J14) liquide', `${round1(mlTotal).toFixed(1)} mL`]
-      ]);
+      ], notes, capped?'warn':'ok');
     }
   },
   abx_ped: {
