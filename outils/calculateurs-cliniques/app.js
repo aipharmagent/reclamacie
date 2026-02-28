@@ -170,6 +170,7 @@ const copyPreview=document.getElementById('copyPreview');
 Object.entries(defs).forEach(([k,v])=>{const o=document.createElement('option');o.value=k;o.textContent=v.label;calcType.appendChild(o);});
 
 function num1(n){return Number(n).toFixed(1).replace('.',',');}
+function fmtSmart(n,dec=2){const x=Number(n);if(!Number.isFinite(x))return '';if(Math.abs(x-Math.round(x))<1e-9)return String(Math.round(x));return x.toFixed(dec).replace(/0+$/,'').replace(/\.$/,'');}
 function todayYmd(){return new Date().toISOString().slice(0,10);}
 function getWeightKg(v){ if(v.poidsKg) return v.poidsKg; if(v.poidsLb) return v.poidsLb*KG_PER_LB; return 0; }
 function classifyWarfarin(inr,t23){ if(t23){if(inr<2)return 'sous-thérapeutique';if(inr<=3)return 'thérapeutique';return 'suprathérapeutique';} if(inr<2.5)return 'sous-thérapeutique';if(inr<=3.5)return 'thérapeutique';return 'suprathérapeutique'; }
