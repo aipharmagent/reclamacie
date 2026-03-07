@@ -497,6 +497,19 @@
       $("pvLicence").textContent = $("licence").value.trim() ? `Licence : ${$("licence").value.trim()}` : "";
     }
 
+function formatDDN(value) {
+  const digits = value.replace(/\D/g, '').slice(0,8);
+  if (digits.length <= 4) return digits;
+  if (digits.length <= 6) return digits.slice(0,4) + '-' + digits.slice(4);
+  return digits.slice(0,4) + '-' + digits.slice(4,6) + '-' + digits.slice(6);
+}
+
+const ddnInput = document.getElementById('ddn');
+ddnInput.placeholder = "AAAAMMJJ";
+ddnInput.addEventListener('blur', () => {
+  ddnInput.value = formatDDN(ddnInput.value);
+});
+
     // init defaults
     applyDefaults();
     setTodayIfEmpty();

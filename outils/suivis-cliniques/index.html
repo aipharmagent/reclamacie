@@ -21,16 +21,14 @@
         <label>Acte
           <select name='acte' required>
             <option value=''>Choisir…</option>
-            <option>ajustement</option>
-            <option>cesser</option>
             <option>suivi clinique</option>
-            <option>deprescription</option>
-            <option>opinion</option>
+            <option>vaccination</option>
+            <option>labo</option>
             <option>autre</option>
           </select>
         </label>
         <label>Intervalle (jours)<input type='number' min='1' name='intervalDays' value='7' required /></label>
-        <label>Nb de suivis planifiés<input type='number' min='1' max='12' name='plannedCount' value='2' required /></label>
+        <label>Nb de suivis planifiés<input type='number' min='1' name='plannedCount' value='2' required /></label>
         <label>Statut initial
           <select name='status'>
             <option>À faire</option>
@@ -42,8 +40,9 @@
         <label>Initiales<input type='text' name='initials' maxlength='6' /></label>
         <label class='full'>Note<textarea name='notes' rows='2'></textarea></label>
         <div class='full actions'>
-          <button type='submit'>Ajouter le suivi</button>
+          <button type='submit' id='submitBtn'>Ajouter le suivi</button>
           <button type='button' id='btnSample' class='secondary'>Ajouter exemple</button>
+          <button type='button' id='btnCancelEdit' class='secondary hidden'>Annuler édition</button>
         </div>
       </form>
     </section>
@@ -72,6 +71,13 @@
           <option value='7days'>7 prochains jours</option>
         </select>
         <input id='initialsFilter' placeholder='Initiales' />
+<select id="acteFilter">
+  <option value="">Tous actes</option>
+  <option>suivi clinique</option>
+  <option>vaccination</option>
+  <option>labo</option>
+  <option>autre</option>
+        </select>
       </div>
       <div class='actions'>
         <button id='btnExportJson'>Exporter JSON</button>
@@ -86,27 +92,58 @@
       </div>
     </section>
 
-    <section class='panel'>
+    <section class='panel suivis-panel'>
       <h2>Suivis</h2>
       <h2 class='print-title'>Suivis cliniques</h2>
       <div class='tableWrap'>
         <table>
           <colgroup class="suivis-cols">
-            <col class="c-date"><col class="c-rx"><col class="c-ref"><col class="c-acte"><col class="c-due"><col class="c-prog"><col class="c-status"><col class="c-init"><col class="c-notes"><col class="c-actions">
+            <col class="c-select">
+            <col class="c-date">
+            <col class="c-rx">
+            <col class="c-ref">
+            <col class="c-acte">
+            <col class="c-due">
+            <col class="c-prog">
+            <col class="c-status">
+            <col class="c-init">
+            <col class="c-notes">
           </colgroup>
           <thead>
             <tr>
-              <th>Date</th><th>Rx</th><th>Ref</th><th>Acte</th><th>Prochain suivi</th><th>Progression</th><th>Statut</th><th>Initiales</th><th>Note</th><th>Actions</th>
+              <th><input type="checkbox" id="selectAll" title="Tout sélectionner"></th>
+              <th>Date</th>
+              <th>Rx</th>
+              <th>Ref</th>
+              <th>Acte</th>
+              <th>Prochain suivi</th>
+              <th>Progrès</th>
+              <th>Statut</th>
+              <th>Initiales</th>
+              <th>Note</th>
             </tr>
           </thead>
           <tbody id='rows'></tbody>
         </table>
       </div>
+
+      <div id="bulkToolbar" class="bulk-toolbar hidden">
+        <span><strong id="selectedCount">0</strong> sélectionné(s)</span>
+        <button id="btnBulkMarkDone">✓ Fait</button>
+        <button id="btnBulkAdd">+ Ajout</button>
+        <button id="btnBulkRemove">- Retrait</button>
+        <button id="btnBulkReport">Reporter</button>
+        <button id="btnBulkEdit" disabled>Modifier</button>
+        <button id="btnBulkDelete" class="secondary danger">Supprimer</button>
+        <button id="btnBulkFinish" class="secondary">Fin de suivi</button>
+        <button class="secondary" onclick="clearSelection()">Annuler</button>
+      </div>
     </section>
   </main>
 
   <template id='rowTemplate'>
-    <tr>
+    <tr class="selectable-row">
+      <!-- Checkbox ajouté dynamiquement -->
       <td data-k='date'></td>
       <td data-k='rx'></td>
       <td data-k='ref'></td>
@@ -116,7 +153,6 @@
       <td><span data-k='status' class='badge'></span></td>
       <td data-k='initials'></td>
       <td data-k='notes'></td>
-      <td class='rowActions'></td>
     </tr>
   </template>
 
